@@ -1,0 +1,22 @@
+2008-04-03  Øyvind Kolås  <pippin@o-hand.com>
+
+	Initial svn import of clutter-box2d.
+
+	* box2d-build-and-install-shared.patch: a patch for box2d's build
+	system making it build a shared library and install a usable header.
+
+	* clutter-box2d.h:
+	* clutter-box2d.cpp: actual box2d glue group.
+	* clutter-box2d.pc.in: pkg-config file for clutter-box2d
+	* examples/blockbox.c: a small framework for adding more clutter-box2d
+	tests.
+
+	* autogen.sh: distribution boilerplate stuff, mostly lifted from
+	clutter-cairo with minimal search and replace.
+	* configure.ac:
+	* Makefile.am:
+	* examples/Makefile.am:
+	* AUTHORS:
+	* COPYING:
+	* INSTALL:
+	* README:

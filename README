@@ -1,0 +1,19 @@
+Clutter-Box2d
+=============
+
+A glue layer between clutter and box2d that provides a special group where the
+actors can be set to be static or dynamic in regard to a physics simulation.
+
+TODO:
+  - joints
+  - springs
+  - motors
+  - access to underlying body
+
+---
+
+To link against box2d apply the patch in the root of the clutter-box2d
+distribution to the unix makefiles of box2d to allow building a shared library
+as well as installing it with usable headers. Paths used by box2d are hardcoded
+with /usr/local/ for now waiting to see how box2d finally settles it's build
+system.
