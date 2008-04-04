@@ -158,7 +158,7 @@ ensure_shape (ClutterBox2DActor *space_actor)
 
       shapeDef.SetAsBox (width * 0.5, height * 0.5,
                          b2Vec2 (width * 0.5, height * 0.5), 0);
-      shapeDef.density   = 0.1f;
+      shapeDef.density   = 0.6f;
       space_actor->shape = space_actor->body->CreateShape (&shapeDef);
     }
 }
@@ -323,8 +323,9 @@ clutter_box2d_dispose (GObject *object)
 static void
 sync_body (ClutterBox2DActor *space_actor)
 {
-  gint          w, h;
-  gint          x, y;
+  gint w, h;
+  gint x, y;
+  gdouble rot;
 
   ClutterActor *actor = space_actor->actor;
   b2Body       *body  = space_actor->body;
@@ -342,6 +343,10 @@ sync_body (ClutterBox2DActor *space_actor)
   if (!body)
     return;
 
+
+  rot = clutter_actor_get_rotation (space_actor->actor,
+                                    CLUTTER_Z_AXIS, NULL, NULL, NULL);
+
   w = clutter_actor_get_width (actor);
   h = clutter_actor_get_height (actor);
 
@@ -354,12 +359,10 @@ sync_body (ClutterBox2DActor *space_actor)
 
   b2Vec2 position = body->GetPosition ();
   if (fabs (x - (position.x)) > 3.0 ||
-      fabs (y - (position.y)) > 3.0)
+      fabs (y - (position.y)) > 3.0 ||
+      fabs (body->GetAngle()*(180/3.1415) - rot) > 3.0
+      )
     {
-      gdouble rot;
-
-      rot = clutter_actor_get_rotation (space_actor->actor,
-                                        CLUTTER_Z_AXIS, NULL, NULL, NULL);
 
       body->SetXForm (b2Vec2 (x,
                               y), (rot / (180 / 3.1415) * ANGLE_NEUTRAL_DAMPING));

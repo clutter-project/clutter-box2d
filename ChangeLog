@@ -1,5 +1,18 @@
 2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d.cpp: fixed criteria for synchronising the angle of the
+	actor to the body.
+
+2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d.cpp: synchronise body/actor when rotation of actor has
+	changed.
+	* examples/blockbox.c: added rotation of actor to middle mousebutton
+	(left mouse button does dragging.)
+	* README: added some notes about current limitations of transforms.
+
+2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
+
 	* examples/blockbox.c (actor_manipulator_press),
 	(actor_manipulator_motion), (actor_manipulator_release)
 	(enable_actor_manipulation):  made the code to move actors around
