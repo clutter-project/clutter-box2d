@@ -1,5 +1,9 @@
 2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d.cpp: improved text.
+
+2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d.cpp: Improved code structure and added some comments.
 	* clutter-box2d.h: added some comments.
 
