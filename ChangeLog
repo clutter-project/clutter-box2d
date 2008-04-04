@@ -1,5 +1,10 @@
 2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d.cpp: Improved code structure and added some comments.
+	* clutter-box2d.h: added some comments.
+
+2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d.cpp: fixed criteria for synchronising the angle of the
 	actor to the body.
 

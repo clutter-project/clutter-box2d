@@ -55,9 +55,11 @@ struct _ClutterBox2DClass
 typedef enum 
 {
   CLUTTER_BOX2D_UNINITIALIZED = 0,
-  CLUTTER_BOX2D_DYNAMIC,
-  CLUTTER_BOX2D_STATIC,
-  CLUTTER_BOX2D_META
+  CLUTTER_BOX2D_DYNAMIC,  /* The body is affected by collisions */
+  CLUTTER_BOX2D_STATIC,   /* The body affects collisions but is immobile */
+  CLUTTER_BOX2D_META      /* The body has position closely tracked to actor
+                             and a body but does not affect collisions.
+                           */
 } ClutterBox2DType;
 
 GType            clutter_box2d_get_type         (void) G_GNUC_CONST;
