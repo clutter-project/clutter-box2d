@@ -19,12 +19,14 @@ typedef struct Demo
   gpointer      user_data;
 } Demo;
 
+void demo_about   (Demo *demo);
 void demo_pyramid (Demo *demo);
 void demo_slides  (Demo *demo);
 void demo_control (Demo *demo);
 
 Demo demos[] =
 {
+  {"about",   demo_about},
   {"control", demo_control},
   {"slides",  demo_slides},
   {"pyramid", demo_pyramid},
@@ -33,7 +35,7 @@ Demo demos[] =
 
 gint  n_demos = sizeof (demos) / sizeof (demos[0]) - 1;
 gint  current_demo = -1;
-
+gboolean playing = TRUE;
 
 static gboolean label_action_press (ClutterActor *actor,
                                     ClutterEvent *event,
@@ -51,12 +53,26 @@ static gboolean label_action_press (ClutterActor *actor,
   return FALSE;
 }
 
+static gboolean label_action_enter (ClutterActor *actor,
+                                    ClutterEvent *event,
+                                    gpointer      data)
+{
+  clutter_actor_set_opacity (actor, 0xff);
+  return FALSE;
+}
+
+static gboolean label_action_leave (ClutterActor *actor,
+                                    ClutterEvent *event,
+                                    gpointer      data)
+{
+  clutter_actor_set_opacity (actor, 0x77);
+  return FALSE;
+}
+
 ClutterActor *
 label_action (const gchar *font,
               const gchar *label,
               const gchar *color,
-              gint         x,
-              gint         y,
               void       (*action) (ClutterActor *label,
                                     gpointer      userdata),
               gpointer     userdata
@@ -67,15 +83,108 @@ label_action (const gchar *font,
 
   clutter_color_parse (color, &ccol);
   actor = clutter_label_new_full (font, label, &ccol);
-  clutter_actor_set_position (actor, x, y);
-  clutter_actor_show (actor);
   clutter_actor_set_reactive (actor, TRUE);
+  clutter_actor_set_opacity (actor, 0x77);
 
   g_signal_connect (actor, "button-press-event",
                             G_CALLBACK (label_action_press), action);
+  g_signal_connect (actor, "enter-event",
+                            G_CALLBACK (label_action_enter), action);
+  g_signal_connect (actor, "leave-event",
+                            G_CALLBACK (label_action_leave), action);
   g_object_set_data (G_OBJECT (actor), "la-ud", userdata);
 
   return actor;
+}
+
+typedef struct IncrementalInfo
+{
+  gint x0;
+  gint y0;
+  gint x;
+  gint y;
+  gint width;
+  gint max_height;
+  gint padding_bottom;
+} IncrementalInfo;
+
+static IncrementalInfo *
+incremental_init (ClutterGroup *group,
+                  gint          x0,
+                  gint          y0,
+                  gint          width,
+                  gint          padding_bottom)
+{
+  IncrementalInfo *info;
+
+  info = g_object_get_data(G_OBJECT (group), "incremental-info");
+  if (!info)
+    {
+      info = g_malloc0 (sizeof (IncrementalInfo));
+      g_object_set_data (G_OBJECT (group), "incremental-info", info);
+    }
+  info->x0 = x0;
+  info->y0 = y0;
+  info->width = width;
+  info->x = x0;
+  info->y = y0;
+  info->padding_bottom = padding_bottom;
+  return info;
+}
+
+static void
+incremental_add (ClutterGroup *group,
+                 ClutterActor *child)
+{
+  IncrementalInfo *info;
+
+  info = g_object_get_data(G_OBJECT (group), "incremental-info");
+  if (!info)
+    {
+      info=incremental_init (group, 0, 0, 1000, 0);
+    }
+  gint width, height;
+
+  clutter_group_add (group, child);
+
+  width = clutter_actor_get_width (child);
+  height = clutter_actor_get_height (child);
+
+  if (info->x + width > info->width)
+    {
+      info->x = info->x0;
+      info->y += info->max_height + info->padding_bottom;
+      info->max_height = 0;
+    }
+
+  clutter_actor_set_position (child, info->x, info->y);
+
+  info->x += width;
+
+  if (height > info->max_height)
+    info->max_height = height;
+
+  clutter_actor_show (child);
+}
+
+#include <stdlib.h>
+#include <stdarg.h>
+
+static void
+incremental_add_many (ClutterGroup *group,
+                      ClutterActor *first_child,
+                      ...)
+{
+  ClutterActor *child;
+  va_list var_args;
+  va_start (var_args, first_child);
+  child = first_child;
+  while (child)
+    {
+      incremental_add (group, child);
+      child = va_arg (var_args, ClutterActor*);
+    }
+  va_end (var_args);
 }
 
 void action_previous (ClutterActor *label,
@@ -96,6 +205,14 @@ void action_quit        (ClutterActor *label,
   clutter_main_quit ();
 }
 
+void action_toggle_playing (ClutterActor *actor,
+                            gpointer      userdata)
+{
+  playing = !playing;
+  clutter_label_set_text (CLUTTER_LABEL (actor), playing?" playing":" paused");
+  clutter_box2d_set_playing (CLUTTER_BOX2D (demos[current_demo].world), playing);
+}
+
 static void
 stage_key_release_cb (ClutterStage           *stage,
                       ClutterKeyEvent        *kev,
@@ -103,10 +220,10 @@ stage_key_release_cb (ClutterStage           *stage,
 {
   switch (clutter_key_event_symbol (kev))
     {
-      case CLUTTER_q:    action_quit (NULL, NULL);   break;
-      case CLUTTER_Left: action_previous (NULL,NULL);break;
-      case CLUTTER_Right:
-      default:           action_next (NULL, NULL); break;
+      case CLUTTER_q:    action_quit (NULL, NULL);    break;
+      case CLUTTER_Left: action_previous (NULL,NULL); break;
+      case CLUTTER_Right:action_next (NULL, NULL);    break;
+      default:           action_next (NULL, NULL);    break;
     }
 }
 
@@ -124,15 +241,12 @@ main (int argc,
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
   clutter_actor_set_size (stage, 512, 384);
 
-  clutter_group_add (CLUTTER_GROUP (stage),
-                     label_action ("Sans 30px", "q", "black",   10, 5,
-                                   action_quit , NULL));
-  clutter_group_add (CLUTTER_GROUP (stage),
-                     label_action ("Sans 30px", "[<]", "black", 50, 5,
-                                   action_previous, NULL));
-  clutter_group_add (CLUTTER_GROUP (stage),
-                     label_action ("Sans 30px", "[>]", "black", 100, 5,
-                                   action_next, NULL));
+  incremental_add_many (CLUTTER_GROUP (stage),
+    label_action ("Sans 30px", "q ",      "black", action_quit , NULL),
+    label_action ("Sans 30px", "←",   "black", action_previous, NULL),
+    label_action ("Sans 30px", "→ ",   "black", action_next, NULL),
+    label_action ("Sans 15px", " playing", "black", action_toggle_playing, NULL),
+    NULL);
 
   start_demo (0);
   clutter_actor_show (stage);
@@ -342,7 +456,7 @@ void demo_pyramid (Demo *demo)
           }
       }
   }
-  clutter_box2d_set_playing (CLUTTER_BOX2D (world), TRUE);
+  clutter_box2d_set_playing (CLUTTER_BOX2D (world), playing);
   clutter_actor_set_depth (world, -600);
 }
 
@@ -433,7 +547,7 @@ void demo_slides (Demo *demo)
 
   clutter_actor_set_reactive (world, TRUE);
 
-  clutter_box2d_set_playing (CLUTTER_BOX2D (world), TRUE);
+  clutter_box2d_set_playing (CLUTTER_BOX2D (world), playing);
 
   demo->world = world;
 }
@@ -507,8 +621,74 @@ void demo_control (Demo *demo)
 
   clutter_actor_set_reactive (world, TRUE);
 
-  clutter_box2d_set_playing (CLUTTER_BOX2D (world), TRUE);
+  clutter_box2d_set_playing (CLUTTER_BOX2D (world), playing);
 
   demo->world = world;
 }
 
+void demo_about (Demo *demo)
+{
+  ClutterColor      white = {0xff, 0xff, 0xff, 0xff};
+  ClutterActor     *ground;
+  ClutterActor     *rectangle;
+  ClutterActor     *title;
+  ClutterActor     *stage;
+  GError           *error;
+
+  stage = clutter_stage_get_default ();
+
+  error = NULL;
+  if (hand_pixbuf==NULL)
+    hand_pixbuf = gdk_pixbuf_new_from_file (ASSETS_DIR "redhand.png", &error);
+  if (error)
+    g_error ("Unable to load redhand.png: %s", error->message);
+
+  world = g_object_new (CLUTTER_TYPE_BOX2D, NULL);
+  clutter_actor_show (world);
+  clutter_group_add (CLUTTER_GROUP (stage), world);
+
+  title = clutter_label_new_full ("Sans 20px",
+"This application is a collection\n"
+"clutter+box2d experiments, activate\n"
+"the arrows to change experiment.\n"
+"\n"
+"activate playing|pause to freeze.\n"
+"simulation.", &white);
+
+  clutter_actor_show (title);
+  clutter_actor_set_position (title, 40, 40);
+  clutter_group_add (CLUTTER_GROUP (world), title);
+
+
+  ground = clutter_rectangle_new ();
+  clutter_actor_show (ground);
+  clutter_actor_set_size (ground, 1024, 5);
+  clutter_actor_set_position (ground, -300, 350);
+  clutter_group_add (CLUTTER_GROUP (world), ground);
+  clutter_box2d_actor_set_type (CLUTTER_BOX2D (world),
+                                ground, CLUTTER_BOX2D_STATIC);
+
+
+  rectangle = clutter_rectangle_new ();
+  clutter_actor_show (rectangle);
+  clutter_actor_set_size (rectangle, 150, 150);
+  clutter_actor_set_position (rectangle, 100, 120);
+  clutter_actor_set_rotation (rectangle, CLUTTER_Z_AXIS, 23, 0,0,0);
+
+  clutter_group_add (CLUTTER_GROUP (world), rectangle);
+  clutter_box2d_actor_set_type (CLUTTER_BOX2D (world),
+                                rectangle, CLUTTER_BOX2D_DYNAMIC);
+
+  title = clutter_label_new_with_text ("Sans 40px", "Clutter-box2d");
+  clutter_actor_show (title);
+  clutter_actor_set_position (title, 100, 120);
+  clutter_actor_set_rotation (title, CLUTTER_Z_AXIS, 23, 0,0,0);
+  clutter_group_add (CLUTTER_GROUP (world), title);
+  clutter_box2d_actor_set_type (CLUTTER_BOX2D (world),
+                                title, CLUTTER_BOX2D_DYNAMIC);
+
+
+  clutter_box2d_set_playing (CLUTTER_BOX2D (world), playing);
+
+  demo->world = world;
+}
