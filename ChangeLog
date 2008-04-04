@@ -1,5 +1,10 @@
 2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
 
+	* README: updated with information about where to check out box2d from
+	svn and a known to be good revision.
+
+2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
+
 	* examples/blockbox.c: added 'about' screen as well as play|pause
 	toggle for the simulation.
 
