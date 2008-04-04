@@ -1,5 +1,13 @@
 2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
 
+	* examples/blockbox.c (actor_manipulator_press),
+	(actor_manipulator_motion), (actor_manipulator_release)
+	(enable_actor_manipulation):  made the code to move actors around
+	reside in logic embedded in the stage instead of for each separate
+	actor.
+
+2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
+
 	* README: updated with information about where to check out box2d from
 	svn and a known to be good revision.
 
