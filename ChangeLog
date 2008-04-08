@@ -1,3 +1,10 @@
+2008-04-08  Øyvind Kolås  <pippin@gimp.org>
+
+	* clutter-box2d.h: sketched out API for adding prismatic, distance,
+	revolute and mouse joints.
+	* clutter-box2d.cpp: added preliminiary implementation of prismatic,
+	distance and revolute joints (will be refactored).
+
 2008-04-04  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d.cpp: improved text.

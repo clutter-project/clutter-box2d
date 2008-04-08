@@ -39,6 +39,7 @@ G_BEGIN_DECLS
 typedef struct _ClutterBox2D        ClutterBox2D;
 typedef struct _ClutterBox2DClass   ClutterBox2DClass;
 typedef struct _ClutterBox2DPrivate ClutterBox2DPrivate;
+typedef struct _ClutterBox2DJoint   ClutterBox2DJoint;
 
 struct _ClutterBox2D
 {
@@ -73,6 +74,63 @@ void             clutter_box2d_actor_set_type   (ClutterBox2D     *space,
 
 ClutterBox2DType clutter_box2d_actor_get_type   (ClutterBox2D     *space,
                                                  ClutterActor     *actor);
+
+
+
+ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
+                                                     ClutterActor        *actor1,
+                                                     ClutterActor        *actor2,
+                                                     const ClutterVertex *anchor1,
+                                                     const ClutterVertex *anchor2,
+                                                     gdouble              reference_angle);
+
+
+/* This call takes a single anchor point, which is in world, not local actor
+ * coordinates
+ */ 
+ClutterBox2DJoint *clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
+                                                      ClutterActor        *actor1,
+                                                      ClutterActor        *actor2,
+                                                      const ClutterVertex *anchor);
+
+
+ClutterBox2DJoint *clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
+                                                     ClutterActor        *actor1,
+                                                     ClutterActor        *actor2,
+                                                     const ClutterVertex *anchor1,
+                                                     const ClutterVertex *anchor2,
+                                                     gdouble              length,
+                                                     gdouble              frequency,
+                                                     gdouble              damping_ratio);
+
+
+ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
+                                                      ClutterActor        *actor1,
+                                                      ClutterActor        *actor2,
+                                                      const ClutterVertex *anchor1,
+                                                      const ClutterVertex *anchor2,
+                                                      gdouble              min_length,
+                                                      gdouble              max_length,
+                                                      const ClutterVertex *axis);
+
+ClutterBox2DJoint *clutter_box2d_add_mouse_joint    (ClutterBox2D     *box2d,
+                                                     ClutterActor     *actor,
+                                                     ClutterVertex    *target);
+
+void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *mouse_joint,
+                                              const ClutterVertex *target);
+
+
+
+
+/* The following calls are provided to get at the box2d internal
+ * datastructures
+ */
+
+void *           clutter_box2d_actor_get_body   (ClutterBox2D     *space,
+                                                 ClutterActor     *actor);
+void *           clutter_box2d_get_world        (ClutterBox2D     *space);
+
 
 G_END_DECLS
 
