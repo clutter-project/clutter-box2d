@@ -1,4 +1,9 @@
-2008-04-08  Øyvind Kolås  <pippin@gimp.org>
+2008-04-08  Øyvind Kolås  <pippin@o-hand.com>
+
+	* README: augmented TODO list.
+	* configure.ac: added AC_PROG_CXX
+
+2008-04-08  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d.h: sketched out API for adding prismatic, distance,
 	revolute and mouse joints.

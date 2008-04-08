@@ -4,16 +4,40 @@ Clutter-Box2d
 A glue layer between clutter and box2d that provides a special group where the
 actors can be set to be static or dynamic in regard to a physics simulation.
 
-TODO:
+Features
+--------
+
+Automatic creation of body for actors added to a special ClutterBox2D group.
+Three different types of clutter-box2d bodies can be created. Static, dynamic
+and meta. Static bodies affect collisions, dynamic bodies are also affected by
+collisions, meta bodies are tracked for position from the actor. At the moment
+the only shape available for collision tracking is the boundig box of the
+individiual actor.
+
+Features:
+  - static and dynamic bodies
+  - automatic position updates between clutter and box2d
   - joints
-  - springs
-  - motors
-  - access to underlying body
+      - prismatic
+      - revolute
+      - distance (spring)
 
----
+Limitations:
+ - Anchor points different from 0,0 probably does not work correctly.
 
-Preparing box2d
-===============
+TODO:
+  - debug drawing
+      - joints
+      - shapes
+  - joints 
+       - accessto motor functionality of prismatic and revolute joints.
+  - memory/lifetime handling for joint proxy objects
+  - handle removal of actors properly making bodies vanish from simulation
+  - allow toggling dynamic/static/meta/none physical state on an actor freely
+  - full introspective capabilities
+
+Compiling
+---------
 
 Download the svn trunk of box2d using:
 

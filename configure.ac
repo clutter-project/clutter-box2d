@@ -50,8 +50,9 @@ dnl ========================================================================
 
 # Checks for programs.
 AC_PROG_CC
-AC_DISABLE_STATIC
+AC_PROG_CXX
 AC_PROG_LIBTOOL
+AC_DISABLE_STATIC
 
 # Checks for header files.
 AC_HEADER_STDC
