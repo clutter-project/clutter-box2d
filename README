@@ -16,14 +16,15 @@ the only shape available for collision tracking is the boundig box of the
 individiual actor.
 
 Features:
-  - static and dynamic bodies.
-  - automatic position updates between clutter and box2d.
+  - Children of the ClutterBox2d group can be set to be static or dynamic
   - changing the gravity of the simulation.
+  - play/pause control over the box2d physics engine
+  - automatic position synchronization between clutter and box2d.
   - joints
       - prismatic.
       - revolute.
       - distance (spring)
-      - mouse (for dragging objects arou and manipulating them).
+      - mouse (for dragging objects aroud and manipulating them).
 
 Limitations:
  - Anchor points different from 0,0 probably does not work correctly.
@@ -35,8 +36,6 @@ TODO:
   - joints 
        - access to motor functionality of prismatic and revolute joints.
   - other shapes than clutter synced boxes.
-  - allow toggling dynamic/static/meta/none physical state on an actor freely
   - add a scale factor between clutter units and box2d units since now 1px = 1m
   - memory/lifetime handling for joint proxy objects
-  - handle removal of actors properly making bodies vanish from simulation
   - full introspective capabilities

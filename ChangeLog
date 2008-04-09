@@ -1,5 +1,9 @@
 2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
 
+	* README: updated feature list/todo list.
+
+2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d.cpp: made it possible to switch objects between
 	static/dynamic state on the fly.
 
