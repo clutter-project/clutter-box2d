@@ -77,12 +77,7 @@ if test "x$GCC" = "xyes"; then
         GCC_FLAGS="-g -Wall"
 fi
 
-### XXX: do a proper test for box2d here, either with box2d installing
-### .pc files, or by looking up the library with a function name. This
-### is only good enough for testing purposes.
-
-DEPS_LIBS="$DEPS_LIBS -lbox2d"
-DEPS_CFLAGS="$DEPS_CFLAGS -I/usr/local/include/box2d"
+DEPS_CFLAGS="$DEPS_CFLAGS -Ibox2d/Include"
 
 AC_SUBST(GCC_FLAGS)
 AC_SUBST(DEPS_CFLAGS)

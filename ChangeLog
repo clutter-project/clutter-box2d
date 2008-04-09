@@ -1,5 +1,14 @@
 2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
 
+	* configure.ac: replace hardcoded location of library with an in-place
+	build.
+	* Makefile.am: list all box2d cpp files as files that go into the
+	clutter-box2d library.
+	* box2d/: imported revision 140 from box2d svn directly into source
+	tree.
+
+2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d.h:
 	* clutter-box2d.cpp: added prototypes and stubs for methods on
 	clutter_box2d_actor: _set_linear_velocity, _get_linear_velocity
