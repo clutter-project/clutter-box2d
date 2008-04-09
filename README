@@ -2,7 +2,8 @@ Clutter-Box2d
 =============
 
 A glue layer between clutter and box2d that provides a special group where the
-actors can be set to be static or dynamic in regard to a physics simulation.
+actors can be set to be static or dynamic in regard to a physics simulation. The
+source tree currently contains an embedded version of box2d trunk.
 
 Features
 --------
@@ -39,19 +40,3 @@ TODO:
   - memory/lifetime handling for joint proxy objects
   - handle removal of actors properly making bodies vanish from simulation
   - full introspective capabilities
-
-Compiling
----------
-
-Download the svn trunk of box2d using:
-
-$ svn co https://box2d.svn.sourceforge.net/svnroot/box2d box2d
-
-To link against box2d apply the patch in the root of the clutter-box2d
-distribution to the unix makefiles of box2d to allow building a shared library
-as well as installing it with usable headers. Paths used by box2d are hardcoded
-with /usr/local/ for now waiting to see how box2d finally settles it's build
-system.
-
-If applying the patch or building fails, you can try specifically checking out
-version 139 by appending -r 139 to the checkout commandline.
