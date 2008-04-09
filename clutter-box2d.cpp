@@ -366,11 +366,22 @@ clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
                               ClutterActor      *actor,
                               ClutterBox2DType   type)
 {
-  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  ClutterBox2DActor   *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
 
   if (box2d_actor->type == type)
     return;
-  g_assert (box2d_actor->type == CLUTTER_BOX2D_UNINITIALIZED);
+
+  if (box2d_actor->type != CLUTTER_BOX2D_UNINITIALIZED)
+    {
+      g_assert (box2d_actor->body);
+
+      g_hash_table_remove (priv->bodies, box2d_actor->body);
+      box2d_actor->world->DestroyBody (box2d_actor->body);
+      box2d_actor->body = NULL;
+      box2d_actor->shape = NULL;
+      box2d_actor->type = CLUTTER_BOX2D_UNINITIALIZED;
+    }
 
   if (type == CLUTTER_BOX2D_DYNAMIC ||
       type == CLUTTER_BOX2D_STATIC)

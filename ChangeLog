@@ -1,5 +1,10 @@
 2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d.cpp: made it possible to switch objects between
+	static/dynamic state on the fly.
+
+2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d.cpp: create mapping structure upon actor-added and
 	actor-removed signals on ClutterBox2d container instead of on demand.
 	This improves sanity of resource management.
