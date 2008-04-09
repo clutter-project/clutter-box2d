@@ -582,6 +582,37 @@ clutter_box2d_actor_get_body (ClutterBox2D *box2d,
   return box2d_actor->body;
 }
 
+
+void             clutter_box2d_actor_set_linear_velocity (ClutterBox2D *box2d,
+                                                          ClutterActor *actor,
+                                                          const ClutterVertex *linear_velocity)
+{
+  g_warning ("%s: NYI", G_STRLOC);
+}
+
+void             clutter_box2d_actor_get_linear_velocity (ClutterBox2D *box2d,
+                                                          ClutterActor *actor,
+                                                          ClutterVertex *linear_velocity)
+{
+  g_warning ("%s: NYI", G_STRLOC);
+}
+
+
+void             clutter_box2d_actor_set_angular_velocity (ClutterBox2D *box2d,
+                                                           ClutterActor *actor,
+                                                           gdouble       omega)
+{
+  g_warning ("%s: NYI", G_STRLOC);
+}
+
+gdouble          clutter_box2d_actor_get_angular_velocity (ClutterBox2D *box2d,
+                                                           ClutterActor *actor)
+{
+  g_warning ("%s: NYI", G_STRLOC);
+  return 0.0;
+}
+
+
 void clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
                                       ClutterActor     *actor,
                                       ClutterVertex    *force,
@@ -597,6 +628,35 @@ void clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
            box2d_actor->body->GetWorldVector(b2force),
            box2d_actor->body->GetWorldVector(b2position));
 }
+void clutter_box2d_actor_apply_impulse       (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              ClutterVertex    *force,
+                                              ClutterVertex    *point)
+{
+  g_warning ("%s: NYI", G_STRLOC);
+}
+
+void clutter_box2d_actor_apply_torque        (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              gdouble           torque)
+{
+  g_warning ("%s: NYI", G_STRLOC);
+}
+
+void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              gboolean          is_bullet)
+{
+  g_warning ("%s: NYI", G_STRLOC);
+}
+
+void clutter_box2d_actor_is_bullet           (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor)
+{
+  g_warning ("%s: NYI", G_STRLOC);
+}
+
+
 
 void * clutter_box2d_get_world      (ClutterBox2D *box2d)
 {

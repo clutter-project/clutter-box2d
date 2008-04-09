@@ -64,17 +64,53 @@ typedef enum
 } ClutterBox2DType;
 
 GType            clutter_box2d_get_type         (void) G_GNUC_CONST;
-void             clutter_box2d_set_playing      (ClutterBox2D  *space,
-                                                 gboolean       playing);
-gboolean         clutter_box2d_get_playing      (ClutterBox2D  *space);
+void             clutter_box2d_set_playing      (ClutterBox2D        *box2d,
+                                                 gboolean             playing);
+gboolean         clutter_box2d_get_playing      (ClutterBox2D        *box2d);
+void             clutter_box2d_set_gravity      (ClutterBox2D        *box2d,
+                                                 const ClutterVertex *gravity);
+void             clutter_box2d_actor_set_type   (ClutterBox2D        *box2d,
+                                                 ClutterActor        *actor,
+                                                 ClutterBox2DType     type);
+ClutterBox2DType clutter_box2d_actor_get_type   (ClutterBox2D        *box2d,
+                                                 ClutterActor        *actor);
 
-void             clutter_box2d_actor_set_type   (ClutterBox2D     *space,
-                                                 ClutterActor     *actor,
-                                                 ClutterBox2DType  type);
 
-ClutterBox2DType clutter_box2d_actor_get_type   (ClutterBox2D     *box2d,
-                                                 ClutterActor     *actor);
+void             clutter_box2d_actor_set_linear_velocity (ClutterBox2D *box2d,
+                                                          ClutterActor *actor,
+                                                          const ClutterVertex *linear_velocity);
 
+void             clutter_box2d_actor_get_linear_velocity (ClutterBox2D *box2d,
+                                                          ClutterActor *actor,
+                                                          ClutterVertex *linear_velocity);
+
+
+void             clutter_box2d_actor_set_angular_velocity (ClutterBox2D *box2d,
+                                                           ClutterActor *actor,
+                                                           gdouble       omega);
+gdouble          clutter_box2d_actor_get_angular_velocity (ClutterBox2D *box2d,
+                                                           ClutterActor *actor);
+
+void clutter_box2d_actor_apply_force         (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              ClutterVertex    *force,
+                                              ClutterVertex    *point);
+
+void clutter_box2d_actor_apply_impulse       (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              ClutterVertex    *force,
+                                              ClutterVertex    *point);
+
+void clutter_box2d_actor_apply_torque        (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              gdouble           torque);
+
+void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              gboolean          is_bullet);
+
+void clutter_box2d_actor_is_bullet           (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor);
 
 
 ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
@@ -121,19 +157,6 @@ void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *mouse_joint,
                                               const ClutterVertex *target);
 
 void clutter_box2d_joint_remove              (ClutterBox2DJoint   *joint);
-
-void clutter_box2d_actor_apply_force         (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor,
-                                              ClutterVertex    *force,
-                                              ClutterVertex    *position);
-
-/* The following calls are provided to get at the box2d internal
- * datastructures
- */
-
-void *           clutter_box2d_actor_get_body   (ClutterBox2D     *space,
-                                                 ClutterActor     *actor);
-void *           clutter_box2d_get_world        (ClutterBox2D     *space);
 
 
 

@@ -1,5 +1,13 @@
 2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d.h:
+	* clutter-box2d.cpp: added prototypes and stubs for methods on
+	clutter_box2d_actor: _set_linear_velocity, _get_linear_velocity
+	_set_angular_velocity _get_angular_velocity _apply_force _apply_impulse
+	_apply_torque _set_bullet _is_bullet.
+
+2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
+
 	Improved cleanup when actors are unreferenced, bodies are now
 	destroyed upon actor destruction.
 
