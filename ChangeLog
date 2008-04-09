@@ -1,5 +1,11 @@
 2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d.cpp: create mapping structure upon actor-added and
+	actor-removed signals on ClutterBox2d container instead of on demand.
+	This improves sanity of resource management.
+
+2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
+
 	* README: removed bits about downloading box2d trunk and patching it.
 	* box2d-build-and-install-shared.patch: removed.
 

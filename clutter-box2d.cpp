@@ -58,12 +58,6 @@ struct _ClutterBox2DActor
   b2Body           *body;
   b2World          *world;
   b2Shape          *shape;
-
-  gdouble scale_x;  /* cached values of geometry, kept to */
-  gdouble scale_y;  /* see if the shape needs recomputation */
-  gint    width;
-  gint    height;
-  gint    contacts;
 };
 
 typedef enum 
@@ -129,7 +123,6 @@ clutter_box2d_set_gravity (ClutterBox2D        *box2d,
      
   priv->world->SetGravity (b2gravity); 
 }
-
 
 static void
 clutter_box2d_set_property (GObject      *gobject,
@@ -258,24 +251,6 @@ clutter_box2d_dispose (GObject *object)
     }
 }
 
-static void
-on_box2d_actor_weak_notify (gpointer data,
-                            GObject *where_the_actor_was)
-{
-  ClutterBox2DActor *box2d_actor = (ClutterBox2DActor*) data;
-  ClutterBox2D      *box2d = box2d_actor->box2d;
-  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
-
-  g_assert (box2d_actor->world);
-
-  g_hash_table_remove (priv->actors, box2d_actor->actor);
-  g_hash_table_remove (priv->bodies, box2d_actor->body);
-
-  box2d_actor->world->DestroyBody (box2d_actor->body);
-  box2d_actor->actor = NULL;
-  g_free (box2d_actor);
-}
-
 ClutterBox2DActor *
 clutter_box2d_get_actor (ClutterBox2D *box2d,
                          ClutterActor *actor)
@@ -290,16 +265,9 @@ clutter_box2d_get_actor (ClutterBox2D *box2d,
   if (box2d_actor)
     return box2d_actor;
 
-  box2d_actor = (ClutterBox2DActor*) (g_malloc0 (sizeof (ClutterBox2DActor)));
+  return NULL;
+  g_warning ("no matching actor %p found for box2d %p", actor, box2d);
 
-  box2d_actor->type  = CLUTTER_BOX2D_UNINITIALIZED;
-  box2d_actor->box2d = box2d;
-  box2d_actor->actor = actor;
-  box2d_actor->world = priv->world;
-
-  g_object_weak_ref (G_OBJECT (actor), on_box2d_actor_weak_notify, box2d_actor);
-
-  g_hash_table_insert (priv->actors, actor, box2d_actor);
 
   return box2d_actor;
 }
@@ -329,19 +297,36 @@ clutter_box2d_actor_get_type (ClutterBox2D   *box2d,
   return box2d_actor->type;
 }
 
-/* FIXME: maybe the ClutterBox2dActor mapping should be added/removed on added/removed
- * signals instead of on demand, this would make resource management more bearable.
- */
 static void      clutter_box2d_actor_added   (ClutterBox2D          *box2d,
                                               ClutterActor          *actor)
 
 {
-    /*g_print ("added %p to %p\n", actor, box2d);*/
+  ClutterBox2DActor *box2d_actor;
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
+
+  box2d_actor = (ClutterBox2DActor*) (g_malloc0 (sizeof (ClutterBox2DActor)));
+  box2d_actor->type  = CLUTTER_BOX2D_UNINITIALIZED;
+  box2d_actor->box2d = box2d;
+  box2d_actor->actor = actor;
+  box2d_actor->world = priv->world;
+
+  g_hash_table_insert (priv->actors, actor, box2d_actor);
 }
 static void      clutter_box2d_actor_removed (ClutterBox2D          *box2d,
                                               ClutterActor          *actor)
 {
-    /*g_print ("removed %p from  %p\n", actor, box2d);*/
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
+
+  g_assert (box2d_actor->world);
+
+  g_hash_table_remove (priv->actors, box2d_actor->actor);
+  g_hash_table_remove (priv->bodies, box2d_actor->body);
+
+  if (box2d_actor->body)
+    box2d_actor->world->DestroyBody (box2d_actor->body);
+  box2d_actor->actor = NULL;
+  g_free (box2d_actor);
 }
 
 
@@ -530,7 +515,6 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
       {
         ClutterBox2DActor *box2d_actor = (ClutterBox2DActor*) iter->data;
         sync_body (box2d_actor);
-        box2d_actor->contacts = 0;
       }
 
     if (msecs == 0)
