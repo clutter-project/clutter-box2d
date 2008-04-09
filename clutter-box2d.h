@@ -72,7 +72,7 @@ void             clutter_box2d_actor_set_type   (ClutterBox2D     *space,
                                                  ClutterActor     *actor,
                                                  ClutterBox2DType  type);
 
-ClutterBox2DType clutter_box2d_actor_get_type   (ClutterBox2D     *space,
+ClutterBox2DType clutter_box2d_actor_get_type   (ClutterBox2D     *box2d,
                                                  ClutterActor     *actor);
 
 
@@ -120,8 +120,12 @@ ClutterBox2DJoint *clutter_box2d_add_mouse_joint    (ClutterBox2D     *box2d,
 void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *mouse_joint,
                                               const ClutterVertex *target);
 
+void clutter_box2d_joint_remove              (ClutterBox2DJoint   *joint);
 
-
+ClutterBox2DType clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
+                                                  ClutterActor     *actor,
+                                                  ClutterVertex    *force,
+                                                  ClutterVertex    *position);
 
 /* The following calls are provided to get at the box2d internal
  * datastructures
@@ -130,6 +134,7 @@ void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *mouse_joint,
 void *           clutter_box2d_actor_get_body   (ClutterBox2D     *space,
                                                  ClutterActor     *actor);
 void *           clutter_box2d_get_world        (ClutterBox2D     *space);
+
 
 
 G_END_DECLS

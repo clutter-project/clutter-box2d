@@ -1,3 +1,13 @@
+2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d.cpp:
+	* clutter-box2d.h: wrap b2MouseJoint functionality, allow changing
+	the gravity of the simulation.
+
+2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
+
+	* README: updated feature list/todo list.
+
 2008-04-08  Øyvind Kolås  <pippin@o-hand.com>
 
 	* README: augmented TODO list.

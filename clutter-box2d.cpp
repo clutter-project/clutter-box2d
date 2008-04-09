@@ -2,7 +2,7 @@
  *
  * This file implements a special ClutterGroup subclass that
  * allows simulating physical interactions of it's child actors
- * through the use of ChipMunk.
+ * through the use of Box2D
  *
  * Copyright 2007 OpenedHand Ltd
  * Authored by Øyvind Kolås <pippin@o-hand.com>
@@ -22,6 +22,12 @@ G_DEFINE_TYPE (ClutterBox2D, clutter_box2d, CLUTTER_TYPE_GROUP);
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), \
                                 CLUTTER_TYPE_BOX2D, \
                                 ClutterBox2DPrivate))
+
+enum
+{
+  PROP_0,
+  PROP_GRAVITY
+};
 
 struct _ClutterBox2DPrivate
 {
@@ -77,7 +83,7 @@ typedef enum
  */
 struct _ClutterBox2DJoint
 {
-  ClutterBox2D          *clutter_box2d;
+  ClutterBox2D          *box2d;
   ClutterBox2DJointType *type;
   b2Joint               *joint;
   ClutterBox2DActor     *actor1;  /* */
@@ -136,6 +142,39 @@ clutter_box2d_paint (ClutterActor *actor)
    */
 }
 
+void
+clutter_box2d_set_gravity (ClutterBox2D        *box2d,
+                           const ClutterVertex *gravity)
+{
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
+  b2Vec2 b2gravity = b2Vec2(CLUTTER_UNITS_TO_FLOAT (gravity->x),
+                     CLUTTER_UNITS_TO_FLOAT (gravity->y));
+     
+  priv->world->SetGravity (b2gravity); 
+}
+
+
+static void
+clutter_box2d_set_property (GObject      *gobject,
+                            guint         prop_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+  ClutterBox2D *box2d = CLUTTER_BOX2D (gobject);
+
+  switch (prop_id)
+    {
+    case PROP_GRAVITY:
+      {
+        clutter_box2d_set_gravity (box2d, (ClutterVertex*)g_value_get_boxed (value));
+      }
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
+      break;
+    }
+}
+
 static void
 clutter_box2d_class_init (ClutterBox2DClass *klass)
 {
@@ -144,9 +183,20 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
 
   gobject_class->dispose     = clutter_box2d_dispose;
   gobject_class->constructor = clutter_box2d_constructor;
+  gobject_class->set_property = clutter_box2d_set_property;
   actor_class->paint         = clutter_box2d_paint;
 
   g_type_class_add_private (gobject_class, sizeof (ClutterBox2DPrivate));
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_GRAVITY,
+                                   g_param_spec_boxed ("gravity",
+                                                       "Gravity",
+                                                       "",
+                                                       CLUTTER_TYPE_VERTEX,
+                                                       G_PARAM_WRITABLE));
+
+
 }
 
 static void
@@ -526,6 +576,22 @@ clutter_box2d_actor_get_body (ClutterBox2D *space,
   return space_actor->body;
 }
 
+ClutterBox2DType clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
+                                                  ClutterActor     *actor,
+                                                  ClutterVertex    *force,
+                                                  ClutterVertex    *position)
+{
+  ClutterBox2DActor *space_actor = clutter_box2d_get_actor (box2d, actor);
+  b2Vec2 b2force (CLUTTER_UNITS_TO_FLOAT (force->x),
+                  CLUTTER_UNITS_TO_FLOAT (force->y));
+  b2Vec2 b2position (CLUTTER_UNITS_TO_FLOAT (position->x),
+                     CLUTTER_UNITS_TO_FLOAT (position->y));
+
+  space_actor->body->ApplyForce (
+           space_actor->body->GetWorldVector(b2force),
+           space_actor->body->GetWorldVector(b2position));
+}
+
 void * clutter_box2d_get_world      (ClutterBox2D *space)
 {
   ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (space);
@@ -566,7 +632,14 @@ clutter_box2d_add_joint (ClutterBox2D     *box2d,
   return NULL;
 }
 
-
+static ClutterBox2DJoint *joint_new (ClutterBox2D *box2d,
+                                     b2Joint      *joint)
+{
+   ClutterBox2DJoint *self = g_new0 (ClutterBox2DJoint, 1);
+   self->box2d = box2d;
+   self->joint = joint;
+   return self;
+}
 
 
 ClutterBox2DJoint *clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
@@ -592,8 +665,7 @@ ClutterBox2DJoint *clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
   jd.frequencyHz = 0.0;
   jd.dampingRatio = 0.0;
 
-  priv->world->CreateJoint (&jd);
-  return NULL;
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
 
 
@@ -631,8 +703,7 @@ ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
                            CLUTTER_UNITS_TO_FLOAT (anchor2->y));
   jd.referenceAngle = reference_angle;
 
-  priv->world->CreateJoint (&jd);
-  return NULL;
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
 
 ClutterBox2DJoint *clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
@@ -649,8 +720,7 @@ ClutterBox2DJoint *clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d
   jd.Initialize(clutter_box2d_get_actor (box2d, actor1)->body,
                 clutter_box2d_get_actor (box2d, actor2)->body,
                 ancho);
-  priv->world->CreateJoint (&jd);
-  return NULL;
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
 
 ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
@@ -674,17 +744,47 @@ ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d
                            CLUTTER_UNITS_TO_FLOAT (anchor2->y));
   jd.lowerTranslation = min_length;
   jd.lowerTranslation = max_length;
+  jd.enableLimit = true;
   jd.localAxis1 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (axis->x),
                          CLUTTER_UNITS_TO_FLOAT (axis->y));
 
-  priv->world->CreateJoint (&jd);
-  return NULL;
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
+
 
 ClutterBox2DJoint *clutter_box2d_add_mouse_joint    (ClutterBox2D     *box2d,
                                                      ClutterActor     *actor,
-                                                     ClutterVertex    *target);
+                                                     ClutterVertex    *target)
+{
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
+  b2MouseJointDef md;
 
-void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *mouse_joint,
-                                              const ClutterVertex *target);
+  md.body1 = priv->world->GetGroundBody();
+  md.body2 = clutter_box2d_get_actor (box2d, actor)->body;
+  md.target = b2Vec2(CLUTTER_UNITS_TO_FLOAT (target->x),
+                     CLUTTER_UNITS_TO_FLOAT (target->y));
+  md.body1->WakeUp ();
+  md.maxForce = 1000.0f * md.body2->GetMass ();
 
+  return joint_new (box2d, priv->world->CreateJoint(&md));
+}
+
+void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *joint,
+                                              const ClutterVertex *target)
+{
+  b2Vec2 b2target = b2Vec2(CLUTTER_UNITS_TO_FLOAT (target->x),
+                           CLUTTER_UNITS_TO_FLOAT (target->y));
+  /* FIXME: use a proper ClutterBox2DJoint structure to avoid this
+   *        ugly cast
+   */
+  static_cast<b2MouseJoint*>(joint->joint)->SetTarget(b2target);
+}
+
+/* FIXME: use a proper ClutterBox2DJoint */
+void clutter_box2d_joint_remove (ClutterBox2DJoint   *joint)
+{
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (joint->box2d);
+  priv->world->DestroyJoint (joint->joint);
+  g_free (joint);
+  /* XXX: and remove from list */
+}
