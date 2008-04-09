@@ -122,10 +122,10 @@ void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *mouse_joint,
 
 void clutter_box2d_joint_remove              (ClutterBox2DJoint   *joint);
 
-ClutterBox2DType clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
-                                                  ClutterActor     *actor,
-                                                  ClutterVertex    *force,
-                                                  ClutterVertex    *position);
+void clutter_box2d_actor_apply_force         (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              ClutterVertex    *force,
+                                              ClutterVertex    *position);
 
 /* The following calls are provided to get at the box2d internal
  * datastructures

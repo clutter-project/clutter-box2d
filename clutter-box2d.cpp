@@ -52,7 +52,7 @@ struct _ClutterBox2DActor
                                           is not itself moved.
                                         Dynamic: the body is affected by collisi                                          s and moves.*/
                                                 
-  ClutterBox2D     *clutter_box2d;
+  ClutterBox2D     *box2d;
   ClutterActor     *actor;
 
   b2Body           *body;
@@ -68,13 +68,11 @@ struct _ClutterBox2DActor
 
 typedef enum 
 {
-  CLUTTER_BOX2D_JOINT_DEAD, /* An associated body has been killed off */
+  CLUTTER_BOX2D_JOINT_UNINITIALIZED, /* An associated body has been killed off */
   CLUTTER_BOX2D_JOINT_DISTANCE,
   CLUTTER_BOX2D_JOINT_PRISMATIC,
   CLUTTER_BOX2D_JOINT_REVOLUTE,
-  CLUTTER_BOX2D_JOINT_MOUSE,
-  CLUTTER_BOX2D_JOINT_PULLEY,
-  CLUTTER_BOX2D_JOINT_GEAR,
+  CLUTTER_BOX2D_JOINT_MOUSE
 } ClutterBox2DJointType;
 
 
@@ -88,40 +86,15 @@ struct _ClutterBox2DJoint
   b2Joint               *joint;
   ClutterBox2DActor     *actor1;  /* */
   ClutterBox2DActor     *actor2;  /* */
-
-  ClutterVertex          local_anchor1; /* target */
-  ClutterVertex          local_anchor2;
-  ClutterVertex          local_axis;
-
-  ClutterUnit            length;
-  ClutterUnit            frequency;
-  ClutterUnit            damping_ratio;
-
-  ClutterUnit            reference_angle;
-
-
-};
-
-struct _ClutterBox2DSpring
-{
-  ClutterBox2D      *clutter_box2d;
-  gdouble            x_a;
-  gdouble            y_a;
-  gdouble            x_b;
-  gdouble            y_b;
-  gdouble            rest_length;
-  gdouble            spring_foo;
-  gdouble            damping;
-  gdouble            dt;
 };
 
 static ClutterBox2DActor *
-clutter_box2d_get_actor (ClutterBox2D   *space,
+clutter_box2d_get_actor (ClutterBox2D   *box2d,
                          ClutterActor   *actor);
 
 
-static void sync_body  (ClutterBox2DActor *space_actor);
-static void sync_actor (ClutterBox2DActor *space_actor);
+static void sync_body  (ClutterBox2DActor *box2d_actor);
+static void sync_actor (ClutterBox2DActor *box2d_actor);
 
 
 static GObject * clutter_box2d_constructor (GType                  type,
@@ -129,9 +102,13 @@ static GObject * clutter_box2d_constructor (GType                  type,
                                             GObjectConstructParam *params);
 static void      clutter_box2d_dispose     (GObject               *object);
 
-static void      clutter_box2d_iterate     (ClutterTimeline       *timeline,
-                                            gint                   frame_num,
-                                            gpointer               data);
+static void      clutter_box2d_iterate       (ClutterTimeline       *timeline,
+                                              gint                   frame_num,
+                                              gpointer               data);
+static void      clutter_box2d_actor_added   (ClutterBox2D          *box2d,
+                                              ClutterActor          *actor);
+static void      clutter_box2d_actor_removed (ClutterBox2D          *box2d,
+                                              ClutterActor          *actor);
 
 static void
 clutter_box2d_paint (ClutterActor *actor)
@@ -178,13 +155,13 @@ clutter_box2d_set_property (GObject      *gobject,
 static void
 clutter_box2d_class_init (ClutterBox2DClass *klass)
 {
-  GObjectClass      *gobject_class = G_OBJECT_CLASS (klass);
-  ClutterActorClass *actor_class   = CLUTTER_ACTOR_CLASS (klass);
+  GObjectClass          *gobject_class = G_OBJECT_CLASS (klass);
+  ClutterActorClass     *actor_class   = CLUTTER_ACTOR_CLASS (klass);
 
-  gobject_class->dispose     = clutter_box2d_dispose;
-  gobject_class->constructor = clutter_box2d_constructor;
+  gobject_class->dispose      = clutter_box2d_dispose;
+  gobject_class->constructor  = clutter_box2d_constructor;
   gobject_class->set_property = clutter_box2d_set_property;
-  actor_class->paint         = clutter_box2d_paint;
+  actor_class->paint          = clutter_box2d_paint;
 
   g_type_class_add_private (gobject_class, sizeof (ClutterBox2DPrivate));
 
@@ -204,8 +181,6 @@ clutter_box2d_init (ClutterBox2D *self)
 {
   self->priv = CLUTTER_BOX2D_GET_PRIVATE (self);
 }
-
-
 
 static GObject *
 clutter_box2d_constructor (GType                  type,
@@ -250,6 +225,11 @@ clutter_box2d_constructor (GType                  type,
   g_signal_connect (priv->timeline, "new-frame",
                     G_CALLBACK (clutter_box2d_iterate), object);
 
+  g_signal_connect (object, "actor-added", 
+                    G_CALLBACK (clutter_box2d_actor_added), NULL);
+  g_signal_connect (object, "actor-removed", 
+                    G_CALLBACK (clutter_box2d_actor_removed), NULL);
+
   return object;
 }
 
@@ -279,63 +259,89 @@ clutter_box2d_dispose (GObject *object)
 }
 
 static void
-on_space_actor_weak_notify (gpointer data,
+on_box2d_actor_weak_notify (gpointer data,
                             GObject *where_the_actor_was)
 {
-  ClutterBox2DActor *space_actor = (ClutterBox2DActor*) data;
+  ClutterBox2DActor *box2d_actor = (ClutterBox2DActor*) data;
+  ClutterBox2D      *box2d = box2d_actor->box2d;
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
 
-  g_assert (space_actor->world);
+  g_assert (box2d_actor->world);
 
-  g_hash_table_remove (CLUTTER_BOX2D_GET_PRIVATE (
-                         space_actor->clutter_box2d)->actors,
-                       space_actor->actor);
-  space_actor->actor = NULL;
-  g_free (space_actor);
+  g_hash_table_remove (priv->actors, box2d_actor->actor);
+  g_hash_table_remove (priv->bodies, box2d_actor->body);
+
+  box2d_actor->world->DestroyBody (box2d_actor->body);
+  box2d_actor->actor = NULL;
+  g_free (box2d_actor);
 }
 
 ClutterBox2DActor *
-clutter_box2d_get_actor (ClutterBox2D *space,
+clutter_box2d_get_actor (ClutterBox2D *box2d,
                          ClutterActor *actor)
 {
-  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (space);
-  ClutterBox2DActor   *space_actor;
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
+  ClutterBox2DActor   *box2d_actor;
 
   g_assert (CLUTTER_IS_ACTOR (actor));
 
-  space_actor = (ClutterBox2DActor*) g_hash_table_lookup (priv->actors, actor);
+  box2d_actor = (ClutterBox2DActor*) g_hash_table_lookup (priv->actors, actor);
 
-  if (space_actor)
-    return space_actor;
+  if (box2d_actor)
+    return box2d_actor;
 
-  space_actor = (ClutterBox2DActor*) (g_malloc0 (sizeof (ClutterBox2DActor)));
+  box2d_actor = (ClutterBox2DActor*) (g_malloc0 (sizeof (ClutterBox2DActor)));
 
-  space_actor->type          = CLUTTER_BOX2D_UNINITIALIZED;
-  space_actor->clutter_box2d = space;
-  space_actor->actor         = actor;
-  space_actor->world         = priv->world;
+  box2d_actor->type  = CLUTTER_BOX2D_UNINITIALIZED;
+  box2d_actor->box2d = box2d;
+  box2d_actor->actor = actor;
+  box2d_actor->world = priv->world;
 
-  g_object_weak_ref (G_OBJECT (actor), on_space_actor_weak_notify, space_actor);
+  g_object_weak_ref (G_OBJECT (actor), on_box2d_actor_weak_notify, box2d_actor);
 
-  g_hash_table_insert (priv->actors, actor, space_actor);
+  g_hash_table_insert (priv->actors, actor, box2d_actor);
 
-  return space_actor;
+  return box2d_actor;
 }
 
 ClutterBox2DActor *
 clutter_box2d_actor (ClutterActor *actor)
 {
-  ClutterBox2D *space = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
+  ClutterBox2D *box2d = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
 
-  return clutter_box2d_get_actor (space, actor);
+  return clutter_box2d_get_actor (box2d, actor);
 }
 
 ClutterBox2DType
-clutter_box2d_actor_get_type (ClutterBox2D   *space,
+clutter_box2d_actor_get_type (ClutterBox2D   *box2d,
                               ClutterActor   *actor)
 {
-  ClutterBox2DActor *space_actor = clutter_box2d_get_actor (space, actor);
+  ClutterBox2DActor *box2d_actor;
 
-  return space_actor->type;
+  if (!CLUTTER_IS_BOX2D (box2d))
+      return CLUTTER_BOX2D_UNINITIALIZED;
+  
+  box2d_actor = clutter_box2d_get_actor (box2d, actor);
+
+  if (!box2d_actor)
+      return CLUTTER_BOX2D_UNINITIALIZED;
+
+  return box2d_actor->type;
+}
+
+/* FIXME: maybe the ClutterBox2dActor mapping should be added/removed on added/removed
+ * signals instead of on demand, this would make resource management more bearable.
+ */
+static void      clutter_box2d_actor_added   (ClutterBox2D          *box2d,
+                                              ClutterActor          *actor)
+
+{
+    /*g_print ("added %p to %p\n", actor, box2d);*/
+}
+static void      clutter_box2d_actor_removed (ClutterBox2D          *box2d,
+                                              ClutterActor          *actor)
+{
+    /*g_print ("removed %p from  %p\n", actor, box2d);*/
 }
 
 
@@ -343,24 +349,24 @@ clutter_box2d_actor_get_type (ClutterBox2D   *space,
  * idea of the shape.
  */
 static inline void
-ensure_shape (ClutterBox2DActor *space_actor)
+ensure_shape (ClutterBox2DActor *box2d_actor)
 {
-  if (space_actor->shape == NULL)
+  if (box2d_actor->shape == NULL)
     {
       b2PolygonDef shapeDef;
       gint         width, height;
       gdouble      rot;
 
-      width  = clutter_actor_get_width (space_actor->actor);
-      height = clutter_actor_get_height (space_actor->actor);
-      rot    = clutter_actor_get_rotation (space_actor->actor,
+      width  = clutter_actor_get_width (box2d_actor->actor);
+      height = clutter_actor_get_height (box2d_actor->actor);
+      rot    = clutter_actor_get_rotation (box2d_actor->actor,
                                            CLUTTER_Z_AXIS, NULL, NULL, NULL);
 
       shapeDef.SetAsBox (width * 0.5, height * 0.5,
                          b2Vec2 (width * 0.5, height * 0.5), 0);
       shapeDef.density   = 10.0f;
       shapeDef.friction = 0.2f;
-      space_actor->shape = space_actor->body->CreateShape (&shapeDef);
+      box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
     }
   else
     {
@@ -371,15 +377,15 @@ ensure_shape (ClutterBox2DActor *space_actor)
 /* Set the type of physical object an actor in a Box2D group is of.
  */
 void
-clutter_box2d_actor_set_type (ClutterBox2D      *space,
+clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
                               ClutterActor      *actor,
                               ClutterBox2DType   type)
 {
-  ClutterBox2DActor *space_actor = clutter_box2d_get_actor (space, actor);
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
 
-  if (space_actor->type == type)
+  if (box2d_actor->type == type)
     return;
-  g_assert (space_actor->type == CLUTTER_BOX2D_UNINITIALIZED);
+  g_assert (box2d_actor->type == CLUTTER_BOX2D_UNINITIALIZED);
 
   if (type == CLUTTER_BOX2D_DYNAMIC ||
       type == CLUTTER_BOX2D_STATIC)
@@ -389,18 +395,18 @@ clutter_box2d_actor_set_type (ClutterBox2D      *space,
       SYNCLOG ("making an actor to be %s\n",
                type == CLUTTER_BOX2D_STATIC ? "static" : "dynamic");
       
-      space_actor->type = type;
+      box2d_actor->type = type;
 
       if (type == CLUTTER_BOX2D_DYNAMIC)
         {
-          space_actor->body = space_actor->world->CreateDynamicBody (&bodyDef);
+          box2d_actor->body = box2d_actor->world->CreateDynamicBody (&bodyDef);
         }
       else if (type == CLUTTER_BOX2D_STATIC)
         {
-          space_actor->body = space_actor->world->CreateStaticBody (&bodyDef);
+          box2d_actor->body = box2d_actor->world->CreateStaticBody (&bodyDef);
         }
-      sync_body (space_actor);
-      space_actor->body->SetMassFromShapes ();
+      sync_body (box2d_actor);
+      box2d_actor->body->SetMassFromShapes ();
     }
   else if (type == CLUTTER_BOX2D_META)
     {
@@ -410,7 +416,7 @@ clutter_box2d_actor_set_type (ClutterBox2D      *space,
        */
     }
   g_hash_table_insert (CLUTTER_BOX2D_GET_PRIVATE (
-                         space)->bodies, space_actor->body, space_actor);
+                         box2d)->bodies, box2d_actor->body, box2d_actor);
 }
 
 /* Synchronise the state of the Box2D body with the
@@ -419,19 +425,19 @@ clutter_box2d_actor_set_type (ClutterBox2D      *space,
  * the physics computation
  */
 static void
-sync_body (ClutterBox2DActor *space_actor)
+sync_body (ClutterBox2DActor *box2d_actor)
 {
   gint w, h;
   gint x, y;
   gdouble rot;
 
-  ClutterActor *actor = space_actor->actor;
-  b2Body       *body  = space_actor->body;
+  ClutterActor *actor = box2d_actor->actor;
+  b2Body       *body  = box2d_actor->body;
 
   /*
    * If the type is meta we closely track the actor's geometry
    */
-  if (space_actor->type == CLUTTER_BOX2D_META)
+  if (box2d_actor->type == CLUTTER_BOX2D_META)
     {
       x = clutter_actor_get_x (actor);
       y = clutter_actor_get_y (actor);
@@ -442,7 +448,7 @@ sync_body (ClutterBox2DActor *space_actor)
   if (!body)
     return;
 
-  rot = clutter_actor_get_rotation (space_actor->actor,
+  rot = clutter_actor_get_rotation (box2d_actor->actor,
                                     CLUTTER_Z_AXIS, NULL, NULL, NULL);
 
   w = clutter_actor_get_width (actor);
@@ -451,7 +457,7 @@ sync_body (ClutterBox2DActor *space_actor)
   x = clutter_actor_get_x (actor);
   y = clutter_actor_get_y (actor);
 
-  SYNCLOG ("sync_body, actor was: %p %d,%d %dx%d\n", space_actor, x, y, w, h);
+  SYNCLOG ("sync_body, actor was: %p %d,%d %dx%d\n", box2d_actor, x, y, w, h);
 
   b2Vec2 position = body->GetPosition ();
   if (fabs (x - (position.x)) > 3.0 ||
@@ -459,7 +465,7 @@ sync_body (ClutterBox2DActor *space_actor)
       fabs (body->GetAngle()*(180/3.1415) - rot) > 3.0
       )
     {
-      ensure_shape (space_actor);
+      ensure_shape (box2d_actor);
       body->SetXForm (b2Vec2 (x, y), rot / (180 / 3.1415));
 
       SYNCLOG ("\t setxform: %d, %d, %f\n", x, y, rot);
@@ -471,16 +477,16 @@ sync_body (ClutterBox2DActor *space_actor)
  * introducing errors.
  */
 static void
-sync_actor (ClutterBox2DActor *space_actor)
+sync_actor (ClutterBox2DActor *box2d_actor)
 {
   gint          w, h;
-  ClutterActor *actor = space_actor->actor;
-  b2Body       *body  = space_actor->body;
+  ClutterActor *actor = box2d_actor->actor;
+  b2Body       *body  = box2d_actor->body;
 
   if (!body)
     return;
 
-  if (space_actor->type == CLUTTER_BOX2D_META)
+  if (box2d_actor->type == CLUTTER_BOX2D_META)
     return;
 
   w = clutter_actor_get_width (actor);
@@ -522,9 +528,9 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
      */
     for (iter = actors; iter; iter = g_list_next (iter))
       {
-        ClutterBox2DActor *space_actor = (ClutterBox2DActor*) iter->data;
-        sync_body (space_actor);
-        space_actor->contacts = 0;
+        ClutterBox2DActor *box2d_actor = (ClutterBox2DActor*) iter->data;
+        sync_body (box2d_actor);
+        box2d_actor->contacts = 0;
       }
 
     if (msecs == 0)
@@ -537,18 +543,18 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
     /* syncronize actor to have geometrical sync with bodies */
     for (iter = actors; iter; iter = g_list_next (iter))
       {
-        ClutterBox2DActor *space_actor = (ClutterBox2DActor*) iter->data;
-        sync_actor (space_actor);
+        ClutterBox2DActor *box2d_actor = (ClutterBox2DActor*) iter->data;
+        sync_actor (box2d_actor);
       }
     g_list_free (actors);
   }
 }
 
 void
-clutter_box2d_set_playing (ClutterBox2D  *space,
+clutter_box2d_set_playing (ClutterBox2D  *box2d,
                            gboolean       playing)
 {
-  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (space);
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
 
   if (playing)
     {
@@ -561,40 +567,40 @@ clutter_box2d_set_playing (ClutterBox2D  *space,
 }
 
 gboolean
-clutter_box2d_get_playing (ClutterBox2D *space)
+clutter_box2d_get_playing (ClutterBox2D *box2d)
 {
-  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (space);
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
 
   return clutter_timeline_is_playing (priv->timeline);
 }
 
 void *
-clutter_box2d_actor_get_body (ClutterBox2D *space,
+clutter_box2d_actor_get_body (ClutterBox2D *box2d,
                               ClutterActor *actor)
 {
-  ClutterBox2DActor *space_actor = clutter_box2d_get_actor (space, actor);
-  return space_actor->body;
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  return box2d_actor->body;
 }
 
-ClutterBox2DType clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
-                                                  ClutterActor     *actor,
-                                                  ClutterVertex    *force,
-                                                  ClutterVertex    *position)
+void clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
+                                      ClutterActor     *actor,
+                                      ClutterVertex    *force,
+                                      ClutterVertex    *position)
 {
-  ClutterBox2DActor *space_actor = clutter_box2d_get_actor (box2d, actor);
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
   b2Vec2 b2force (CLUTTER_UNITS_TO_FLOAT (force->x),
                   CLUTTER_UNITS_TO_FLOAT (force->y));
   b2Vec2 b2position (CLUTTER_UNITS_TO_FLOAT (position->x),
                      CLUTTER_UNITS_TO_FLOAT (position->y));
 
-  space_actor->body->ApplyForce (
-           space_actor->body->GetWorldVector(b2force),
-           space_actor->body->GetWorldVector(b2position));
+  box2d_actor->body->ApplyForce (
+           box2d_actor->body->GetWorldVector(b2force),
+           box2d_actor->body->GetWorldVector(b2position));
 }
 
-void * clutter_box2d_get_world      (ClutterBox2D *space)
+void * clutter_box2d_get_world      (ClutterBox2D *box2d)
 {
-  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (space);
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
   return priv->world;
 }
 

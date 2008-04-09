@@ -1,5 +1,13 @@
 2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
 
+	Improved cleanup when actors are unreferenced, bodies are now
+	destroyed upon actor destruction.
+
+	* clutter-box2d.cpp:
+	* clutter-box2d.h:
+
+2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d.cpp:
 	* clutter-box2d.h: wrap b2MouseJoint functionality, allow changing
 	the gravity of the simulation.
