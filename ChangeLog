@@ -1,4 +1,33 @@
-2008-04-09  Øyvind Kolås  <pippin@gimp.org>
+2008-04-10  Øyvind Kolås  <pippin@o-hand.com>
+
+	* examples/Makefile.am: updated build system according to expanded
+	sandbox.
+	* examples/blockbox.[ch]: simplified logic of manin program and split
+	functionality out into separate files.
+
+	* examples/scenes.[ch]: data base of the available scenes as well as
+	control over which scene is currently being shown.
+	* examples/actor-manipulator.[ch]: draft stage capture based actor
+	movement and manipulation, has mods both for dynamic box2d objects and
+	non physics based movement.
+	* examples/util.[ch]: misc utility functions.
+	* examples/wrap-group.[ch]: simple hack to do a static layout.
+	* examples/label-action.[ch]: simple actors with callbacks on press.
+	* examples/popup.[ch]: a context menu with callbacks and sliders.
+
+	The following are the individual scenes registered with scenes.c from
+	blockbox.c.
+
+	* examples/scene-about.c:
+	* examples/scene-bridge.c:
+	* examples/scene-chain.c:
+	* examples/scene-control.c:
+	* examples/scene-distance-joint.c:
+	* examples/scene-prismatic-joint.c:
+	* examples/scene-pyramid.c:
+	* examples/scene-slides.c:
+
+2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
 
 	* README:
 	* clutter-box2d.cpp: manage joint resources, currently the
