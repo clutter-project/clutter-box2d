@@ -22,7 +22,7 @@ clutter_box2d_get_type
 
 <SECTION>
 <FILE>clutter-box2d-actor</FILE>
-<TITLE>ClutterBox2DActor</TITLE>
+<TITLE>ClutterBox2D Actor</TITLE>
 clutter_box2d_actor_set_type
 clutter_box2d_actor_get_type
 clutter_box2d_actor_set_linear_velocity
@@ -38,7 +38,7 @@ clutter_box2d_actor_is_bullet
 
 <SECTION>
 <FILE>clutter-box2d-joint</FILE>
-<TITLE>ClutterBox2DJoint</TITLE>
+<TITLE>ClutterBox2D Joint</TITLE>
 ClutterBox2DJoint
 clutter_box2d_joint_destroy
 clutter_box2d_add_revolute_joint

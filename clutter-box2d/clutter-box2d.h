@@ -14,6 +14,13 @@
 
 G_BEGIN_DECLS
 
+/**
+ * SECTION:clutter-box2d
+ * @short_description: Container with physics engine
+ *
+ * BLAH BLAH
+ */
+
 #define CLUTTER_TYPE_BOX2D    clutter_box2d_get_type ()
 
 #define CLUTTER_BOX2D(obj) \
@@ -43,6 +50,7 @@ typedef struct _ClutterBox2DJoint   ClutterBox2DJoint;
 
 struct _ClutterBox2D
 {
+  /*< private >*/
   ClutterGroup         parent_instance;
   ClutterBox2DPrivate *priv;
 };
@@ -53,11 +61,18 @@ struct _ClutterBox2DClass
   ClutterGroupClass parent_class;
 };
 
-typedef enum 
-{
+/**
+ * ClutterBox2DType:
+ * @CLUTTER_BOX2D_NONE: No interaction
+ * @CLUTTER_BOX2D_DYNAMIC: The body is affected by collisions
+ * @CLUTTER_BOX2D_STATIC: The body affects collisions but is immobile
+ *
+ * Type of interactions between bodies.
+ */
+typedef enum { /*< prefix=CLUTTER_BOX2D >*/
   CLUTTER_BOX2D_NONE = 0,
-  CLUTTER_BOX2D_DYNAMIC,  /* The body is affected by collisions */
-  CLUTTER_BOX2D_STATIC,   /* The body affects collisions but is immobile */
+  CLUTTER_BOX2D_DYNAMIC,
+  CLUTTER_BOX2D_STATIC,
 } ClutterBox2DType;
 
 GType            clutter_box2d_get_type         (void) G_GNUC_CONST;
@@ -72,6 +87,13 @@ void             clutter_box2d_actor_set_type   (ClutterBox2D        *box2d,
 ClutterBox2DType clutter_box2d_actor_get_type   (ClutterBox2D        *box2d,
                                                  ClutterActor        *actor);
 
+
+/**
+ * SECTION:clutter-box2d-actor
+ * @short_description: Options for the children of ClutterBox2D
+ *
+ * BLAH BLAH
+ */
 
 void             clutter_box2d_actor_set_linear_velocity (ClutterBox2D *box2d,
                                                           ClutterActor *actor,
@@ -109,6 +131,13 @@ void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,
 void clutter_box2d_actor_is_bullet           (ClutterBox2D     *box2d,
                                               ClutterActor     *actor);
 
+
+/**
+ * SECTION:clutter-box2d-joint
+ * @short_description: Options for the children of ClutterBox2D
+ *
+ * BLAH BLAH
+ */
 
 ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
                                                      ClutterActor        *actor1,

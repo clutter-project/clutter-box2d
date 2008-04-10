@@ -1,7 +1,7 @@
 noinst_PROGRAMS = blockbox
 
 INCLUDES = -I$(top_srcdir)/clutter-box2d @GCC_FLAGS@ @DEPS_CFLAGS@
-LDFLAGS = @DEPS_LIBS@ $(top_builddir)/clutter-box2d/libclutter-box2d-@CLUTTER_BOX2D_MAJORMINOR@.la 
+AM_LDFLAGS = @DEPS_LIBS@ $(top_builddir)/clutter-box2d/libclutter-box2d-@CLUTTER_BOX2D_MAJORMINOR@.la 
 
 blockbox_SOURCES = \
 	blockbox.c		\
