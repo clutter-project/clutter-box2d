@@ -1,4 +1,27 @@
 2008-04-10  Øyvind Kolås  <pippin@o-hand.com>
+	
+	Reorganized source and added gtk-doc hooks to build system.
+
+	* box2d/Makefile.am: build a temporary library for box2d instead
+	of building it together with clutter-box2d.
+	* clutter-box2d.cpp:
+	* clutter-box2d.h: moved these ...
+	* clutter-box2d: ... here to a new directory.
+	* clutter-box2d/Makefile.am: added.
+	* README: updated
+	* examples/Makefile.am: updated for new location of box2d
+
+	* configure.ac:
+	* doc: added
+	* doc/Makefile.am:
+	* doc/reference:
+	* doc/reference/clutter-box2d.types:
+	* doc/reference/clutter-box2d-docs.sgml:
+	* doc/reference/Makefile.am:
+	* Makefile.am:
+	* autogen.sh: integrated gtk-doc.
+
+2008-04-10  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d.cpp: add a scale factor that makes 1px = ~5cm in
 	the simulation, making it smaller currently harms stability of box2d,

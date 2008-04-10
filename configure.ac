@@ -20,7 +20,7 @@ m4_define([clutter_box2d_binary_age],
 AC_INIT([clutter-box2d], 
        clutter_box2d_version_major.clutter_box2d_version_minor.clutter_box2d_version_micro, 
         [http://bugzilla.o-hand.com/enter_bug.cgi?product=Clutter])
-AC_CONFIG_SRCDIR([clutter-box2d.h])
+AC_CONFIG_SRCDIR([clutter-box2d/clutter-box2d.h])
 AM_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([1.9])
@@ -51,8 +51,8 @@ dnl ========================================================================
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_LIBTOOL
 AC_DISABLE_STATIC
+AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -77,14 +77,32 @@ if test "x$GCC" = "xyes"; then
         GCC_FLAGS="-g -Wall"
 fi
 
-DEPS_CFLAGS="$DEPS_CFLAGS -Ibox2d/Include"
-
 AC_SUBST(GCC_FLAGS)
 AC_SUBST(DEPS_CFLAGS)
 AC_SUBST(DEPS_LIBS)
 
-AC_OUTPUT([Makefile
-clutter-box2d.pc
-examples/Makefile
+
+dnl = GTK Doc check ========================================================
+
+GTK_DOC_CHECK([1.4])
+
+dnl ========================================================================
+
+AC_CONFIG_FILES([
+    Makefile
+    clutter-box2d.pc
+    examples/Makefile
+    box2d/Makefile
+    clutter-box2d/Makefile
+    doc/Makefile
+    doc/reference/Makefile
+    doc/reference/version.xml
 ])
 
+AC_OUTPUT
+
+echo ""
+echo "          ClutterBox2D $VERSION"
+echo "          ====================="
+echo "   Documentation: ${enable_gtk_doc}"
+echo ""
