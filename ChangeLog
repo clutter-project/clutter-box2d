@@ -1,5 +1,13 @@
 2008-04-10  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d.cpp: add a scale factor that makes 1px = ~5cm in
+	the simulation, making it smaller currently harms stability of box2d,
+	it should be made user tunable. Modified default gravity to be
+	of similar magnitude to dimensions.
+	* README: updated TODO
+
+2008-04-10  Øyvind Kolås  <pippin@o-hand.com>
+
 	* examples/Makefile.am: updated build system according to expanded
 	sandbox.
 	* examples/blockbox.[ch]: simplified logic of manin program and split

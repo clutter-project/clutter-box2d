@@ -30,10 +30,11 @@ Limitations:
  - Anchor points different from 0,0 probably does not work correctly.
 
 TODO:
-  - add a scale factor between clutter units and box2d units since now 1px = 1m
   - debug drawing of
       - joints
       - shapes
   - access to motor functionality of prismatic and revolute joints.
   - add gear joint
   - sync the shape (recreate?) when size of actor changes.
+  - support for different shapes (at least circles)
+  - API documentation.

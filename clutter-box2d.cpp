@@ -9,6 +9,9 @@
  * Licensed under the LGPL v2 or greater.
  */
 
+#define SCALE_FACTOR        0.05
+#define INV_SCALE_FACTOR    (1.0/SCALE_FACTOR)
+
 #define SYNCLOG(argv...)    if (0) g_print (argv)
 
 #include "Box2D.h"
@@ -31,32 +34,35 @@ enum
 
 struct _ClutterBox2DPrivate
 {
-  b2World         *world;      /* The Box2D world which contains our simulation              */
-  GHashTable      *actors;     /* a hash table that maps actors to clutterbox2dactor-proxies */
-  GHashTable      *bodies;     /* a hash table that maps bodies to clutterbox2dactor-proxies */
+  b2World         *world;  /* The Box2D world which contains our simulation*/
+  GHashTable      *actors; /* a hash table that maps actors to clutterbox2dactor-proxies */
+  GHashTable      *bodies; /* a hash table that maps bodies to clutterbox2dactor-proxies */
   GHashTable      *joints;
-  gdouble          fps;        /* The framerate simulation is running at                     */
-  gint             iterations; /* number of engine iterations per processing                 */
-  ClutterTimeline *timeline;   /* The timeline driving the simulation                        */
+  gdouble          fps;    /* The framerate simulation is running at        */
+  gint             iterations;/* number of engine iterations per processing */
+  ClutterTimeline *timeline;  /* The timeline driving the simulation        */
 };
 
-/* This structure contains the combined state of an actor and a body, all actors added to
- * the ClutterBox2D container have such ClutterBox2DActor associated with it.
+/* This structure contains the combined state of an actor and a body, all
+ * actors added to the ClutterBox2D container have such ClutterBox2DActor
+ * associated with it.
  */
 typedef struct _ClutterBox2DActor ClutterBox2DActor;
 struct _ClutterBox2DActor
 {
+  ClutterBox2D     *box2d;/* The ClutterBox2D this actor struct belongs to */
+  ClutterActor     *actor;/* The actor this struct is handling data for */
+
   ClutterBox2DType  type; /* The type Static: the body affects collisions but
                              is not itself affected. Dynamic: the body is
                              affected by collisions.*/ 
-  ClutterBox2D     *box2d;
-  ClutterActor     *actor;
 
-  b2Body           *body;
-  b2World          *world;
-  b2Shape          *shape;
-
+  b2Body           *body;  /* Box2D body, if any */
+  b2Shape          *shape; /* shape attached to this body, if any */
   GList            *joints;  /* list of joints this body participates in */
+
+  b2World          *world;/*the Bod2D world (could be looked up through box2d)*/
+
 };
 
 typedef enum 
@@ -74,11 +80,17 @@ typedef enum
  */
 struct _ClutterBox2DJoint
 {
-  ClutterBox2D          *box2d;
-  ClutterBox2DJointType *type;
-  b2Joint               *joint;
-  ClutterBox2DActor     *actor1;  /* */
-  ClutterBox2DActor     *actor2;  /* */
+  ClutterBox2D     *box2d;/* The ClutterBox2D this joint management struct
+                             belongs to */
+  ClutterBox2DJointType *type;  /* The type of joint */
+
+  b2Joint               *joint; /* Box2d joint*/
+
+  /* The actors hooked up to this joint, for a JOINT_MOUSE, only actor1 will
+   * be set actor2 will be NULL
+   */
+  ClutterBox2DActor     *actor1;  
+  ClutterBox2DActor     *actor2; 
 };
 
 static ClutterBox2DActor *
@@ -108,7 +120,8 @@ clutter_box2d_paint (ClutterActor *actor)
 {
   CLUTTER_ACTOR_CLASS (clutter_box2d_parent_class)->paint (actor);
 
-  /* XXX: enable drawing the shapes over the actors as a debug-layer
+  /* XXX: enable drawing the shapes over the actors, as well as drawing
+   *      lines for the joints
    */
 }
 
@@ -135,7 +148,8 @@ clutter_box2d_set_property (GObject      *gobject,
     {
     case PROP_GRAVITY:
       {
-        clutter_box2d_set_gravity (box2d, (ClutterVertex*)g_value_get_boxed (value));
+        clutter_box2d_set_gravity (box2d,
+                                   (ClutterVertex*)g_value_get_boxed (value));
       }
       break;
     default:
@@ -188,8 +202,8 @@ clutter_box2d_constructor (GType                  type,
    *  should be set large enough to contain most geometry,
    *  not sure how large this can be without impacting performance.
    */
-  worldAABB.lowerBound.Set (-6500.0f, -6500.0f);
-  worldAABB.upperBound.Set (6500.0f, 6500.0f);
+  worldAABB.lowerBound.Set (-650.0f, -650.0f);
+  worldAABB.upperBound.Set (650.0f, 650.0f);
 
   object = G_OBJECT_CLASS (clutter_box2d_parent_class)->constructor (
     type, n_params, params);
@@ -197,11 +211,11 @@ clutter_box2d_constructor (GType                  type,
   self = CLUTTER_BOX2D (object);
   priv = CLUTTER_BOX2D_GET_PRIVATE (self);
 
-  priv->world = new b2World (worldAABB, /*gravity:*/ b2Vec2 (0.0f, 25.0f),
+  priv->world = new b2World (worldAABB, /*gravity:*/ b2Vec2 (0.0f, 5.0f),
                              doSleep = false);
 
-  priv->fps        = 40;
-  priv->iterations = 20;
+  priv->fps        = 25;
+  priv->iterations = 50;
 
   priv->actors = g_hash_table_new (g_direct_hash, g_direct_equal);
   priv->bodies = g_hash_table_new (g_direct_hash, g_direct_equal);
@@ -349,8 +363,11 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
       rot    = clutter_actor_get_rotation (box2d_actor->actor,
                                            CLUTTER_Z_AXIS, NULL, NULL, NULL);
 
-      shapeDef.SetAsBox (width * 0.5, height * 0.5,
-                         b2Vec2 (width * 0.5, height * 0.5), 0);
+
+      shapeDef.SetAsBox (width * 0.5 * SCALE_FACTOR,
+                         height * 0.5 * SCALE_FACTOR,
+                         b2Vec2 (width * 0.5 * SCALE_FACTOR,
+                         height * 0.5 * SCALE_FACTOR), 0);
       shapeDef.density   = 10.0f;
       shapeDef.friction = 0.2f;
       box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
@@ -418,7 +435,6 @@ clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
 static void
 sync_body (ClutterBox2DActor *box2d_actor)
 {
-  gint w, h;
   gint x, y;
   gdouble rot;
 
@@ -444,22 +460,21 @@ sync_body (ClutterBox2DActor *box2d_actor)
   rot = clutter_actor_get_rotation (box2d_actor->actor,
                                     CLUTTER_Z_AXIS, NULL, NULL, NULL);
 
-  w = clutter_actor_get_width (actor);
-  h = clutter_actor_get_height (actor);
 
   x = clutter_actor_get_x (actor);
   y = clutter_actor_get_y (actor);
 
-  SYNCLOG ("sync_body, actor was: %p %d,%d %dx%d\n", box2d_actor, x, y, w, h);
 
   b2Vec2 position = body->GetPosition ();
-  if (fabs (x - (position.x)) > 3.0 ||
-      fabs (y - (position.y)) > 3.0 ||
-      fabs (body->GetAngle()*(180/3.1415) - rot) > 3.0
+
+  if (fabs (x * SCALE_FACTOR - (position.x)) > 0.1 ||
+      fabs (y * SCALE_FACTOR - (position.y)) > 0.1 ||
+      fabs (body->GetAngle()*(180/3.1415) - rot) > 2.0
       )
     {
       ensure_shape (box2d_actor);
-      body->SetXForm (b2Vec2 (x, y), rot / (180 / 3.1415));
+      body->SetXForm (b2Vec2 (x * SCALE_FACTOR, y * SCALE_FACTOR),
+                      rot / (180 / 3.1415));
 
       SYNCLOG ("\t setxform: %d, %d, %f\n", x, y, rot);
     }
@@ -472,7 +487,6 @@ sync_body (ClutterBox2DActor *box2d_actor)
 static void
 sync_actor (ClutterBox2DActor *box2d_actor)
 {
-  gint          w, h;
   ClutterActor *actor = box2d_actor->actor;
   b2Body       *body  = box2d_actor->body;
 
@@ -484,12 +498,9 @@ sync_actor (ClutterBox2DActor *box2d_actor)
     return;
 #endif
 
-  w = clutter_actor_get_width (actor);
-  h = clutter_actor_get_height (actor);
-
   clutter_actor_set_positionu (actor,
-                               CLUTTER_UNITS_FROM_FLOAT (body->GetPosition ().x),
-                               CLUTTER_UNITS_FROM_FLOAT (body->GetPosition ().y));
+       CLUTTER_UNITS_FROM_FLOAT (body->GetPosition ().x * INV_SCALE_FACTOR),
+       CLUTTER_UNITS_FROM_FLOAT (body->GetPosition ().y * INV_SCALE_FACTOR));
 
   SYNCLOG ("setting actor position: ' %f %f angle: %f\n",
            body->GetPosition ().x,
@@ -753,11 +764,11 @@ clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
   jd.collideConnected = false;
   jd.body1 = clutter_box2d_get_actor (box2d, actor1)->body;
   jd.body2 = clutter_box2d_get_actor (box2d, actor2)->body;
-  jd.localAnchor1 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor1->x),
-                           CLUTTER_UNITS_TO_FLOAT (anchor1->y));
-  jd.localAnchor2 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor2->x),
-                           CLUTTER_UNITS_TO_FLOAT (anchor2->y));
-  jd.length = length;
+  jd.localAnchor1 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor1->x) * SCALE_FACTOR,
+                           CLUTTER_UNITS_TO_FLOAT (anchor1->y) * SCALE_FACTOR);
+  jd.localAnchor2 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor2->x) * SCALE_FACTOR,
+                           CLUTTER_UNITS_TO_FLOAT (anchor2->y) * SCALE_FACTOR);
+  jd.length = length * SCALE_FACTOR;
   jd.frequencyHz = 0.0;
   jd.dampingRatio = 0.0;
 
@@ -795,10 +806,10 @@ clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
   jd.collideConnected = false;
   jd.body1 = clutter_box2d_get_actor (box2d, actor1)->body;
   jd.body2 = clutter_box2d_get_actor (box2d, actor2)->body;
-  jd.localAnchor1 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor1->x),
-                           CLUTTER_UNITS_TO_FLOAT (anchor1->y));
-  jd.localAnchor2 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor2->x),
-                           CLUTTER_UNITS_TO_FLOAT (anchor2->y));
+  jd.localAnchor1 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor1->x) * SCALE_FACTOR,
+                           CLUTTER_UNITS_TO_FLOAT (anchor1->y) * SCALE_FACTOR);
+  jd.localAnchor2 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor2->x) * SCALE_FACTOR,
+                           CLUTTER_UNITS_TO_FLOAT (anchor2->y) * SCALE_FACTOR);
   jd.referenceAngle = reference_angle;
 
   return joint_new (box2d, priv->world->CreateJoint (&jd));
@@ -812,8 +823,8 @@ clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
 {
   ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
   b2RevoluteJointDef jd;
-  b2Vec2 ancho  (CLUTTER_UNITS_TO_FLOAT (anchor->x),
-                 CLUTTER_UNITS_TO_FLOAT (anchor->y));
+  b2Vec2 ancho  (CLUTTER_UNITS_TO_FLOAT (anchor->x) * SCALE_FACTOR,
+                 CLUTTER_UNITS_TO_FLOAT (anchor->y) * SCALE_FACTOR);
 
   jd.collideConnected = false;
   jd.Initialize(clutter_box2d_get_actor (box2d, actor1)->body,
@@ -838,12 +849,12 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   jd.collideConnected = false;
   jd.body1 = clutter_box2d_get_actor (box2d, actor1)->body;
   jd.body2 = clutter_box2d_get_actor (box2d, actor2)->body;
-  jd.localAnchor1 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor1->x),
-                           CLUTTER_UNITS_TO_FLOAT (anchor1->y));
-  jd.localAnchor2 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor2->x),
-                           CLUTTER_UNITS_TO_FLOAT (anchor2->y));
-  jd.lowerTranslation = min_length;
-  jd.lowerTranslation = max_length;
+  jd.localAnchor1 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor1->x) * SCALE_FACTOR,
+                           CLUTTER_UNITS_TO_FLOAT (anchor1->y) * SCALE_FACTOR);
+  jd.localAnchor2 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor2->x) * SCALE_FACTOR,
+                           CLUTTER_UNITS_TO_FLOAT (anchor2->y) * SCALE_FACTOR);
+  jd.lowerTranslation = min_length * SCALE_FACTOR;
+  jd.lowerTranslation = max_length * SCALE_FACTOR;
   jd.enableLimit = true;
   jd.localAxis1 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (axis->x),
                          CLUTTER_UNITS_TO_FLOAT (axis->y));
@@ -862,10 +873,10 @@ clutter_box2d_add_mouse_joint (ClutterBox2D  *box2d,
 
   md.body1 = priv->world->GetGroundBody();
   md.body2 = clutter_box2d_get_actor (box2d, actor)->body;
-  md.target = b2Vec2(CLUTTER_UNITS_TO_FLOAT (target->x),
-                     CLUTTER_UNITS_TO_FLOAT (target->y));
+  md.target = b2Vec2(CLUTTER_UNITS_TO_FLOAT (target->x) * SCALE_FACTOR,
+                     CLUTTER_UNITS_TO_FLOAT (target->y) * SCALE_FACTOR);
   md.body1->WakeUp ();
-  md.maxForce = 1000.0f * md.body2->GetMass ();
+  md.maxForce = 5100.0f * md.body2->GetMass ();
 
   return joint_new (box2d, priv->world->CreateJoint(&md));
 }
@@ -874,11 +885,7 @@ void
 clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *joint,
                                          const ClutterVertex *target)
 {
-  b2Vec2 b2target = b2Vec2(CLUTTER_UNITS_TO_FLOAT (target->x),
-                           CLUTTER_UNITS_TO_FLOAT (target->y));
-  /* FIXME: use a proper ClutterBox2DJoint structure to avoid this
-   *        ugly cast
-   */
+  b2Vec2 b2target = b2Vec2(CLUTTER_UNITS_TO_FLOAT (target->x) * SCALE_FACTOR,
+                           CLUTTER_UNITS_TO_FLOAT (target->y) * SCALE_FACTOR);
   static_cast<b2MouseJoint*>(joint->joint)->SetTarget(b2target);
 }
-
