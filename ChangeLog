@@ -1,3 +1,7 @@
+2008-04-10  Øyvind Kolås  <pippin@gimp.org>
+
+	* box2d/Makefile: removed to avoid conflicting with the generated one.
+
 2008-04-10  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* clutter-box2d/clutter-box2d.h: Document the sections
