@@ -1,3 +1,13 @@
+2008-04-09  Øyvind Kolås  <pippin@gimp.org>
+
+	* README:
+	* clutter-box2d.cpp: manage joint resources, currently the
+	ClutterBox2DJoint instances are managed automatically like
+	Box2D Joints, the pointer to the joint becomes invalid if
+	any one of the actors forming part of the joint is removed
+	from the Box2D group. Some code cleanup/reindentation.
+	* clutter-box2d.h: some code cleanup/reindentation.
+
 2008-04-09  Øyvind Kolås  <pippin@o-hand.com>
 
 	* README: updated feature list/todo list.

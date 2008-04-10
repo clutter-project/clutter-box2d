@@ -55,12 +55,9 @@ struct _ClutterBox2DClass
 
 typedef enum 
 {
-  CLUTTER_BOX2D_UNINITIALIZED = 0,
+  CLUTTER_BOX2D_NONE = 0,
   CLUTTER_BOX2D_DYNAMIC,  /* The body is affected by collisions */
   CLUTTER_BOX2D_STATIC,   /* The body affects collisions but is immobile */
-  CLUTTER_BOX2D_META      /* The body has position closely tracked to actor
-                             and a body but does not affect collisions.
-                           */
 } ClutterBox2DType;
 
 GType            clutter_box2d_get_type         (void) G_GNUC_CONST;
@@ -156,7 +153,7 @@ ClutterBox2DJoint *clutter_box2d_add_mouse_joint    (ClutterBox2D     *box2d,
 void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *mouse_joint,
                                               const ClutterVertex *target);
 
-void clutter_box2d_joint_remove              (ClutterBox2DJoint   *joint);
+void clutter_box2d_joint_destroy             (ClutterBox2DJoint   *joint);
 
 
 
