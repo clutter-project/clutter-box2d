@@ -1,5 +1,13 @@
 2008-04-10  Øyvind Kolås  <pippin@o-hand.com>
 
+	* doc/reference/clutter-box2d-sections.txt: split the documentation
+	over three files, ClutterBox2D, ClutterBox2D+actor and
+	ClutterBox2DJoint.
+	* doc/reference/clutter-box2d-docs.sgml: include the generated xml
+	files.
+
+2008-04-10  Øyvind Kolås  <pippin@o-hand.com>
+
 	* doc/reference/version.xml.in: missed this file when adding gtk-doc
 	support.
 

@@ -52,9 +52,12 @@
     
   </chapter>    
   <chapter>
-    <title>Clutter-Box2D Actors</title>
+    <title>Clutter-Box2D</title>
     <xi:include href="xml/clutter-box2d.xml"/>
+    <xi:include href="xml/clutter-box2d-actor.xml"/>
+    <xi:include href="xml/clutter-box2d-joint.xml"/>
   </chapter>
+
 
   <appendix id="license">
     <title>License</title>
