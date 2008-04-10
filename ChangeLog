@@ -1,4 +1,9 @@
 2008-04-10  Øyvind Kolås  <pippin@o-hand.com>
+
+	* doc/reference/version.xml.in: missed this file when adding gtk-doc
+	support.
+
+2008-04-10  Øyvind Kolås  <pippin@o-hand.com>
 	
 	Reorganized source and added gtk-doc hooks to build system.
 
