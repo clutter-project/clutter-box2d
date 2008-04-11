@@ -20,27 +20,33 @@ scene_chain (Scene *scene)
 
   {
     gint          i;
+    gint          y;
     gint          numlinks = 32;
     ClutterActor *prev_actor;
 
+    y = 50;
     box = clutter_rectangle_new ();
     clutter_actor_show (box);
     clutter_actor_set_size (box, 18, 5);
-    clutter_actor_set_position (box, 0, 100);
+    clutter_actor_set_position (box, clutter_actor_get_width(stage)/2, y);
     clutter_group_add (CLUTTER_GROUP (group), box);
     clutter_box2d_actor_set_type (CLUTTER_BOX2D (
                                     group), box, CLUTTER_BOX2D_STATIC);
 
     prev_actor = box;
 
-    numlinks = clutter_actor_get_width (stage)/20;
+    numlinks = clutter_actor_get_height (stage)/20;
+    if (clutter_actor_get_width (stage)/20 < numlinks)
+      {
+        numlinks = clutter_actor_get_width (stage)/20;
+      }
 
     for (i = 0; i < numlinks; ++i)
       {
         box = clutter_rectangle_new ();
         clutter_actor_show (box);
         clutter_actor_set_size (box, 18, 5);
-        clutter_actor_set_position (box, 20 + 20 * i, 100);
+        clutter_actor_set_position (box, 20 + 20 * i, y+=1);
         clutter_group_add (CLUTTER_GROUP (group), box);
         clutter_box2d_actor_set_type (CLUTTER_BOX2D (
                                         group), box, CLUTTER_BOX2D_DYNAMIC);
@@ -63,5 +69,4 @@ scene_chain (Scene *scene)
   }
 
   clutter_box2d_set_simulating (CLUTTER_BOX2D (group), simulating);
-
 }

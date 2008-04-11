@@ -1,5 +1,21 @@
 2008-04-11  Øyvind Kolås  <pippin@o-hand.com>
 
+	* examples/blockbox.c: (init_scenes), (keep_on_top),
+	(add_controls), (main): make controls stay on top through a timeout, 
+	* examples/util.c: (add_cage): even when a stage cage without roof is
+	requested, create a roof ~ 8 stages up beyond the stage.
+
+	Modified all scenes to work reasonably well for most stage sizes.
+
+	* examples/scene-distance-joint.c: (scene_distance_joint): made the
+	scene consist of three linked hands, since this makes the functioning
+	of the distance joint more apparent.
+	* examples/scene-bridge.c: (scene_bridge):
+	* examples/scene-chain.c: (scene_chain):
+	* examples/scene-slides.c: (scene_slides):
+
+2008-04-11  Øyvind Kolås  <pippin@o-hand.com>
+
 	* README: updated.
 	* clutter-box2d/clutter-box2d.cpp: add clutter_box2d_new(), renamed
 	clutter_box2d_set_playing to clutter_box2d_set_simulating, implemented

@@ -184,8 +184,12 @@ add_cage (ClutterActor *group,
     {
       add_static_box (group, -100, -100, width + 200, 100);
     }
+  else
+    {
+      add_static_box (group, -100, -height*(3-1)-100, width + 200, 100);
+    }
   add_static_box (group, -100, height, width + 200, 100);
 
-  add_static_box (group, -100, -height, 100, height * 2);
-  add_static_box (group, width, -height, 100, height * 2);
+  add_static_box (group, -100, -(height*(5-1)) , 100, height * 5);
+  add_static_box (group, width, -(height*(5-1)) , 100, height * 5);
 }

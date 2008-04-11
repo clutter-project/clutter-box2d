@@ -22,9 +22,13 @@ init_scenes (void)
   scenes_add_scene ("slides", scene_slides);
   scenes_add_scene ("bridge", scene_bridge);
   scenes_add_scene ("chain", scene_chain);
-  scenes_add_scene ("prismatic joint", scene_prismatic_joint);
   scenes_add_scene ("distance joint", scene_distance_joint);
-  scenes_add_scene ("control", scene_control);
+
+  /* the following are disabled because they don't quite
+   * do what they were intended to do
+   */
+  /* scenes_add_scene ("prismatic joint", scene_prismatic_joint);
+     scenes_add_scene ("control", scene_control);*/
 }
 
 
@@ -76,23 +80,17 @@ stage_key_release_cb (ClutterStage           *stage,
     }
 }
 
-
-
-gint
-main (int   argc,
-      char *argv[])
+static gboolean
+keep_on_top (ClutterActor *group)
 {
-  ClutterActor *stage;
+  clutter_actor_raise_top (group);
+  return TRUE;
+}
+
+static void
+add_controls (ClutterActor *stage)
+{
   ClutterActor *controls;
-  ClutterColor  stage_color = { 0x00, 0x00, 0x00, 0x00 };
-
-  clutter_init (&argc, &argv);
-
-  stage = clutter_stage_get_default ();
-  clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
-  /*clutter_actor_set_size (stage, 320, 480);*/
-  clutter_actor_set_size (stage, 1024, 768);
-
   controls = clutter_group_new ();
   clutter_group_add (CLUTTER_GROUP (stage), controls);
   clutter_actor_show (controls);
@@ -108,10 +106,29 @@ main (int   argc,
                        label_action ("Sans 40px", "→ ", "yellow", action_next,
                                      NULL),
                        NULL);
+  g_timeout_add (1000, keep_on_top, controls);
 
   g_object_set_data (G_OBJECT (controls), "_", "foo");
+}
+
+gint
+main (int   argc,
+      char *argv[])
+{
+  ClutterActor *stage;
+  ClutterColor  stage_color = { 0x00, 0x00, 0x00, 0x00 };
+
+  clutter_init (&argc, &argv);
+
+  stage = clutter_stage_get_default ();
+  clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
+  /*clutter_actor_set_size (stage, 320, 480);
+  clutter_actor_set_size (stage, 1024, 768);*/
+  clutter_actor_set_size (stage, 720, 576);
+
 
   init_scenes ();
+  add_controls (stage);
   scene_activate (0);
   clutter_actor_show (stage);
 
