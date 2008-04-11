@@ -29,7 +29,8 @@ G_DEFINE_TYPE (ClutterBox2D, clutter_box2d, CLUTTER_TYPE_GROUP);
 enum
 {
   PROP_0,
-  PROP_GRAVITY
+  PROP_GRAVITY,
+  PROP_SIMULATING
 };
 
 struct _ClutterBox2DPrivate
@@ -147,11 +148,45 @@ clutter_box2d_set_property (GObject      *gobject,
                                    (ClutterVertex*)g_value_get_boxed (value));
       }
       break;
+    case PROP_SIMULATING:
+      {
+        clutter_box2d_set_simulating (box2d, (gboolean)g_value_get_boolean (value));
+      }
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
     }
 }
+
+static void
+clutter_box2d_get_property (GObject    *gobject,
+                            guint       prop_id,
+                            GValue     *value,
+                            GParamSpec *pspec)
+{
+  ClutterBox2D *box2d = CLUTTER_BOX2D (gobject);
+
+  switch (prop_id)
+    {
+    /*case PROP_GRAVITY:
+      {
+        ClutterVertex gravity = {0, };
+
+        clutter_box2d_get_gravity (box2d, &gravity);
+        g_value_set_boxed (value, &gravity);
+      }
+      break;*/
+    case PROP_SIMULATING:
+        g_value_set_boolean (value,
+                             clutter_box2d_get_simulating (box2d));
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
+      break;
+    }
+}
+
 
 static void
 clutter_box2d_class_init (ClutterBox2DClass *klass)
@@ -173,6 +208,15 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
                                                        "The gravity of ",
                                                        CLUTTER_TYPE_VERTEX,
                                                        G_PARAM_WRITABLE));
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_SIMULATING,
+                                   g_param_spec_boolean ("simulating",
+                                                         "Simulatin",
+                                                         "Whether ClutterBox2D is performing physical simulation or not.",
+                                                         TRUE,
+                                                         static_cast<GParamFlags>(G_PARAM_READWRITE)));
+
 }
 
 static void

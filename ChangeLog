@@ -1,6 +1,12 @@
 2008-04-11  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d.cpp:
+	* clutter-box2d/clutter-box2d.h: expose "simulating" as a property of
+	ClutterBox2D.
+
+2008-04-11  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d/clutter-box2d.cpp:
 	* clutter-box2d/clutter-box2d.h:
 	* doc/reference/clutter-box2d-sections.txt: Improved coverage of
 	documentation.

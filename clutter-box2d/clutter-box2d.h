@@ -76,6 +76,12 @@ GType            clutter_box2d_get_type         (void) G_GNUC_CONST;
  * 0.0 for zero gravity.
  */
 
+/**
+ * ClutterBox2D:simulating
+ *
+ * Whether the physics simulation engine is running or not.
+ */
+
 
 /**
  * clutter_box2d_new:
