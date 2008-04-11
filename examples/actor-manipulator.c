@@ -83,13 +83,15 @@ action_apply_force (ClutterActor *action,
 {
   ClutterActor *actor;
   ClutterBox2D *box2d;
-  ClutterVertex force = { CLUTTER_UNITS_FROM_FLOAT (0.0f),
-                          CLUTTER_UNITS_FROM_FLOAT (-200.0f) };
-  ClutterVertex position = { CLUTTER_UNITS_FROM_FLOAT (0.0f),
-                             CLUTTER_UNITS_FROM_FLOAT (2.0f) };
-
+  ClutterVertex force = { CLUTTER_UNITS_FROM_FLOAT (20.0f),
+                          CLUTTER_UNITS_FROM_FLOAT (0.0f) };
+  ClutterVertex position;
+ 
   actor = CLUTTER_ACTOR (userdata);
   box2d = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
+
+  position.x = CLUTTER_UNITS_FROM_FLOAT (clutter_actor_get_x (actor)); 
+  position.y = CLUTTER_UNITS_FROM_FLOAT (clutter_actor_get_y (actor)); 
 
   clutter_box2d_actor_apply_force (box2d, actor, &force, &position);
 
@@ -312,7 +314,7 @@ actor_manipulator_press (ClutterActor *stage,
    * engine is running
    */
   if (CLUTTER_IS_BOX2D (scene_get_group ()) &&
-      clutter_box2d_get_playing (CLUTTER_BOX2D (scene_get_group ())))
+      clutter_box2d_get_simulating (CLUTTER_BOX2D (scene_get_group ())))
     {
       ClutterBox2D *box2d  = CLUTTER_BOX2D (scene_get_group ());
       ClutterVertex target = { start_x, start_y };

@@ -36,5 +36,6 @@ TODO:
       - shapes
   - access to motor functionality of prismatic and revolute joints.
   - add gear joint
+  - sensor support
   - sync the shape (recreate?) when size of actor changes.
   - support for different shapes (at least circles)

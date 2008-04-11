@@ -50,13 +50,13 @@ action_quit (ClutterActor *label,
 }
 
 void
-action_toggle_playing (ClutterActor *actor,
+action_toggle_simulating (ClutterActor *actor,
                        gpointer      userdata)
 {
-  playing = !playing;
-  clutter_label_set_text (CLUTTER_LABEL (actor), playing ? "◼" : "▶");
-  clutter_box2d_set_playing (CLUTTER_BOX2D (get_scene_no (scene_get_current ())
-                                            ->group), playing);
+  simulating = !simulating;
+  clutter_label_set_text (CLUTTER_LABEL (actor), simulating ? "◼" : "▶");
+  clutter_box2d_set_simulating (CLUTTER_BOX2D (get_scene_no (scene_get_current ())
+                                            ->group), simulating);
 }
 
 static void
@@ -90,7 +90,8 @@ main (int   argc,
 
   stage = clutter_stage_get_default ();
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
-  clutter_actor_set_size (stage, 800, 600);
+  /*clutter_actor_set_size (stage, 320, 480);*/
+  clutter_actor_set_size (stage, 1024, 768);
 
   controls = clutter_group_new ();
   clutter_group_add (CLUTTER_GROUP (stage), controls);
@@ -101,7 +102,7 @@ main (int   argc,
                        /*label_action ("Sans 30px", "q ",      "black", action_quit
                          , NULL),*/
                        label_action ("Sans 40px", "◼", "yellow",
-                                     action_toggle_playing, NULL),
+                                     action_toggle_simulating, NULL),
                        label_action ("Sans 40px", "←", "yellow",
                                      action_previous, NULL),
                        label_action ("Sans 40px", "→ ", "yellow", action_next,

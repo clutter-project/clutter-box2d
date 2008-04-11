@@ -1,3 +1,28 @@
+2008-04-11  Øyvind Kolås  <pippin@o-hand.com>
+
+	* README: updated.
+	* clutter-box2d/clutter-box2d.cpp: add clutter_box2d_new(), renamed
+	clutter_box2d_set_playing to clutter_box2d_set_simulating, implemented
+	clutter_box2d_actor_set_bullet.
+	* clutter-box2d/clutter-box2d.h: improved documentation.
+	* doc/reference/clutter-box2d-sections.txt: reordered.
+	* examples/actor-manipulator.c: (action_apply_force),
+	(actor_manipulator_press):
+	* examples/blockbox.c: (action_toggle_simulating), (main):
+	* examples/scenes.c:
+	* examples/blockbox.h:
+	* examples/util.[ch]: (add_static_box), (add_cage): added utility calls
+	to fence in the stage with static actors, providing a thick frame to
+	keep dynamic actors on stage.
+	* examples/scene-about.c: (scene_about):
+	* examples/scene-bridge.c: (scene_bridge):
+	* examples/scene-chain.c: (scene_chain):
+	* examples/scene-control.c: (scene_control):
+	* examples/scene-distance-joint.c: (scene_distance_joint):
+	* examples/scene-prismatic-joint.c: (scene_prismatic_joint):
+	* examples/scene-pyramid.c: (scene_pyramid):
+	* examples/scene-slides.c: (scene_slides):
+
 2008-04-10  Øyvind Kolås  <pippin@gimp.org>
 
 	* box2d/Makefile: removed to avoid conflicting with the generated one.

@@ -11,23 +11,19 @@ scene_bridge (Scene *scene)
 
   stage = clutter_stage_get_default ();
 
-  group = CLUTTER_ACTOR (g_object_new (CLUTTER_TYPE_BOX2D, NULL));
+  group = clutter_box2d_new ();
   clutter_group_add (CLUTTER_GROUP (stage), group);
   clutter_actor_show (group);
   scene->group = group;
 
-  box = clutter_rectangle_new ();
-  clutter_actor_set_size (box, 1424, 4);
-  clutter_actor_set_position (box, -400, 600);
-  clutter_group_add (CLUTTER_GROUP (group), box);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), box, CLUTTER_BOX2D_STATIC);
-  clutter_actor_show (box);
+  add_cage (group, TRUE);
 
   {
     gint          i;
     gint          numplanks = 23;
     ClutterActor *prev_actor;
+    
+    numplanks = clutter_actor_get_width (stage)/20 - 2;
 
     box = clutter_rectangle_new ();
     clutter_actor_show (box);
@@ -76,5 +72,5 @@ scene_bridge (Scene *scene)
     }
   }
 
-  clutter_box2d_set_playing (CLUTTER_BOX2D (group), playing);
+  clutter_box2d_set_simulating (CLUTTER_BOX2D (group), simulating);
 }

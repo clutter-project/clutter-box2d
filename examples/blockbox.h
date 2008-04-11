@@ -9,6 +9,6 @@
 #include "util.h"
 
 #define ASSETS_DIR "./"
-extern gboolean playing;
+extern gboolean simulating;
 
 #endif

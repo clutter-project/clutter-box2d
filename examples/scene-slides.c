@@ -31,7 +31,7 @@ scene_slides (Scene *scene)
 
 
 
-  group = g_object_new (CLUTTER_TYPE_BOX2D, NULL);
+  group = clutter_box2d_new ();
   clutter_group_add (CLUTTER_GROUP (stage), group);
 
   clutter_group_add (CLUTTER_GROUP (group), ground);
@@ -44,13 +44,7 @@ scene_slides (Scene *scene)
 
   clutter_actor_show (ground);
 
-  ground = clutter_rectangle_new ();
-  clutter_actor_set_size (ground, 1024, 3);
-  clutter_actor_set_position (ground, -300, 700);
-  clutter_group_add (CLUTTER_GROUP (group), ground);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), ground, CLUTTER_BOX2D_STATIC);
-  clutter_actor_show (ground);
+  add_cage (group, FALSE);
 
   ground = clutter_rectangle_new ();
   clutter_actor_set_size (ground, 256, 3);
@@ -82,7 +76,7 @@ scene_slides (Scene *scene)
 
   clutter_actor_set_reactive (group, TRUE);
 
-  clutter_box2d_set_playing (CLUTTER_BOX2D (group), playing);
+  clutter_box2d_set_simulating (CLUTTER_BOX2D (group), simulating);
 
   scene->group = group;
 }

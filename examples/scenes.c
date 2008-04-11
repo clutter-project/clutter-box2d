@@ -16,7 +16,7 @@ scenes_add_scene (const gchar *title,
 
 
 gint     current_scene = -1;
-gboolean playing       = TRUE;
+gboolean simulating       = TRUE;
 
 Scene *
 get_scene_no (gint no)

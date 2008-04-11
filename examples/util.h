@@ -22,4 +22,8 @@ void stuff_actor_fade_in          (ClutterActor *actor,
 ClutterActor * add_hand (ClutterActor *group,
                          gint          x,
                          gint          y);
+
+
+void add_cage (ClutterActor *group,
+               gboolean      roof);
 #endif

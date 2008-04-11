@@ -18,7 +18,8 @@ G_BEGIN_DECLS
  * SECTION:clutter-box2d
  * @short_description: Container with physics engine
  *
- * BLAH BLAH
+ * ClutterBox2D is a container that can physically simulate collisions
+ * between dynamic and static actors.
  */
 
 #define CLUTTER_TYPE_BOX2D    clutter_box2d_get_type ()
@@ -64,37 +65,118 @@ struct _ClutterBox2DClass
 /**
  * ClutterBox2DType:
  * @CLUTTER_BOX2D_NONE: No interaction
- * @CLUTTER_BOX2D_DYNAMIC: The body is affected by collisions
- * @CLUTTER_BOX2D_STATIC: The body affects collisions but is immobile
+ * @CLUTTER_BOX2D_DYNAMIC: The actor is affected by collisions
+ * @CLUTTER_BOX2D_STATIC: The actor affects collisions but is immobile
  *
  * Type of interactions between bodies.
  */
-typedef enum { /*< prefix=CLUTTER_BOX2D >*/
+typedef enum { 
   CLUTTER_BOX2D_NONE = 0,
   CLUTTER_BOX2D_DYNAMIC,
   CLUTTER_BOX2D_STATIC,
 } ClutterBox2DType;
 
 GType            clutter_box2d_get_type         (void) G_GNUC_CONST;
-void             clutter_box2d_set_playing      (ClutterBox2D        *box2d,
-                                                 gboolean             playing);
-gboolean         clutter_box2d_get_playing      (ClutterBox2D        *box2d);
-void             clutter_box2d_set_gravity      (ClutterBox2D        *box2d,
-                                                 const ClutterVertex *gravity);
-void             clutter_box2d_actor_set_type   (ClutterBox2D        *box2d,
-                                                 ClutterActor        *actor,
-                                                 ClutterBox2DType     type);
-ClutterBox2DType clutter_box2d_actor_get_type   (ClutterBox2D        *box2d,
-                                                 ClutterActor        *actor);
+
+
+/**
+ * clutter_box2d_new:
+ *
+ * Returns a new #ClutterBox2D container.
+ */
+ClutterActor *   clutter_box2d_new (void);
+
+/**
+ * clutter_box2d_set_simulating:
+ * @box2d: a #ClutterBox2D
+ * @simulating: the new state, TRUE or FALSE
+ *
+ * Sets whether the simulation engine of @box2d is running or not, the
+ * value defaults to TRUE.
+ */
+void  clutter_box2d_set_simulating (ClutterBox2D *box2d,
+                                    gboolean      simulating);
+
+/**
+ * clutter_box2d_get_simulating:
+ * @box2d: a #ClutterBox2D
+ *
+ * Checks whether @box2d is simulating or not.
+ * the simulation engine to be running when the group is created.
+ */
+gboolean  clutter_box2d_get_simulating (ClutterBox2D *box2d);
+
+/**
+ * clutter_box2d_set_gravity:
+ * @box2d: a #ClutterBox2D
+ * @gravity: the new gravity vector.
+ *
+ * Sets the direction and magnitude of gravity in the simulation as a 2D vector.
+ */
+void clutter_box2d_set_gravity (ClutterBox2D        *box2d,
+                                const ClutterVertex *gravity);
+
 
 
 /**
  * SECTION:clutter-box2d-actor
  * @short_description: Options for the children of ClutterBox2D
  *
- * BLAH BLAH
+ * The children of a ClutterBox2D container are accessed with both
+ * the instance of ClutterBox2D and the child actor itself.
  */
 
+/* This structure contains the combined state of an actor and a body, all
+ * actors added to the ClutterBox2D container have such ClutterBox2DActor
+ * associated with it.
+ */
+typedef struct _ClutterBox2DActor ClutterBox2DActor;
+
+/**
+ * clutter_box2d_actor_set_type:
+ * @box2d: a #ClutterBox2D
+ * @actor: a ClutterActor that is a child of @box2d
+ * @type: the new simulation mode of @actor.
+ *
+ * Changes the type of simulation performed on a clutter actor.
+ */
+void  clutter_box2d_actor_set_type (ClutterBox2D     *box2d,
+                                    ClutterActor     *actor,
+                                    ClutterBox2DType  type);
+
+/**
+ * clutter_box2d_actor_get_type:
+ * @box2d: a #ClutterBox2D
+ * @actor: a ClutterActor that is a child of @box2d
+ *
+ * Returns the type of simulation performed for the actor, the default value
+ * if no simulation has been set is CLUTTER_BOX2D_NONE.
+ */
+ClutterBox2DType clutter_box2d_actor_get_type (ClutterBox2D *box2d,
+                                               ClutterActor *actor);
+
+/**
+ * clutter_box2d_actor_apply_force:
+ * @box2d: a #ClutterBox2D
+ * @actor: the actor to affect.
+ * @force: the force vector to apply
+ * @point: the point in @box2d coordinates to be affected.
+ *
+ * Applies a force to an actor at a specific point.
+ */
+void clutter_box2d_actor_apply_force         (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              ClutterVertex    *force,
+                                              ClutterVertex    *point);
+
+
+void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              gboolean          is_bullet);
+
+gboolean clutter_box2d_actor_is_bullet           (ClutterBox2D     *box2d,
+                                                  ClutterActor     *actor);
+/*
 void             clutter_box2d_actor_set_linear_velocity (ClutterBox2D *box2d,
                                                           ClutterActor *actor,
                                                           const ClutterVertex *linear_velocity);
@@ -103,17 +185,12 @@ void             clutter_box2d_actor_get_linear_velocity (ClutterBox2D *box2d,
                                                           ClutterActor *actor,
                                                           ClutterVertex *linear_velocity);
 
-
 void             clutter_box2d_actor_set_angular_velocity (ClutterBox2D *box2d,
                                                            ClutterActor *actor,
                                                            gdouble       omega);
 gdouble          clutter_box2d_actor_get_angular_velocity (ClutterBox2D *box2d,
                                                            ClutterActor *actor);
 
-void clutter_box2d_actor_apply_force         (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor,
-                                              ClutterVertex    *force,
-                                              ClutterVertex    *point);
 
 void clutter_box2d_actor_apply_impulse       (ClutterBox2D     *box2d,
                                               ClutterActor     *actor,
@@ -124,19 +201,15 @@ void clutter_box2d_actor_apply_torque        (ClutterBox2D     *box2d,
                                               ClutterActor     *actor,
                                               gdouble           torque);
 
-void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor,
-                                              gboolean          is_bullet);
 
-void clutter_box2d_actor_is_bullet           (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor);
+*/
 
 
 /**
  * SECTION:clutter-box2d-joint
- * @short_description: Options for the children of ClutterBox2D
+ * @short_description: Joint creation and manipulation.
  *
- * BLAH BLAH
+ * Joints connects actor, both dynamic and static.
  */
 
 ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
@@ -175,9 +248,9 @@ ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d
                                                       gdouble              max_length,
                                                       const ClutterVertex *axis);
 
-ClutterBox2DJoint *clutter_box2d_add_mouse_joint    (ClutterBox2D     *box2d,
-                                                     ClutterActor     *actor,
-                                                     ClutterVertex    *target);
+ClutterBox2DJoint *clutter_box2d_add_mouse_joint (ClutterBox2D     *box2d,
+                                                  ClutterActor     *actor,
+                                                  ClutterVertex    *target);
 
 void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *mouse_joint,
                                               const ClutterVertex *target);

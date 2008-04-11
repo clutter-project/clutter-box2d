@@ -43,11 +43,6 @@ struct _ClutterBox2DPrivate
   ClutterTimeline *timeline;  /* The timeline driving the simulation        */
 };
 
-/* This structure contains the combined state of an actor and a body, all
- * actors added to the ClutterBox2D container have such ClutterBox2DActor
- * associated with it.
- */
-typedef struct _ClutterBox2DActor ClutterBox2DActor;
 struct _ClutterBox2DActor
 {
   ClutterBox2D     *box2d;/* The ClutterBox2D this actor struct belongs to */
@@ -184,6 +179,11 @@ static void
 clutter_box2d_init (ClutterBox2D *self)
 {
   self->priv = CLUTTER_BOX2D_GET_PRIVATE (self);
+}
+
+ClutterActor *   clutter_box2d_new (void)
+{
+  return CLUTTER_ACTOR (g_object_new (CLUTTER_TYPE_BOX2D, NULL));
 }
 
 static GObject *
@@ -407,6 +407,9 @@ clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
     {
       b2BodyDef bodyDef;
 
+      bodyDef.linearDamping = 0.0f;
+      bodyDef.angularDamping = 0.02f;
+
       SYNCLOG ("making an actor to be %s\n",
                type == CLUTTER_BOX2D_STATIC ? "static" : "dynamic");
       
@@ -556,12 +559,12 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
 }
 
 void
-clutter_box2d_set_playing (ClutterBox2D  *box2d,
-                           gboolean       playing)
+clutter_box2d_set_simulating (ClutterBox2D  *box2d,
+                              gboolean       simulating)
 {
   ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
 
-  if (playing)
+  if (simulating)
     {
       clutter_timeline_start (priv->timeline);
     }
@@ -572,7 +575,7 @@ clutter_box2d_set_playing (ClutterBox2D  *box2d,
 }
 
 gboolean
-clutter_box2d_get_playing (ClutterBox2D *box2d)
+clutter_box2d_get_simulating (ClutterBox2D *box2d)
 {
   ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
 
@@ -652,14 +655,18 @@ void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,
                                               ClutterActor     *actor,
                                               gboolean          is_bullet)
 {
-  g_warning ("%s: NYI", G_STRLOC);
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+
+  box2d_actor->body->SetBullet (is_bullet);
 }
 
-void
+gboolean
 clutter_box2d_actor_is_bullet (ClutterBox2D     *box2d,
                                ClutterActor     *actor)
 {
-  g_warning ("%s: NYI", G_STRLOC);
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+
+  return box2d_actor->body->IsBullet ();
 }
 
 

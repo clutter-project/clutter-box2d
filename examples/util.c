@@ -151,3 +151,41 @@ add_hand (ClutterActor *group,
   clutter_actor_show (actor);
   return actor;
 }
+
+static void
+add_static_box (ClutterActor *group,
+                gint          x,
+                gint          y,
+                gint          width,
+                gint          height)
+{
+  ClutterActor *box;
+  box = clutter_rectangle_new ();
+  clutter_actor_set_size (box, width, height);
+  clutter_actor_set_position (box, x, y);
+  clutter_group_add (CLUTTER_GROUP (group), box);
+  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
+                                  group), box, CLUTTER_BOX2D_STATIC);
+  clutter_actor_show (box);
+}
+
+void
+add_cage (ClutterActor *group,
+          gboolean      roof)
+{
+  ClutterActor *stage;
+  gint width, height;
+
+  stage = clutter_stage_get_default ();
+  width = clutter_actor_get_width (stage);
+  height = clutter_actor_get_height (stage);
+
+  if (roof)
+    {
+      add_static_box (group, -100, -100, width + 200, 100);
+    }
+  add_static_box (group, -100, height, width + 200, 100);
+
+  add_static_box (group, -100, -height, 100, height * 2);
+  add_static_box (group, width, -height, 100, height * 2);
+}

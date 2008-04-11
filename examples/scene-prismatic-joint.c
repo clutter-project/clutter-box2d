@@ -32,7 +32,7 @@ scene_prismatic_joint (Scene *scene)
 
 
 
-  group = g_object_new (CLUTTER_TYPE_BOX2D, NULL);
+  group = clutter_box2d_new ();
   clutter_group_add (CLUTTER_GROUP (stage), group);
 
   clutter_group_add (CLUTTER_GROUP (group), ground);
@@ -45,15 +45,7 @@ scene_prismatic_joint (Scene *scene)
 
   clutter_actor_show (ground);
 
-  ground = clutter_rectangle_new ();
-  clutter_actor_set_size (ground, 1024, 3);
-  clutter_actor_set_position (ground, -300, 700);
-  clutter_group_add (CLUTTER_GROUP (group), ground);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), ground, CLUTTER_BOX2D_STATIC);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), first_hand, CLUTTER_BOX2D_STATIC);
-  clutter_actor_show (ground);
+  add_cage (group, TRUE);
 
   ground = clutter_rectangle_new ();
   clutter_actor_set_size (ground, 256, 3);
@@ -76,17 +68,17 @@ scene_prismatic_joint (Scene *scene)
   /*add_hand (group, 100, 100);*/
   prev_hand = add_hand (group, 200, 100);
 
-  {
+  if(0){
     ClutterVertex anchor1 = { CLUTTER_UNITS_FROM_FLOAT (0),
                               CLUTTER_UNITS_FROM_FLOAT (0) };
     ClutterVertex anchor2 = { CLUTTER_UNITS_FROM_FLOAT (0),
                               CLUTTER_UNITS_FROM_FLOAT (0) };
-    ClutterVertex axis = { CLUTTER_UNITS_FROM_FLOAT (1.0),
-                           CLUTTER_UNITS_FROM_FLOAT (0.0) };
+    ClutterVertex axis = { CLUTTER_UNITS_FROM_FLOAT (100.0),
+                           CLUTTER_UNITS_FROM_FLOAT (20.0) };
     clutter_box2d_add_prismatic_joint (CLUTTER_BOX2D (group),
                                        first_hand, prev_hand,
                                        &anchor1, &anchor2,
-                                       10.0, 200.0, &axis);
+                                       200.0, 220.0, &axis);
   }
 
   clutter_actor_show (group);
@@ -96,7 +88,7 @@ scene_prismatic_joint (Scene *scene)
 
   clutter_actor_set_reactive (group, TRUE);
 
-  clutter_box2d_set_playing (CLUTTER_BOX2D (group), playing);
+  clutter_box2d_set_simulating (CLUTTER_BOX2D (group), simulating);
 
   scene->group = group;
 }
