@@ -170,7 +170,7 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
                                    PROP_GRAVITY,
                                    g_param_spec_boxed ("gravity",
                                                        "Gravity",
-                                                       "",
+                                                       "The gravity of ",
                                                        CLUTTER_TYPE_VERTEX,
                                                        G_PARAM_WRITABLE));
 }

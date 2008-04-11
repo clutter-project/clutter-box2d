@@ -3,7 +3,6 @@
 <TITLE>ClutterBox2D</TITLE>
 ClutterBox2DType
 ClutterBox2D
-ClutterBox2DClass
 clutter_box2d_new
 clutter_box2d_set_simulating
 clutter_box2d_get_simulating
@@ -26,18 +25,11 @@ clutter_box2d_get_type
 <SECTION>
 <FILE>clutter-box2d-actor</FILE>
 <TITLE>ClutterBox2D Actor</TITLE>
-ClutterBox2DActor
 clutter_box2d_actor_set_type
 clutter_box2d_actor_get_type
-clutter_box2d_actor_set_linear_velocity
-clutter_box2d_actor_get_linear_velocity
-clutter_box2d_actor_set_angular_velocity
-clutter_box2d_actor_get_angular_velocity
-clutter_box2d_actor_apply_force
-clutter_box2d_actor_apply_impulse
-clutter_box2d_actor_apply_torque
 clutter_box2d_actor_set_bullet
 clutter_box2d_actor_is_bullet
+clutter_box2d_actor_apply_force
 </SECTION>
 
 <SECTION>
