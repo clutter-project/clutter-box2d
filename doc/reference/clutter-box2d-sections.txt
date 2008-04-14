@@ -29,6 +29,10 @@ clutter_box2d_actor_set_type
 clutter_box2d_actor_get_type
 clutter_box2d_actor_set_bullet
 clutter_box2d_actor_is_bullet
+clutter_box2d_actor_get_angular_velocity
+clutter_box2d_actor_get_linear_velocity
+clutter_box2d_actor_set_angular_velocity
+clutter_box2d_actor_set_linear_velocity
 clutter_box2d_actor_apply_force
 </SECTION>
 

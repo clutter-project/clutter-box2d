@@ -30,7 +30,6 @@ Limitations:
  - Anchor points different from 0,0 probably does not work correctly.
 
 TODO:
-  - API documentation.
   - debug drawing of
       - joints
       - shapes

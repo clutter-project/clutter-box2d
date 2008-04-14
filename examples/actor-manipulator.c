@@ -100,6 +100,25 @@ action_apply_force (ClutterActor *action,
 
 static
 gboolean
+action_set_linear_velocity (ClutterActor *action,
+                            ClutterEvent *event,
+                            gpointer      userdata)
+{
+  ClutterActor *actor;
+  ClutterBox2D *box2d;
+  ClutterVertex velocity = { CLUTTER_UNITS_FROM_FLOAT (150.0f),
+                             CLUTTER_UNITS_FROM_FLOAT (-150.0f) };
+  actor = CLUTTER_ACTOR (userdata);
+  box2d = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
+
+  clutter_box2d_actor_set_linear_velocity (box2d, actor, &velocity);
+
+  return TRUE;
+}
+
+
+static
+gboolean
 action_set_dynamic (ClutterActor *action,
                     ClutterEvent *event,
                     gpointer      userdata)
@@ -271,6 +290,7 @@ actor_manipulator_press (ClutterActor *stage,
       popup_nuke (stage, event->button.x, event->button.y);
       popup_add ("remove", "bar", G_CALLBACK (action_remove), actor);
       popup_add ("apply force", "bar", G_CALLBACK (action_apply_force), actor);
+      popup_add ("set linear velocity", "bar", G_CALLBACK (action_set_linear_velocity), actor);
       popup_add ("set dynamic", "bar", G_CALLBACK (action_set_dynamic), actor);
       popup_add ("set static", "bar", G_CALLBACK (action_set_static), actor);
       popup_add_slider ("opacity", "hm", 0.0, 255.0,

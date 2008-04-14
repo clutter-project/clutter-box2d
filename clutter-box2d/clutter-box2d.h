@@ -224,22 +224,57 @@ void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,
  */
 gboolean clutter_box2d_actor_is_bullet           (ClutterBox2D     *box2d,
                                                   ClutterActor     *actor);
-/*
+
+/**
+ * clutter_box2d_actor_set_linear_velocity:
+ * @box2d: a #ClutterBox2D
+ * @actor: a ClutterActor that is a child of @box2d
+ * @linear_velocity: the new linear velocity of the actor.
+ *
+ * Changes the linear velocity of the center of mass for an actor.
+ */
 void             clutter_box2d_actor_set_linear_velocity (ClutterBox2D *box2d,
                                                           ClutterActor *actor,
                                                           const ClutterVertex *linear_velocity);
 
+/**
+ * clutter_box2d_actor_get_linear_velocity:
+ * @box2d: a #ClutterBox2D
+ * @actor: a ClutterActor that is a child of @box2d
+ * @linear_velocity: pointer to a ClutterVertex for storing the current velocity.
+ *
+ * Retrieves the current linear velocity of a box2d governed actor.
+ */
 void             clutter_box2d_actor_get_linear_velocity (ClutterBox2D *box2d,
                                                           ClutterActor *actor,
                                                           ClutterVertex *linear_velocity);
 
+
+/**
+ * clutter_box2d_actor_set_angular_velocity:
+ * @box2d: a #ClutterBox2D
+ * @actor: a ClutterActor that is a child of @box2d
+ * @angular_velocity: the new angular velocity of the actor.
+ *
+ * Changes the angular velocity (speed of rotation) for an actor.
+ */
 void             clutter_box2d_actor_set_angular_velocity (ClutterBox2D *box2d,
                                                            ClutterActor *actor,
-                                                           gdouble       omega);
+                                                           gdouble       angular_velocity);
+
+/**
+ * clutter_box2d_actor_get_angular_velocity:
+ * @box2d: a #ClutterBox2D
+ * @actor: a ClutterActor that is a child of @box2d
+ *
+ * Query the current angular velocity (speed of rotation) for an actor.
+ *
+ * Returns: the current angular velocity for an actor.
+ */
 gdouble          clutter_box2d_actor_get_angular_velocity (ClutterBox2D *box2d,
                                                            ClutterActor *actor);
 
-
+/*
 void clutter_box2d_actor_apply_impulse       (ClutterBox2D     *box2d,
                                               ClutterActor     *actor,
                                               ClutterVertex    *force,
@@ -248,7 +283,6 @@ void clutter_box2d_actor_apply_impulse       (ClutterBox2D     *box2d,
 void clutter_box2d_actor_apply_torque        (ClutterBox2D     *box2d,
                                               ClutterActor     *actor,
                                               gdouble           torque);
-
 
 */
 

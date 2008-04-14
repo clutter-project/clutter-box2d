@@ -635,33 +635,49 @@ clutter_box2d_actor_get_body (ClutterBox2D *box2d,
 }
 
 
-void             clutter_box2d_actor_set_linear_velocity (ClutterBox2D *box2d,
-                                                          ClutterActor *actor,
-                                                          const ClutterVertex *linear_velocity)
+void
+clutter_box2d_actor_set_linear_velocity (ClutterBox2D        *box2d,
+                                         ClutterActor        *actor,
+                                         const ClutterVertex *linear_velocity)
 {
-  g_warning ("%s: NYI", G_STRLOC);
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  b2Vec2 b2velocity (CLUTTER_UNITS_TO_FLOAT (linear_velocity->x) * SCALE_FACTOR,
+                     CLUTTER_UNITS_TO_FLOAT (linear_velocity->y) * SCALE_FACTOR);
+
+  box2d_actor->body->SetLinearVelocity (b2velocity);
 }
 
-void             clutter_box2d_actor_get_linear_velocity (ClutterBox2D *box2d,
-                                                          ClutterActor *actor,
-                                                          ClutterVertex *linear_velocity)
+void
+clutter_box2d_actor_get_linear_velocity (ClutterBox2D  *box2d,
+                                         ClutterActor  *actor,
+                                         ClutterVertex *linear_velocity)
 {
-  g_warning ("%s: NYI", G_STRLOC);
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  b2Vec2 b2velocity;
+  
+  b2velocity = box2d_actor->body->GetLinearVelocity();
+  linear_velocity->x = CLUTTER_UNITS_FROM_FLOAT (
+                               b2velocity.x * INV_SCALE_FACTOR);
+  linear_velocity->y = CLUTTER_UNITS_FROM_FLOAT (
+                               b2velocity.y * INV_SCALE_FACTOR);
 }
 
 
-void             clutter_box2d_actor_set_angular_velocity (ClutterBox2D *box2d,
-                                                           ClutterActor *actor,
-                                                           gdouble       omega)
+void
+clutter_box2d_actor_set_angular_velocity (ClutterBox2D *box2d,
+                                          ClutterActor *actor,
+                                          gdouble       omega)
 {
-  g_warning ("%s: NYI", G_STRLOC);
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  box2d_actor->body->SetAngularVelocity (omega);
 }
 
-gdouble          clutter_box2d_actor_get_angular_velocity (ClutterBox2D *box2d,
-                                                           ClutterActor *actor)
+gdouble
+clutter_box2d_actor_get_angular_velocity (ClutterBox2D *box2d,
+                                          ClutterActor *actor)
 {
-  g_warning ("%s: NYI", G_STRLOC);
-  return 0.0;
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  return box2d_actor->body->GetAngularVelocity ();
 }
 
 
