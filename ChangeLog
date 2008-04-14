@@ -1,5 +1,14 @@
 2008-04-14  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d/clutter-box2d.cpp:
+	* clutter-box2d/clutter-box2d.h: added apply_force and apply_torque
+	methods.
+	* doc/reference/clutter-box2d-sections.txt:
+	* examples/actor-manipulator.c: (action_apply_force),
+	(action_apply_torque), (actor_manipulator_press):
+
+2008-04-14  Øyvind Kolås  <pippin@o-hand.com>
+
 	* README: removed API documentation from list of items, since the
 	preliminary documentation is in place.
 	* clutter-box2d/clutter-box2d.cpp:

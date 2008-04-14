@@ -681,34 +681,46 @@ clutter_box2d_actor_get_angular_velocity (ClutterBox2D *box2d,
 }
 
 
-void clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
-                                      ClutterActor     *actor,
-                                      ClutterVertex    *force,
-                                      ClutterVertex    *position)
+void
+clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
+                                 ClutterActor     *actor,
+                                 ClutterVertex    *force,
+                                 ClutterVertex    *position)
 {
   ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
-  b2Vec2 b2force (CLUTTER_UNITS_TO_FLOAT (force->x),
-                  CLUTTER_UNITS_TO_FLOAT (force->y));
-  b2Vec2 b2position (CLUTTER_UNITS_TO_FLOAT (position->x),
-                     CLUTTER_UNITS_TO_FLOAT (position->y));
+  b2Vec2 b2force (CLUTTER_UNITS_TO_FLOAT (force->x) * SCALE_FACTOR,
+                  CLUTTER_UNITS_TO_FLOAT (force->y) * SCALE_FACTOR);
+  b2Vec2 b2position (CLUTTER_UNITS_TO_FLOAT (position->x) * SCALE_FACTOR,
+                     CLUTTER_UNITS_TO_FLOAT (position->y) * SCALE_FACTOR);
 
   box2d_actor->body->ApplyForce (
            box2d_actor->body->GetWorldVector(b2force),
            box2d_actor->body->GetWorldVector(b2position));
 }
-void clutter_box2d_actor_apply_impulse       (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor,
-                                              ClutterVertex    *force,
-                                              ClutterVertex    *point)
+
+void
+clutter_box2d_actor_apply_impulse (ClutterBox2D     *box2d,
+                                   ClutterActor     *actor,
+                                   ClutterVertex    *force,
+                                   ClutterVertex    *position)
 {
-  g_warning ("%s: NYI", G_STRLOC);
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  b2Vec2 b2force (CLUTTER_UNITS_TO_FLOAT (force->x) * SCALE_FACTOR,
+                  CLUTTER_UNITS_TO_FLOAT (force->y) * SCALE_FACTOR);
+  b2Vec2 b2position (CLUTTER_UNITS_TO_FLOAT (position->x) * SCALE_FACTOR,
+                     CLUTTER_UNITS_TO_FLOAT (position->y) * SCALE_FACTOR);
+
+  box2d_actor->body->ApplyImpulse (
+           box2d_actor->body->GetWorldVector(b2force),
+           box2d_actor->body->GetWorldVector(b2position));
 }
 
 void clutter_box2d_actor_apply_torque        (ClutterBox2D     *box2d,
                                               ClutterActor     *actor,
                                               gdouble           torque)
 {
-  g_warning ("%s: NYI", G_STRLOC);
+  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
+  box2d_actor->body->ApplyTorque (torque);
 }
 
 void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,

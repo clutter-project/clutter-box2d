@@ -83,20 +83,38 @@ action_apply_force (ClutterActor *action,
 {
   ClutterActor *actor;
   ClutterBox2D *box2d;
-  ClutterVertex force = { CLUTTER_UNITS_FROM_FLOAT (20.0f),
-                          CLUTTER_UNITS_FROM_FLOAT (0.0f) };
+  ClutterVertex force = { CLUTTER_UNITS_FROM_FLOAT (120.0f),
+                          CLUTTER_UNITS_FROM_FLOAT (-120.0f) };
   ClutterVertex position;
  
   actor = CLUTTER_ACTOR (userdata);
   box2d = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
 
-  position.x = CLUTTER_UNITS_FROM_FLOAT (clutter_actor_get_x (actor)); 
-  position.y = CLUTTER_UNITS_FROM_FLOAT (clutter_actor_get_y (actor)); 
+  position.x = CLUTTER_UNITS_FROM_INT (clutter_actor_get_x (actor)); 
+  position.y = CLUTTER_UNITS_FROM_INT (clutter_actor_get_y (actor)); 
 
-  clutter_box2d_actor_apply_force (box2d, actor, &force, &position);
+  clutter_box2d_actor_apply_impulse (box2d, actor, &force, &position);
 
   return TRUE;
 }
+
+
+static
+gboolean
+action_apply_torque (ClutterActor *action,
+                     ClutterEvent *event,
+                     gpointer      userdata)
+{
+  ClutterActor *actor;
+  ClutterBox2D *box2d;
+ 
+  actor = CLUTTER_ACTOR (userdata);
+  box2d = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
+  clutter_box2d_actor_apply_torque (box2d, actor, 100.0);
+
+  return TRUE;
+}
+
 
 static
 gboolean
@@ -290,6 +308,7 @@ actor_manipulator_press (ClutterActor *stage,
       popup_nuke (stage, event->button.x, event->button.y);
       popup_add ("remove", "bar", G_CALLBACK (action_remove), actor);
       popup_add ("apply force", "bar", G_CALLBACK (action_apply_force), actor);
+      popup_add ("apply torque", "bar", G_CALLBACK (action_apply_torque), actor);
       popup_add ("set linear velocity", "bar", G_CALLBACK (action_set_linear_velocity), actor);
       popup_add ("set dynamic", "bar", G_CALLBACK (action_set_dynamic), actor);
       popup_add ("set static", "bar", G_CALLBACK (action_set_static), actor);

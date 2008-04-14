@@ -185,19 +185,6 @@ void  clutter_box2d_actor_set_type (ClutterBox2D     *box2d,
 ClutterBox2DType clutter_box2d_actor_get_type (ClutterBox2D *box2d,
                                                ClutterActor *actor);
 
-/**
- * clutter_box2d_actor_apply_force:
- * @box2d: a #ClutterBox2D
- * @actor: the actor to affect.
- * @force: the force vector to apply
- * @point: the point in @box2d coordinates to be affected.
- *
- * Applies a force to an actor at a specific point.
- */
-void clutter_box2d_actor_apply_force         (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor,
-                                              ClutterVertex    *force,
-                                              ClutterVertex    *point);
 
 
 /**
@@ -274,17 +261,49 @@ void             clutter_box2d_actor_set_angular_velocity (ClutterBox2D *box2d,
 gdouble          clutter_box2d_actor_get_angular_velocity (ClutterBox2D *box2d,
                                                            ClutterActor *actor);
 
-/*
+
+/**
+ * clutter_box2d_actor_apply_force:
+ * @box2d: a #ClutterBox2D
+ * @actor: the actor to affect.
+ * @force: the force vector to apply
+ * @point: the point in @box2d coordinates to be affected.
+ *
+ * Applies a force to an actor at a specific point.
+ */
+void clutter_box2d_actor_apply_force         (ClutterBox2D     *box2d,
+                                              ClutterActor     *actor,
+                                              ClutterVertex    *force,
+                                              ClutterVertex    *point);
+
+/**
+ * clutter_box2d_actor_apply_impulse:
+ * @box2d: a #ClutterBox2D
+ * @actor: the actor to affect.
+ * @force: the force vector to apply
+ * @point: the point in @box2d coordinates to be affected.
+ *
+ * Applies an impulse to an actor at a specific point.
+ */
 void clutter_box2d_actor_apply_impulse       (ClutterBox2D     *box2d,
                                               ClutterActor     *actor,
                                               ClutterVertex    *force,
                                               ClutterVertex    *point);
 
+
+/**
+ * clutter_box2d_actor_apply_torque:
+ * @box2d: a #ClutterBox2D
+ * @actor: the actor to affect.
+ * @param torque about the z-axis (out of the screen), usually in N-m.
+ *
+ * Apply a torque. This affects the angular velocity
+ * without affecting the linear velocity of the center of mass.
+ */
 void clutter_box2d_actor_apply_torque        (ClutterBox2D     *box2d,
                                               ClutterActor     *actor,
                                               gdouble           torque);
 
-*/
 
 
 /**
