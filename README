@@ -5,36 +5,31 @@ A glue layer between clutter and box2d that provides a special group where the
 actors can be set to be static or dynamic in regard to a physics simulation. The
 source tree currently contains an embedded version of box2d trunk.
 
-Features
---------
-
-Automatic creation of body for actors added to a special ClutterBox2D group.
-Three different types of clutter-box2d bodies can be created. Static, dynamic
-and meta. Static bodies affect collisions, dynamic bodies are also affected by
-collisions, meta bodies are tracked for position from the actor. At the moment
-the only shape available for collision tracking is the boundig box of the
-individiual actor.
-
 Features:
-  - Children of the ClutterBox2d group can be set to be static or dynamic
-  - changing the gravity of the simulation.
+  - Children of the ClutterBox2d group can be simulated as static or dynamic
+    rigid bodies. Collision detection.
+  - Specifying the gravity of the world.
   - play/pause control over the box2d physics engine
+  - Setting linear and angular velocities of simulated children.
   - automatic position synchronization between clutter and box2d.
   - joints
       - prismatic.
       - revolute.
       - distance (spring)
-      - mouse (for dragging objects aroud and manipulating them).
-
-Limitations:
- - Anchor points different from 0,0 probably does not work correctly.
+      - mouse (for dragging objects around and manipulating them).
 
 TODO:
   - debug drawing of
-      - joints
-      - shapes
-  - access to motor functionality of prismatic and revolute joints.
-  - add gear joint
+      - joints (and shapes)
+  - actors/bodies
+     - support translating back and forth to clutter actors with more
+       properties.
+     - resync when scale/geometry of actor changes
+     - support assigning arbitrary non rectangular shapes, like circles
+       and polylines.
+  - joints
+     - make the ClutterBox2DJoint not be a struct but proper GObjects to
+       make use of properties and paramspecs.
+     - access to motor functionality of prismatic and revolute joints.
+     - add gear joint
   - sensor support
-  - sync the shape (recreate?) when size of actor changes.
-  - support for different shapes (at least circles)

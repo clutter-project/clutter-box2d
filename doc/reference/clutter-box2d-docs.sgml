@@ -41,7 +41,8 @@
     <title>Clutter-Box2D Overview</title>
     
     <para>
-       ClutterBox2D is  glue layer between clutter and Box2D that provides a
+        ClutterBox2D is a library that provided Clutter with a special container
+        that performs simulation for glue layer between clutter and Box2D 
        special group where the actors can be set to be static or dynamic in
        regard to a physics simulation. ClutterBox2D provides a gobject like API
        wrapper for the Box2D C++ API, the wrapper currently provides access to

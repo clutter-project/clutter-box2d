@@ -1,5 +1,10 @@
 2008-04-14  Øyvind Kolås  <pippin@o-hand.com>
 
+	* README: improved, updated TODO.
+	* doc/reference/clutter-box2d-docs.sgml: rephrased slightly.
+
+2008-04-14  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d.cpp:
 	* clutter-box2d/clutter-box2d.h: added apply_force and apply_torque
 	methods.
