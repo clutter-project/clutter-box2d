@@ -1,3 +1,8 @@
+2008-04-17  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d/clutter-box2d.cpp: add get_property vfunc to box2d
+	class.
+
 2008-04-14  Øyvind Kolås  <pippin@o-hand.com>
 
 	* README: improved, updated TODO.

@@ -197,6 +197,7 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
   gobject_class->dispose      = clutter_box2d_dispose;
   gobject_class->constructor  = clutter_box2d_constructor;
   gobject_class->set_property = clutter_box2d_set_property;
+  gobject_class->get_property = clutter_box2d_get_property;
   actor_class->paint          = clutter_box2d_paint;
 
   g_type_class_add_private (gobject_class, sizeof (ClutterBox2DPrivate));
