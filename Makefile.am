@@ -2,17 +2,17 @@ SUBDIRS = . box2d clutter-box2d examples doc
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc
 
-clutter-box2d-0.6.pc: clutter-box2d.pc
-	@cp -f clutter-box2d.pc clutter-box2d-0.6.pc
+clutter-box2d-0.7.pc: clutter-box2d.pc
+	@cp -f clutter-box2d.pc clutter-box2d-0.7.pc
 
-pkgconfig_DATA = clutter-box2d-0.6.pc
+pkgconfig_DATA = clutter-box2d-0.7.pc
 pkgconfigdir   = $(libdir)/pkgconfig
 
 INCLUDES = @GCC_FLAGS@ @DEPS_CFLAGS@ 
 
 EXTRA_DIST = clutter-box2d.pc.in
 
-CLEANFILES = clutter-box2d-0.6.pc
+CLEANFILES = clutter-box2d-0.7.pc
 DISTCLEANFILES = clutter-box2d.pc
 
 # Extra clean files so that maintainer-clean removes *everything*

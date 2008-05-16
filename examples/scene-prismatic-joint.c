@@ -9,26 +9,12 @@ scene_prismatic_joint (Scene *scene)
   ClutterActor     *group;
   ClutterActor     *prev_hand  = NULL;
   ClutterActor     *first_hand = NULL;
-  GdkPixbuf        *pixbuf;
   ClutterActor     *stage;
-  GError           *error;
 
   stage = clutter_stage_get_default ();
 
-  error  = NULL;
-  pixbuf = gdk_pixbuf_new_from_file (ASSETS_DIR "mars.png", &error);
-  if (error)
-    {
-      g_warning ("Unable to load assets/mars.png: %s", error->message);
-      first_hand = ground = clutter_rectangle_new ();
-      clutter_actor_set_size (ground, 500, 120);
-      g_object_unref (pixbuf);
-    }
-  else
-    {
-      ground = clutter_texture_new_from_pixbuf (pixbuf);
-      g_object_unref (pixbuf);
-    }
+  first_hand = ground = clutter_rectangle_new ();
+  clutter_actor_set_size (ground, 500, 120);
 
 
 

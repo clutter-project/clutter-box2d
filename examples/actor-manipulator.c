@@ -215,16 +215,8 @@ action_add_image (ClutterActor *action,
 {
   ClutterActor *group = CLUTTER_ACTOR (userdata);
   ClutterActor *actor;
-  GError       *error;
-  GdkPixbuf    *pixbuf;
 
-  error  = NULL;
-  pixbuf = gdk_pixbuf_new_from_file (ASSETS_DIR "redhand.png", &error);
-  if (error)
-    g_error ("Unable to load redhand.png: %s", error->message);
-
-  actor = clutter_texture_new_from_pixbuf (pixbuf);
-  g_object_unref (pixbuf);
+  actor = clutter_texture_new_from_file (ASSETS_DIR "redhand.png", NULL);
   clutter_actor_set_position (actor, event->button.x, event->button.y);
   clutter_group_add (CLUTTER_GROUP (group), actor);
   clutter_actor_show (actor);

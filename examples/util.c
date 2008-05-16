@@ -131,17 +131,8 @@ add_hand (ClutterActor *group,
           gint          y)
 {
   ClutterActor     *actor;
-  static GdkPixbuf *hand_pixbuf = NULL;
 
-  if (!hand_pixbuf)
-    {
-      GError *error = NULL;
-      hand_pixbuf = gdk_pixbuf_new_from_file (ASSETS_DIR "redhand.png", &error);
-      if (error)
-        g_error ("Unable to load redhand.png: %s", error->message);
-    }
-
-  actor = clutter_texture_new_from_pixbuf (hand_pixbuf);
+  actor = clutter_texture_new_from_file (ASSETS_DIR "redhand.png", NULL);
   clutter_group_add (CLUTTER_GROUP (group), actor);
 
   clutter_actor_set_opacity (actor, 1.0 * 255);

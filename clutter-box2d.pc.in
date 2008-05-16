@@ -4,8 +4,8 @@ libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: clutter-box2d
-Description: Clutter Cairo integrarion library
+Description: Clutter Box2D integration library
 Version: @VERSION@
 Libs: -L${libdir} -lclutter-box2d-@CLUTTER_BOX2D_MAJORMINOR@
-Cflags: -I${includedir}/clutter-0.6/clutter-box2d
-Requires: clutter-0.6 box2d
+Cflags: -I${includedir}/clutter-0.7/clutter-box2d
+Requires: clutter-0.7
