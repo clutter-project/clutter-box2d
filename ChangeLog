@@ -1,3 +1,12 @@
+2008-05-22  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d/clutter-box2d.h: added
+	clutter_box2d_actor_set_manipulatable function that makes it possible
+	to interact physically using pointer events with a dynamic actor that
+	is part of the simulation. (Code originating in the example).
+	* clutter-box2d/clutter-box2d-interaction.c: new file.
+	* clutter-box2d/Makefile.am: added new file.
+
 2008-05-16  Øyvind Kolås  <pippin@o-hand.com>
 
 	* Makefile.am:
