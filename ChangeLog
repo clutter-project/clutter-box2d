@@ -1,3 +1,11 @@
+2008-05-23  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d/clutter-box2d-interaction.c: changed the handling of
+	locks to work around some grab issues.
+	(clutter_box2d_actor_motion), (clutter_box2d_actor_release):
+	* examples/blockbox.c: (tidy_cursor): added a fake tidy_cursor to
+	make the example link when there is no tidy_cursor in the process.
+
 2008-05-22  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d.h: added

@@ -16,6 +16,8 @@
 #include "clutter-box2d.h"
 /*#include "tidy-cursor.h"*/
 
+void tidy_cursor(gint x, gint y);
+
 static gboolean clutter_box2d_actor_press   (ClutterActor *actor,
                                              ClutterEvent *event,
                                              gpointer      data);
@@ -94,7 +96,7 @@ clutter_box2d_actor_motion (ClutterActor *actor,
       x = CLUTTER_UNITS_FROM_INT (event->motion.x);
       y = CLUTTER_UNITS_FROM_INT (event->motion.y);
 
-      /* tidy_cursor (event->motion.x, event->motion.y); */
+      tidy_cursor (event->motion.x, event->motion.y);
 
       if (!manipulated_actor)
         return FALSE;
@@ -125,26 +127,26 @@ clutter_box2d_actor_release (ClutterActor *actor,
       clutter_box2d_joint_destroy (mouse_joint);
       mouse_joint = NULL;
       clutter_ungrab_pointer ();
-  /*    tidy_cursor (event->button.x, event->button.y);*/
 
       if (manipulated_actor)
         g_object_weak_unref (G_OBJECT (actor), actor_died, NULL);
       manipulated_actor = NULL;
+
+      /* since the ungrab also was valid for this release we redeliver the
+       * event to maintain the state of the click count.
+       */
+      if(1){ 
+        ClutterEvent *synthetic_release;
+        synthetic_release = clutter_event_new (CLUTTER_BUTTON_RELEASE);
+        memcpy (synthetic_release, event, sizeof (ClutterButtonEvent));
+        synthetic_release->any.source = NULL;
+        clutter_do_event (synthetic_release); /* skip queue */
+        clutter_event_free (synthetic_release);
+      }
+
       return FALSE;
     }
 
-  { /* since the ungrab also was valid for this release we redeliver the
-     * event to maintain the state of the click count.
-     */
-    ClutterEvent *synthetic_release;
-    synthetic_release = clutter_event_new (CLUTTER_NOTHING);
-    memcpy (synthetic_release, event, sizeof (ClutterButtonEvent));
-
-    clutter_event_put (synthetic_release);
-    /* XXX: should probably use clutter_do_event instead? to avoid bugs when
-     * events have been queued up. */
-    clutter_event_free (synthetic_release);
-  }
 
   return FALSE;
 }

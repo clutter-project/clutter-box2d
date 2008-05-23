@@ -4,7 +4,7 @@
 #include "clutter-box2d.h"
 #include "blockbox.h"
 #include "actor-manipulator.h"
-
+void tidy_cursor (gint x, gint Y){};
 void scene_about (Scene *scene);
 void scene_bridge (Scene *scene);
 void scene_pyramid (Scene *scene);
