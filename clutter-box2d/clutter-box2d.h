@@ -3,7 +3,7 @@
  * allows simulating physical interactions of it's child actors
  * through the use of box2d
  *
- * Copyright 2007 OpenedHand Ltd
+ * Copyright 2007, 2008 OpenedHand Ltd
  * Authored by Øyvind Kolås <pippin@o-hand.com>
  */
 
@@ -59,6 +59,11 @@ struct _ClutterBox2D
   /*< private >*/
   ClutterGroup         parent_instance;
   ClutterBox2DPrivate *priv;
+
+  void            *world;  /* The Box2D world which contains our simulation*/
+  GHashTable      *actors; /* a hash table that maps actors to */
+  GHashTable      *bodies; /* a hash table that maps bodies to */
+  GHashTable      *joints;
 };
 
 struct _ClutterBox2DClass
@@ -172,45 +177,20 @@ void  clutter_box2d_actor_set_type (ClutterBox2D     *box2d,
                                     ClutterActor     *actor,
                                     ClutterBox2DType  type);
 
-/**
- * clutter_box2d_actor_get_type:
- * @box2d: a #ClutterBox2D
- * @actor: a ClutterActor that is a child of @box2d
- *
- * Query the type of simulation performed on a child actor of a box2d group.
- *
- * Returns: the type of simulation performed for the actor, the default value
- * if no simulation has been set is CLUTTER_BOX2D_NONE.
- */
-ClutterBox2DType clutter_box2d_actor_get_type (ClutterBox2D *box2d,
-                                               ClutterActor *actor);
-
-
 
 /**
- * clutter_box2d_actor_set_bullet:
+ * clutter_box2d_actor_get_type2:
  * @box2d: a #ClutterBox2D
  * @actor: a ClutterActor that is a child of @box2d
- * @is_bullet: treat actor as bullet.
+ * @type: the new simulation mode of @actor.
  *
- * Toggles whether actor is treated as a bullet (extra simulation steps to
- * avoid flying through thin objects at high speed.).
+ * Changes the type of simulation performed on a clutter actor.
  */
-void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor,
-                                              gboolean          is_bullet);
 
-/**
- * clutter_box2d_actor_is_bullet:
- * @box2d: a #ClutterBox2D
- * @actor: a ClutterActor that is a child of @box2d
- *
- * Queries whether an actor is considered a bullet.
- *
- * Returns: the current bullet state of the actor.
- */
-gboolean clutter_box2d_actor_is_bullet           (ClutterBox2D     *box2d,
-                                                  ClutterActor     *actor);
+ClutterBox2DType
+clutter_box2d_actor_get_type2 (ClutterBox2D     *box2d,
+                               ClutterActor     *actor);
+
 
 /**
  * clutter_box2d_actor_set_linear_velocity:

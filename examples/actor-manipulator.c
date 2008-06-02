@@ -350,7 +350,7 @@ actor_manipulator_press (ClutterActor *stage,
       ClutterBox2D *box2d  = CLUTTER_BOX2D (scene_get_group ());
       ClutterVertex target = { start_x, start_y };
 
-      switch (clutter_box2d_actor_get_type (box2d, manipulated_actor))
+      switch (clutter_box2d_actor_get_type2 (box2d, manipulated_actor))
         {
           case CLUTTER_BOX2D_DYNAMIC:
             mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (

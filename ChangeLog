@@ -1,3 +1,20 @@
+2008-06-02  Øyvind Kolås  <pippin@o-hand.com>
+
+	Refactoring of ClutterBox2D code to use ClutterChildMeta for tracking
+	and synchronizing state between graphics and physics simulation. The
+	code currently depending on ClutterBox2D compiles interchangeably with
+	this and the previous revision of clutter-box2d.
+
+	* clutter-box2d/clutter-box2d.cpp: refactored to use childmeta instead
+	of a plain struct.
+	* clutter-box2d/clutter-box2d.h:
+	* clutter-box2d/clutter-box2d-actor.cpp: new file.
+	* clutter-box2d/clutter-box2d-actor.h: new file.
+	* clutter-box2d/Makefile.am: added new files.
+	* examples/actor-manipulator.c: (actor_manipulator_press): use a
+	temporary workaround clutter_box2d_actor_get_type2 (the old symbol is
+	now used by the ClutterBox2DActor class).
+
 2008-05-23  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d-interaction.c: changed the handling of
