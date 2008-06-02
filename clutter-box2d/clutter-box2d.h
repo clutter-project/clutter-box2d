@@ -157,15 +157,6 @@ typedef enum {
 
 
 
-/**
- * clutter_box2d_actor_set_manipulatable:
- * @actor: a #ClutterActor in a ClutterBox2D container.
- *
- * Utility function that uses a mouse joint as well as mouse capture making
- * it possible to interact with the box2d simulation using the specified actor,
- * this call also sets @actor as reactive.
- */
-void clutter_box2d_actor_set_manipulatable (ClutterActor *actor);
 
 
 /**

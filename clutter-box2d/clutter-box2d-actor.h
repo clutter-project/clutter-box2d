@@ -112,12 +112,16 @@ clutter_box2d_actor_get_type2 (ClutterBox2D     *box2d,
 
 
 
-void clutter_box2d_actor_set_bullet          (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor,
-                                              gboolean          is_bullet);
 
-gboolean clutter_box2d_actor_is_bullet       (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor);
+/**
+ * clutter_box2d_actor_set_manipulatable:
+ * @actor: a #ClutterActor in a ClutterBox2D container.
+ *
+ * Utility function that uses a mouse joint as well as mouse capture making
+ * it possible to interact with the box2d simulation using the specified actor,
+ * this call also sets @actor as reactive.
+ */
+void clutter_box2d_actor_set_manipulatable (ClutterActor *actor);
 
 void sync_body  (ClutterBox2DActor *box2d_actor);
 void sync_actor (ClutterBox2DActor *box2d_actor);

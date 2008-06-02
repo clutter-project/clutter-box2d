@@ -1,5 +1,13 @@
 2008-06-02  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d/clutter-box2d.h: moved
+	clutter_box2d_actor_set_manipulatable to clutter-box2d-actor.
+	* clutter-box2d/clutter-box2d-actor.cpp:
+	* clutter-box2d/clutter-box2d-actor.h: made "bullet" a child property
+	of the container.
+
+2008-06-02  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d.cpp: removed broken APIs and reorganized
 	code.
 	* clutter-box2d/clutter-box2d.h: removed function calls that are

@@ -53,13 +53,6 @@ clutter_box2d_actor_get_type (ClutterBox2DActor *box2d_actor)
   return box2d_actor->type;
 }
 
-
-void clutter_box2d_actor_set_bullet          (ClutterBox2DActor *box2d_actor,
-                                              gboolean          is_bullet)
-{
-  box2d_actor->body->SetBullet (is_bullet);
-}
-
 gboolean
 clutter_box2d_actor_is_bullet (ClutterBox2DActor *box2d_actor)
 {
@@ -152,8 +145,7 @@ clutter_box2d_actor_set_property (GObject      *gobject,
   switch (prop_id)
     {
     case PROP_IS_BULLET:
-      clutter_box2d_actor_set_bullet (box2d_actor,
-                                      g_value_get_boolean (value));
+      box2d_actor->body->SetBullet (g_value_get_boolean (value));
       break;
     case PROP_LINEAR_VELOCITY:
       {
@@ -187,7 +179,7 @@ clutter_box2d_actor_get_property (GObject      *gobject,
   switch (prop_id)
     {
     case PROP_IS_BULLET:
-      g_value_set_boolean (value, clutter_box2d_actor_is_bullet (box2d_actor));
+      g_value_set_boolean (value, box2d_actor->body->IsBullet ());
       break;
     case PROP_LINEAR_VELOCITY:
       {
