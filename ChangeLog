@@ -1,5 +1,13 @@
 2008-06-02  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d/clutter-box2d.h: moved all definitions and code
+	* clutter-box2d/clutter-box2d.cpp: related to joints into ...
+	* clutter-box2d/clutter-box2d-joint.cpp: ... it's own files.
+	* clutter-box2d/clutter-box2d-joint.h:
+	* clutter-box2d/Makefile.am: added new files.
+
+2008-06-02  Øyvind Kolås  <pippin@o-hand.com>
+
 	Refactoring of ClutterBox2D code to use ClutterChildMeta for tracking
 	and synchronizing state between graphics and physics simulation. The
 	code currently depending on ClutterBox2D compiles interchangeably with
