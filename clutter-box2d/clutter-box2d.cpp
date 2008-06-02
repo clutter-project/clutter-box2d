@@ -38,14 +38,14 @@ enum
 
 struct _ClutterBox2DPrivate
 {
-  gdouble          fps;    /* The framerate simulation is running at        */
-  gint             iterations;/* number of engine iterations per processing */
-  ClutterTimeline *timeline;  /* The timeline driving the simulation        */
+  gdouble          fps;         /* The framerate simulation is running at        */
+  gint             iterations;  /* number of engine iterations per processing */
+  ClutterTimeline *timeline;    /* The timeline driving the simulation        */
 };
 
 typedef enum 
 {
-  CLUTTER_BOX2D_JOINT_DEAD,      /* An associated actor has been killed off */
+  CLUTTER_BOX2D_JOINT_DEAD,     /* An associated actor has been killed off */
   CLUTTER_BOX2D_JOINT_DISTANCE,
   CLUTTER_BOX2D_JOINT_PRISMATIC,
   CLUTTER_BOX2D_JOINT_REVOLUTE,
@@ -79,16 +79,6 @@ clutter_box2d_paint (ClutterActor *actor)
    */
 }
 
-void
-clutter_box2d_set_gravity (ClutterBox2D        *box2d,
-                           const ClutterVertex *gravity)
-{
-  b2Vec2 b2gravity = b2Vec2(CLUTTER_UNITS_TO_FLOAT (gravity->x),
-                     CLUTTER_UNITS_TO_FLOAT (gravity->y));
-     
-  ((b2World*)box2d->world)->SetGravity (b2gravity); 
-}
-
 static void
 clutter_box2d_set_property (GObject      *gobject,
                             guint         prop_id,
@@ -101,8 +91,10 @@ clutter_box2d_set_property (GObject      *gobject,
     {
     case PROP_GRAVITY:
       {
-        clutter_box2d_set_gravity (box2d,
-                                   (ClutterVertex*)g_value_get_boxed (value));
+        ClutterVertex *gravity = (ClutterVertex*) g_value_get_boxed (value);
+        b2Vec2 b2gravity = b2Vec2(CLUTTER_UNITS_TO_FLOAT (gravity->x),
+                                  CLUTTER_UNITS_TO_FLOAT (gravity->y));
+        ((b2World*)box2d->world)->SetGravity (b2gravity);
       }
       break;
     case PROP_SIMULATING:
@@ -126,14 +118,6 @@ clutter_box2d_get_property (GObject    *gobject,
 
   switch (prop_id)
     {
-    /*case PROP_GRAVITY:
-      {
-        ClutterVertex gravity = {0, };
-
-        clutter_box2d_get_gravity (box2d, &gravity);
-        g_value_set_boxed (value, &gravity);
-      }
-      break;*/
     case PROP_SIMULATING:
         g_value_set_boolean (value,
                              clutter_box2d_get_simulating (box2d));
@@ -161,6 +145,7 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
 
   g_type_class_add_private (gobject_class, sizeof (ClutterBox2DPrivate));
 
+  /* gravity can only be set, not get */
   g_object_class_install_property (gobject_class,
                                    PROP_GRAVITY,
                                    g_param_spec_boxed ("gravity",
@@ -262,8 +247,9 @@ clutter_box2d_dispose (GObject *object)
 }
 
 
-static void      clutter_box2d_create_child_meta (ClutterContainer *container,
-                                                  ClutterActor     *actor)
+static void
+clutter_box2d_create_child_meta (ClutterContainer *container,
+                                 ClutterActor     *actor)
 
 {
   ClutterChildMeta  *child_meta;
@@ -340,56 +326,6 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
     }
 }
 
-/* Set the type of physical object an actor in a Box2D group is of.
- */
-void
-clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
-                              ClutterActor      *actor,
-                              ClutterBox2DType   type)
-{
-  ClutterBox2DActor   *box2d_actor = CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta (
-     CLUTTER_CONTAINER (box2d), actor));
-
-  if (box2d_actor->type == type)
-    return;
-
-  if (box2d_actor->type != CLUTTER_BOX2D_NONE)
-    {
-      g_assert (box2d_actor->body);
-
-      g_hash_table_remove (box2d->bodies, box2d_actor->body);
-      box2d_actor->world->DestroyBody (box2d_actor->body);
-      box2d_actor->body = NULL;
-      box2d_actor->shape = NULL;
-      box2d_actor->type = CLUTTER_BOX2D_NONE;
-    }
-
-  if (type == CLUTTER_BOX2D_DYNAMIC ||
-      type == CLUTTER_BOX2D_STATIC)
-    {
-      b2BodyDef bodyDef;
-
-      bodyDef.linearDamping = 0.0f;
-      bodyDef.angularDamping = 0.02f;
-
-      SYNCLOG ("making an actor to be %s\n",
-               type == CLUTTER_BOX2D_STATIC ? "static" : "dynamic");
-      
-      box2d_actor->type = type;
-
-      if (type == CLUTTER_BOX2D_DYNAMIC)
-        {
-          box2d_actor->body = box2d_actor->world->CreateDynamicBody (&bodyDef);
-        }
-      else if (type == CLUTTER_BOX2D_STATIC)
-        {
-          box2d_actor->body = box2d_actor->world->CreateStaticBody (&bodyDef);
-        }
-      sync_body (box2d_actor);
-      box2d_actor->body->SetMassFromShapes ();
-    }
-  g_hash_table_insert (box2d->bodies, box2d_actor->body, box2d_actor);
-}
 
 /* Synchronise the state of the Box2D body with the
  * current geomery of the actor, only really do it if
@@ -533,97 +469,6 @@ clutter_box2d_actor_get_body (ClutterBox2D *box2d,
   ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
   return box2d_actor->body;
 }
-
-
-void
-clutter_box2d_actor_set_linear_velocity (ClutterBox2D        *box2d,
-                                         ClutterActor        *actor,
-                                         const ClutterVertex *linear_velocity)
-{
-  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
-  b2Vec2 b2velocity (CLUTTER_UNITS_TO_FLOAT (linear_velocity->x) * SCALE_FACTOR,
-                     CLUTTER_UNITS_TO_FLOAT (linear_velocity->y) * SCALE_FACTOR);
-
-  box2d_actor->body->SetLinearVelocity (b2velocity);
-}
-
-void
-clutter_box2d_actor_get_linear_velocity (ClutterBox2D  *box2d,
-                                         ClutterActor  *actor,
-                                         ClutterVertex *linear_velocity)
-{
-  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
-  b2Vec2 b2velocity;
-  
-  b2velocity = box2d_actor->body->GetLinearVelocity();
-  linear_velocity->x = CLUTTER_UNITS_FROM_FLOAT (
-                               b2velocity.x * INV_SCALE_FACTOR);
-  linear_velocity->y = CLUTTER_UNITS_FROM_FLOAT (
-                               b2velocity.y * INV_SCALE_FACTOR);
-}
-
-
-void
-clutter_box2d_actor_set_angular_velocity (ClutterBox2D *box2d,
-                                          ClutterActor *actor,
-                                          gdouble       omega)
-{
-  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
-  box2d_actor->body->SetAngularVelocity (omega);
-}
-
-gdouble
-clutter_box2d_actor_get_angular_velocity (ClutterBox2D *box2d,
-                                          ClutterActor *actor)
-{
-  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
-  return box2d_actor->body->GetAngularVelocity ();
-}
-
-
-void
-clutter_box2d_actor_apply_force (ClutterBox2D     *box2d,
-                                 ClutterActor     *actor,
-                                 ClutterVertex    *force,
-                                 ClutterVertex    *position)
-{
-  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
-  b2Vec2 b2force (CLUTTER_UNITS_TO_FLOAT (force->x) * SCALE_FACTOR,
-                  CLUTTER_UNITS_TO_FLOAT (force->y) * SCALE_FACTOR);
-  b2Vec2 b2position (CLUTTER_UNITS_TO_FLOAT (position->x) * SCALE_FACTOR,
-                     CLUTTER_UNITS_TO_FLOAT (position->y) * SCALE_FACTOR);
-
-  box2d_actor->body->ApplyForce (
-           box2d_actor->body->GetWorldVector(b2force),
-           box2d_actor->body->GetWorldVector(b2position));
-}
-
-void
-clutter_box2d_actor_apply_impulse (ClutterBox2D     *box2d,
-                                   ClutterActor     *actor,
-                                   ClutterVertex    *force,
-                                   ClutterVertex    *position)
-{
-  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
-  b2Vec2 b2force (CLUTTER_UNITS_TO_FLOAT (force->x) * SCALE_FACTOR,
-                  CLUTTER_UNITS_TO_FLOAT (force->y) * SCALE_FACTOR);
-  b2Vec2 b2position (CLUTTER_UNITS_TO_FLOAT (position->x) * SCALE_FACTOR,
-                     CLUTTER_UNITS_TO_FLOAT (position->y) * SCALE_FACTOR);
-
-  box2d_actor->body->ApplyImpulse (
-           box2d_actor->body->GetWorldVector(b2force),
-           box2d_actor->body->GetWorldVector(b2position));
-}
-
-void clutter_box2d_actor_apply_torque        (ClutterBox2D     *box2d,
-                                              ClutterActor     *actor,
-                                              gdouble           torque)
-{
-  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
-  box2d_actor->body->ApplyTorque (torque);
-}
-
-
 
 void * clutter_box2d_get_world      (ClutterBox2D *box2d)
 {

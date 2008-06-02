@@ -35,13 +35,14 @@ enum
   PROP_0,
   PROP_IS_BULLET,
   PROP_LINEAR_VELOCITY,
+  PROP_ANGULAR_VELOCITY,
   PROP_TYPE,
 };
 
 struct _ClutterBox2DActorPrivate {
-    /* currently empty, since ClutterBox2D is currently tightly coupled
-     * with this class, everything is accessed through the instance structure.
-     */
+  /* currently empty, since ClutterBox2D is currently tightly coupled
+   * with this class, everything is accessed through the instance structure.
+   */
 };
 
 static void      dispose     (GObject               *object);
@@ -74,9 +75,9 @@ clutter_box2d_actor_get_type2 (ClutterBox2D     *box2d,
   return box2d_actor->type;
 }
 
-void
-clutter_box2d_actor_set_type (ClutterBox2DActor *box2d_actor,
-                              ClutterBox2DType   type)
+static void
+clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
+                               ClutterBox2DType   type)
 {
   ClutterBox2D *box2d = CLUTTER_BOX2D(clutter_child_meta_get_container (CLUTTER_CHILD_META(box2d_actor)));
   b2World *world = ((b2World*)(box2d->world));
@@ -122,6 +123,19 @@ clutter_box2d_actor_set_type (ClutterBox2DActor *box2d_actor,
   g_hash_table_insert (box2d->bodies, box2d_actor->body, box2d_actor);
 }
 
+/* Set the type of physical object an actor in a Box2D group is of.
+ */
+void
+clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
+                              ClutterActor      *actor,
+                              ClutterBox2DType   type)
+{
+  ClutterBox2DActor   *box2d_actor = CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta (
+     CLUTTER_CONTAINER (box2d), actor));
+  clutter_box2d_actor_set_type2 (box2d_actor, type);
+}
+
+
 
 static void
 clutter_box2d_actor_set_property (GObject      *gobject,
@@ -129,8 +143,11 @@ clutter_box2d_actor_set_property (GObject      *gobject,
                                   const GValue *value,
                                   GParamSpec   *pspec)
 {
-  ClutterChildMeta  *child_meta = CLUTTER_CHILD_META (gobject);
-  ClutterBox2DActor *box2d_actor = CLUTTER_BOX2D_ACTOR (gobject);
+  ClutterChildMeta  *child_meta;
+  ClutterBox2DActor *box2d_actor;
+
+  child_meta = CLUTTER_CHILD_META (gobject);
+  box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
  
   switch (prop_id)
     {
@@ -146,6 +163,8 @@ clutter_box2d_actor_set_property (GObject      *gobject,
         box2d_actor->body->SetLinearVelocity (b2velocity);
       }
       break;
+    case PROP_ANGULAR_VELOCITY:
+      box2d_actor->body->SetAngularVelocity (g_value_get_double (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
@@ -159,8 +178,11 @@ clutter_box2d_actor_get_property (GObject      *gobject,
                                   GValue       *value,
                                   GParamSpec   *pspec)
 {
-  ClutterChildMeta  *child_meta = CLUTTER_CHILD_META (gobject);
-  ClutterBox2DActor *box2d_actor = CLUTTER_BOX2D_ACTOR (gobject);
+  ClutterChildMeta  *child_meta;
+  ClutterBox2DActor *box2d_actor;
+
+  child_meta = CLUTTER_CHILD_META (gobject);
+  box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
  
   switch (prop_id)
     {
@@ -169,12 +191,15 @@ clutter_box2d_actor_get_property (GObject      *gobject,
       break;
     case PROP_LINEAR_VELOCITY:
       {
+        /* FIXME: this is setting it, not getting it! */
         ClutterVertex *vertex = (ClutterVertex*)g_value_get_boxed (value);
         b2Vec2 b2velocity (CLUTTER_UNITS_TO_FLOAT (vertex->x) * SCALE_FACTOR,
                            CLUTTER_UNITS_TO_FLOAT (vertex->y) * SCALE_FACTOR);
         box2d_actor->body->SetLinearVelocity (b2velocity);
       }
       break;
+    case PROP_ANGULAR_VELOCITY:
+      g_value_set_double (value, box2d_actor->body->GetAngularVelocity());
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
@@ -198,6 +223,15 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
                                                        "Linear velocity",
                                                        CLUTTER_TYPE_VERTEX,
                                                        G_PARAM_WRITABLE));
+
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_ANGULAR_VELOCITY,
+                                   g_param_spec_double ("angular-velocity",
+                                                       "Angular velocity",
+                                                       "Angular velocity",
+                                                       -5000.0, 5000.0, 0.0,
+                                                       (GParamFlags)G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class,
                                    PROP_IS_BULLET,

@@ -1,5 +1,20 @@
 2008-06-02  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d/clutter-box2d.cpp: removed broken APIs and reorganized
+	code.
+	* clutter-box2d/clutter-box2d.h: removed function calls that are
+	replaced with child properties.
+
+	* clutter-box2d/clutter-box2d-actor.cpp:
+	* clutter-box2d/clutter-box2d-actor.h: moved set and get type calls
+	here from the main clutter-box2d.cpp file.
+
+	* examples/actor-manipulator.c: (action_set_linear_velocity),
+	(actor_manipulator_press): removed menu items relying on unimplemented
+	functionality.
+
+2008-06-02  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d.h: moved all definitions and code
 	* clutter-box2d/clutter-box2d.cpp: related to joints into ...
 	* clutter-box2d/clutter-box2d-joint.cpp: ... it's own files.
