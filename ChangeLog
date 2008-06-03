@@ -1,5 +1,13 @@
 2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
 
+	* examples/scene-table.c: (scene_table): added a test scene with zero
+	gravity and a bunch of actors colliding, this is similar to the basic
+	simulation as run in stuff.
+	* examples/blockbox.c: (init_scenes): added table scene.
+	* examples/Makefile.am: added scene_table.
+
+2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d-actor.cpp: cleaned up code to track the
 	manipulatable state of actors.
 

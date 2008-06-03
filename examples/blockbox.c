@@ -5,6 +5,7 @@
 #include "blockbox.h"
 #include "actor-manipulator.h"
 void tidy_cursor (gint x, gint Y){};
+void scene_table (Scene *scene);
 void scene_about (Scene *scene);
 void scene_bridge (Scene *scene);
 void scene_pyramid (Scene *scene);
@@ -20,6 +21,7 @@ init_scenes (void)
   scenes_add_scene ("about", scene_about);
   scenes_add_scene ("pyramid", scene_pyramid);
   scenes_add_scene ("slides", scene_slides);
+  scenes_add_scene ("table", scene_table);
   scenes_add_scene ("bridge", scene_bridge);
   scenes_add_scene ("chain", scene_chain);
   scenes_add_scene ("distance joint", scene_distance_joint);

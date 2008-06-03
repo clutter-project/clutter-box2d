@@ -26,6 +26,7 @@ blockbox_SOURCES = \
 	scene-control.c 	\
 	scene-bridge.c 		\
 	scene-chain.c 		\
+	scene-table.c 		\
 	scene-distance-joint.c 	\
 	scene-prismatic-joint.c \
 	scene-about.c
