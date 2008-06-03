@@ -137,9 +137,9 @@ add_hand (ClutterActor *group,
 
   clutter_actor_set_opacity (actor, 1.0 * 255);
   clutter_actor_set_position (actor, x, y);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), actor, CLUTTER_BOX2D_DYNAMIC);
-  clutter_actor_show (actor);
+
+  clutter_container_child_set (CLUTTER_CONTAINER (group), actor,
+                               "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
   return actor;
 }
 
@@ -155,9 +155,11 @@ add_static_box (ClutterActor *group,
   clutter_actor_set_size (box, width, height);
   clutter_actor_set_position (box, x, y);
   clutter_group_add (CLUTTER_GROUP (group), box);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), box, CLUTTER_BOX2D_STATIC);
-  clutter_actor_show (box);
+
+
+  clutter_container_child_set (CLUTTER_CONTAINER (group), box,
+                               "mode", CLUTTER_BOX2D_STATIC, NULL);
+
 }
 
 void

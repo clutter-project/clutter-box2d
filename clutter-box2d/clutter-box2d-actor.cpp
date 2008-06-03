@@ -36,7 +36,7 @@ enum
   PROP_IS_BULLET,
   PROP_LINEAR_VELOCITY,
   PROP_ANGULAR_VELOCITY,
-  PROP_TYPE,
+  PROP_MODE,
 };
 
 struct _ClutterBox2DActorPrivate {
@@ -45,23 +45,25 @@ struct _ClutterBox2DActorPrivate {
    */
 };
 
-static void      dispose     (GObject               *object);
+static void      dispose      (GObject               *object);
 
-ClutterBox2DType
-clutter_box2d_actor_get_type (ClutterBox2DActor *box2d_actor)
+static ClutterBox2DType
+clutter_box2d_actor_get_type  (ClutterBox2DActor *box2d_actor)
 {
   return box2d_actor->type;
 }
 
-gboolean
+
+
+static gboolean
 clutter_box2d_actor_is_bullet (ClutterBox2DActor *box2d_actor)
 {
   return box2d_actor->body->IsBullet ();
 }
 
-ClutterBox2DType
-clutter_box2d_actor_get_type2 (ClutterBox2D     *box2d,
-                               ClutterActor     *actor)
+static ClutterBox2DType
+clutter_box2d_actor_get_type2 (ClutterBox2D *box2d,
+                               ClutterActor *actor)
 {
   ClutterBox2DActor *box2d_actor;
   box2d_actor = CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta (CLUTTER_CONTAINER (box2d), actor));
@@ -77,6 +79,7 @@ clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
 
   if (box2d_actor->type == type)
     return;
+  g_assert (!(type == 0 && box2d_actor->type != 0));
 
   if (box2d_actor->type != CLUTTER_BOX2D_NONE)
     {
@@ -118,7 +121,7 @@ clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
 
 /* Set the type of physical object an actor in a Box2D group is of.
  */
-void
+static void
 clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
                               ClutterActor      *actor,
                               ClutterBox2DType   type)
@@ -127,8 +130,6 @@ clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
      CLUTTER_CONTAINER (box2d), actor));
   clutter_box2d_actor_set_type2 (box2d_actor, type);
 }
-
-
 
 static void
 clutter_box2d_actor_set_property (GObject      *gobject,
@@ -157,6 +158,10 @@ clutter_box2d_actor_set_property (GObject      *gobject,
       break;
     case PROP_ANGULAR_VELOCITY:
       box2d_actor->body->SetAngularVelocity (g_value_get_double (value));
+      break;
+    case PROP_MODE:
+      clutter_box2d_actor_set_type2 (box2d_actor, (ClutterBox2DType)g_value_get_int (value));
+
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
@@ -193,6 +198,12 @@ clutter_box2d_actor_get_property (GObject      *gobject,
     case PROP_ANGULAR_VELOCITY:
       g_value_set_double (value, box2d_actor->body->GetAngularVelocity());
       break;
+    case PROP_MODE:
+      {
+          gint val = clutter_box2d_actor_get_type (box2d_actor);
+          g_value_set_int (value, val);
+      }
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -225,6 +236,13 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
                                                        -5000.0, 5000.0, 0.0,
                                                        (GParamFlags)G_PARAM_READWRITE));
 
+  g_object_class_install_property (gobject_class,
+                                   PROP_MODE,
+                                   g_param_spec_int ("mode",
+                                                     "Box2d Mode",
+                                                     "The mode of the actor (none, static or dynamic)",
+                                                     0, G_MAXINT, 0,
+                                                     (GParamFlags)G_PARAM_READWRITE));
   g_object_class_install_property (gobject_class,
                                    PROP_IS_BULLET,
                                    g_param_spec_boolean ("is-bullet",

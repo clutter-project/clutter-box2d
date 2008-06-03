@@ -29,8 +29,6 @@ scene_prismatic_joint (Scene *scene)
                                                                                     wrong
                                                                                     */
 
-  clutter_actor_show (ground);
-
   add_cage (group, TRUE);
 
   ground = clutter_rectangle_new ();
@@ -38,18 +36,17 @@ scene_prismatic_joint (Scene *scene)
   clutter_actor_set_position (ground, -100, 310);
   clutter_actor_set_rotation (ground, CLUTTER_Z_AXIS, 30, 128, 16, 0);
   clutter_group_add (CLUTTER_GROUP (group), ground);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), ground, CLUTTER_BOX2D_STATIC);
-  clutter_actor_show (ground);
+
+  clutter_container_child_set (CLUTTER_CONTAINER (group), ground,
+                               "mode", CLUTTER_BOX2D_STATIC, NULL);
 
   ground = clutter_rectangle_new ();
   clutter_actor_set_size (ground, 256, 3);
   clutter_actor_set_position (ground, 200, 200);
   clutter_actor_set_rotation (ground, CLUTTER_Z_AXIS, -30, 0, 0, 0);
   clutter_group_add (CLUTTER_GROUP (group), ground);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), ground, CLUTTER_BOX2D_STATIC);
-  clutter_actor_show (ground);
+  clutter_container_child_set (CLUTTER_CONTAINER (group), ground,
+                               "mode", CLUTTER_BOX2D_STATIC, NULL);
 
   /*add_hand (group, 100, 100);*/
   prev_hand = add_hand (group, 200, 100);
@@ -66,8 +63,6 @@ scene_prismatic_joint (Scene *scene)
                                        &anchor1, &anchor2,
                                        200.0, 220.0, &axis);
   }
-
-  clutter_actor_show (group);
 
   clutter_actor_set_depth (group, -600);
   clutter_actor_set_position (group, 0, -100);

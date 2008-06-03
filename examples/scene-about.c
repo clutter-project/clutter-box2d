@@ -15,7 +15,6 @@ scene_about (Scene *scene)
   stage = clutter_stage_get_default ();
 
   group = clutter_box2d_new ();
-  clutter_actor_show (group);
   clutter_group_add (CLUTTER_GROUP (stage), group);
 
   title = clutter_label_new_full ("Sans 20px",
@@ -27,29 +26,28 @@ scene_about (Scene *scene)
                                   "press stop|play to control simulation\n"
                                   "right click to get context menu", &color);
 
-  clutter_actor_show (title);
   clutter_actor_set_position (title, 40, 40);
   clutter_group_add (CLUTTER_GROUP (group), title);
 
   add_cage (group, TRUE);
 
   rectangle = clutter_rectangle_new ();
-  clutter_actor_show (rectangle);
   clutter_actor_set_size (rectangle, 150, 150);
   clutter_actor_set_position (rectangle, 100, 120);
   clutter_actor_set_rotation (rectangle, CLUTTER_Z_AXIS, 23, 0, 0, 0);
 
   clutter_group_add (CLUTTER_GROUP (group), rectangle);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (group),
-                                rectangle, CLUTTER_BOX2D_DYNAMIC);
+
+  clutter_container_child_set (CLUTTER_CONTAINER (group), rectangle,
+                               "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
 
   title = clutter_label_new_full ("Sans 40px", "Clutter-Box2D", &color2);
-  clutter_actor_show (title);
   clutter_actor_set_position (title, 100, 120);
   clutter_actor_set_rotation (title, CLUTTER_Z_AXIS, 23, 0, 0, 0);
   clutter_group_add (CLUTTER_GROUP (group), title);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (group),
-                                title, CLUTTER_BOX2D_DYNAMIC);
+
+  clutter_container_child_set (CLUTTER_CONTAINER (group), title,
+                               "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
 
   clutter_box2d_set_simulating (CLUTTER_BOX2D (group), simulating);
 

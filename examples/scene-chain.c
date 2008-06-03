@@ -13,7 +13,6 @@ scene_chain (Scene *scene)
 
   group = clutter_box2d_new ();
   clutter_group_add (CLUTTER_GROUP (stage), group);
-  clutter_actor_show (group);
   scene->group = group;
 
   add_cage (group, TRUE);
@@ -26,12 +25,12 @@ scene_chain (Scene *scene)
 
     y = 50;
     box = clutter_rectangle_new ();
-    clutter_actor_show (box);
     clutter_actor_set_size (box, 18, 5);
     clutter_actor_set_position (box, clutter_actor_get_width(stage)/2, y);
     clutter_group_add (CLUTTER_GROUP (group), box);
-    clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                    group), box, CLUTTER_BOX2D_STATIC);
+
+    clutter_container_child_set (CLUTTER_CONTAINER (group), box,
+                                 "mode", CLUTTER_BOX2D_STATIC, NULL);
 
     prev_actor = box;
 
@@ -44,12 +43,12 @@ scene_chain (Scene *scene)
     for (i = 0; i < numlinks; ++i)
       {
         box = clutter_rectangle_new ();
-        clutter_actor_show (box);
         clutter_actor_set_size (box, 18, 5);
         clutter_actor_set_position (box, 20 + 20 * i, y+=1);
         clutter_group_add (CLUTTER_GROUP (group), box);
-        clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                        group), box, CLUTTER_BOX2D_DYNAMIC);
+
+        clutter_container_child_set (CLUTTER_CONTAINER (group), box,
+                                     "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
 
         {
           ClutterVertex anchor1 = { CLUTTER_UNITS_FROM_FLOAT (18.0),

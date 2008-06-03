@@ -22,25 +22,23 @@ scene_control (Scene *scene)
   clutter_actor_set_position (ground, -100, 310);
   clutter_actor_set_rotation (ground, CLUTTER_Z_AXIS, 30, 128, 16, 0);
   clutter_group_add (CLUTTER_GROUP (group), ground);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), ground, CLUTTER_BOX2D_STATIC);
-  clutter_actor_show (ground);
+
+  clutter_container_child_set (CLUTTER_CONTAINER (group), ground,
+                               "mode", CLUTTER_BOX2D_STATIC, NULL);
 
   ground = clutter_rectangle_new ();
   clutter_actor_set_size (ground, 256, 3);
   clutter_actor_set_position (ground, 200, 200);
   clutter_actor_set_rotation (ground, CLUTTER_Z_AXIS, -30, 0, 0, 0);
   clutter_group_add (CLUTTER_GROUP (group), ground);
-  clutter_box2d_actor_set_type (CLUTTER_BOX2D (
-                                  group), ground, CLUTTER_BOX2D_STATIC);
-  clutter_actor_show (ground);
+  clutter_container_child_set (CLUTTER_CONTAINER (group), ground,
+                               "mode", CLUTTER_BOX2D_STATIC, NULL);
 
   for (i = 0; i < 20; i++)
     {
       add_hand (group, g_random_int_range (-100, 200),
                 g_random_int_range (-800, 0));
     }
-  clutter_actor_show (group);
 
   clutter_actor_set_depth (group, -600);
   clutter_actor_set_position (group, 0, -100);

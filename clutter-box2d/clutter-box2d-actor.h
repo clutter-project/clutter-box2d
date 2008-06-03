@@ -85,33 +85,6 @@ struct _ClutterBox2DActorClass
 GType   clutter_box2d_actor_get_type  (void) G_GNUC_CONST;
 
 
-/**
- * clutter_box2d_actor_set_type:
- * @box2d: a #ClutterBox2D
- * @actor: a ClutterActor that is a child of @box2d
- * @type: the new simulation mode of @actor.
- *
- * Changes the type of simulation performed on a clutter actor.
- */
-void  clutter_box2d_actor_set_type (ClutterBox2D     *box2d,
-                                    ClutterActor     *actor,
-                                    ClutterBox2DType  type);
-
-/**
- * clutter_box2d_actor_get_type2:
- * @box2d: a #ClutterBox2D
- * @actor: a ClutterActor that is a child of @box2d
- * @type: the new simulation mode of @actor.
- *
- * Changes the type of simulation performed on a clutter actor.
- */
-
-ClutterBox2DType
-clutter_box2d_actor_get_type2 (ClutterBox2D     *box2d,
-                               ClutterActor     *actor);
-
-
-
 
 /**
  * clutter_box2d_actor_set_manipulatable:

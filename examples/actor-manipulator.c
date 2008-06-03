@@ -88,7 +88,8 @@ action_set_linear_velocity (ClutterActor *action,
   actor = CLUTTER_ACTOR (userdata);
   box2d = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
 
-  clutter_container_child_set (box2d, actor, "linear-velocity", &velocity, NULL);
+  clutter_container_child_set (CLUTTER_CONTAINER (box2d),
+                               actor, "linear-velocity", &velocity, NULL);
 
   return TRUE;
 }
@@ -106,7 +107,8 @@ action_set_dynamic (ClutterActor *action,
   actor = CLUTTER_ACTOR (userdata);
   box2d = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
 
-  clutter_box2d_actor_set_type (box2d, actor, CLUTTER_BOX2D_DYNAMIC);
+  clutter_container_child_set (CLUTTER_CONTAINER (box2d),
+                               actor, "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
   return FALSE;
 }
 
@@ -122,7 +124,8 @@ action_set_static (ClutterActor *action,
   actor = CLUTTER_ACTOR (userdata);
   box2d = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
 
-  clutter_box2d_actor_set_type (box2d, actor, CLUTTER_BOX2D_STATIC);
+  clutter_container_child_set (CLUTTER_CONTAINER (box2d), actor,
+                               "mode", CLUTTER_BOX2D_STATIC, NULL);
 
   return FALSE;
 }
@@ -141,7 +144,6 @@ action_add_rectangle (ClutterActor *action,
   clutter_actor_set_size (box, 100, 100);
   clutter_actor_set_position (box, event->button.x, event->button.y);
   clutter_group_add (CLUTTER_GROUP (group), box);
-  clutter_actor_show (box);
   return FALSE;
 }
 
@@ -158,11 +160,9 @@ action_add_text (ClutterActor *action,
   clutter_color_parse ("#888", &color);
 
   title = clutter_label_new_full ("Sans 30px", "fnord", &color);
-  clutter_actor_show (title);
 
   clutter_actor_set_position (title, event->button.x, event->button.y);
   clutter_group_add (CLUTTER_GROUP (group), title);
-  clutter_actor_show (title);
   return FALSE;
 }
 
@@ -178,7 +178,6 @@ action_add_image (ClutterActor *action,
   actor = clutter_texture_new_from_file (ASSETS_DIR "redhand.png", NULL);
   clutter_actor_set_position (actor, event->button.x, event->button.y);
   clutter_group_add (CLUTTER_GROUP (group), actor);
-  clutter_actor_show (actor);
   return FALSE;
 }
 
@@ -195,7 +194,6 @@ action_add_block_tree (ClutterActor *action,
   actor = block_tree_new ("foo");
   clutter_group_add (CLUTTER_GROUP (clutter_stage_get_default ()), actor);
   clutter_actor_set_position (actor, 20, 40);
-  clutter_actor_show (actor);
   return FALSE;
 }
 #endif
@@ -306,19 +304,18 @@ actor_manipulator_press (ClutterActor *stage,
     {
       ClutterBox2D *box2d  = CLUTTER_BOX2D (scene_get_group ());
       ClutterVertex target = { start_x, start_y };
-
-      switch (clutter_box2d_actor_get_type2 (box2d, manipulated_actor))
+      gint type;
+      
+      clutter_container_child_get (CLUTTER_CONTAINER (box2d),
+                                   manipulated_actor, "mode", &type, NULL);
+      	  
+      if (type == CLUTTER_BOX2D_DYNAMIC)
         {
-          case CLUTTER_BOX2D_DYNAMIC:
             mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
                                                            scene_get_group ()),
                                                          manipulated_actor,
                                                          &target);
             mode = Box2D;
-            break;
-
-          default:
-            break;
         }
     }
 #endif

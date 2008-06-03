@@ -1,3 +1,25 @@
+2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d/clutter-box2d-actor.cpp: 
+	* clutter-box2d/clutter-box2d-actor.h:
+	moved the mode setting (static/dynamic/none) to a child property.
+
+	Updated the examples to use the newer API, also removed now (0.7)
+	unneeded calls to clutter_actor_show().
+
+	* examples/actor-manipulator.c: (action_set_linear_velocity),
+	(action_set_dynamic), (action_set_static),
+	(actor_manipulator_press):
+	* examples/blockbox.c: (add_controls):
+	* examples/scene-about.c: (scene_about):
+	* examples/scene-bridge.c: (scene_bridge):
+	* examples/scene-chain.c: (scene_chain):
+	* examples/scene-control.c: (scene_control):
+	* examples/scene-distance-joint.c: (scene_distance_joint):
+	* examples/scene-prismatic-joint.c: (scene_prismatic_joint):
+	* examples/scene-slides.c: (scene_slides):
+	* examples/util.c: (add_hand), (add_static_box):
+
 2008-06-02  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d.h: moved

@@ -93,7 +93,6 @@ add_controls (ClutterActor *stage)
   ClutterActor *controls;
   controls = clutter_group_new ();
   clutter_group_add (CLUTTER_GROUP (stage), controls);
-  clutter_actor_show (controls);
 
   wrap_group_init (CLUTTER_GROUP (controls), 10, 0, 400, 0);
   wrap_group_add_many (CLUTTER_GROUP (controls),
@@ -106,7 +105,7 @@ add_controls (ClutterActor *stage)
                        label_action ("Sans 40px", "→ ", "yellow", action_next,
                                      NULL),
                        NULL);
-  g_timeout_add (1000, keep_on_top, controls);
+  g_timeout_add (1000, (void*)keep_on_top, controls);
 
   g_object_set_data (G_OBJECT (controls), "_", "foo");
 }
@@ -130,7 +129,6 @@ main (int   argc,
   init_scenes ();
   add_controls (stage);
   scene_activate (0);
-  clutter_actor_show (stage);
 
   g_signal_connect (stage,
                     "key-release-event",
@@ -138,6 +136,7 @@ main (int   argc,
                     NULL);
 
   actor_manipulator_init (stage);
+  clutter_actor_show (stage);
   clutter_main ();
 
   return EXIT_SUCCESS;
