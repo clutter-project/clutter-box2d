@@ -1,5 +1,15 @@
 2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d/clutter-box2d-actor.cpp: removed
+	clutter_box2d_actor_get_type2 and clutter_box2d_actor_get_type calls.
+	* clutter-box2d/clutter-box2d.h: moved clutter_box2d_get_actor ...
+	* clutter-box2d/clutter-box2d-actor.h: ... here
+	* clutter-box2d/clutter-box2d.cpp: removed
+	clutter_box2d_actor_get_body and clutter_box2d_get_world since they
+	were not in use anymore.
+
+2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d-actor.cpp: made the sync methods between
 	physics state/scene graph private.
 	* clutter-box2d/clutter-box2d-actor.h:

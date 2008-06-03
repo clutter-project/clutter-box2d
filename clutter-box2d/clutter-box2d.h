@@ -157,21 +157,6 @@ typedef enum {
 
 
 
-
-
-/**
- * clutter_box2d_get_actor:
- * @box2d: a #ClutterBox2D container.
- * @actor: a child of a @box2d
- *
- * Retrieve the meta object with child properties and other sync information.
- *
- * Returns: the meta object assoicated with @actor.
- */
-ClutterBox2DActor *
-clutter_box2d_get_actor (ClutterBox2D   *box2d,
-                         ClutterActor   *actor);
-
 G_END_DECLS
 
 #endif

@@ -69,11 +69,10 @@ struct _ClutterBox2DActor
                              is not itself affected. Dynamic: the body is
                              affected by collisions.*/ 
 
-  b2Body           *body;  /* Box2D body, if any */
-  b2Shape          *shape; /* shape attached to this body, if any */
-  GList            *joints;  /* list of joints this body participates in */
-  b2World          *world;/*the Bod2D world (could be looked up through box2d)*/
-
+  b2Body           *body;   /* Box2D body, if any */
+  b2Shape          *shape;  /* shape attached to this body, if any */
+  GList            *joints; /* list of joints this body participates in */
+  b2World          *world;  /*the Box2D world (could be looked up through box2d)*/
 };
 
 struct _ClutterBox2DActorClass
@@ -82,19 +81,21 @@ struct _ClutterBox2DActorClass
   ClutterChildMetaClass parent_class;
 };
 
-GType   clutter_box2d_actor_get_type  (void) G_GNUC_CONST;
+ClutterBox2DActor * clutter_box2d_get_actor (ClutterBox2D   *box2d,
+                                             ClutterActor   *actor);
 
+GType   clutter_box2d_actor_get_type  (void) G_GNUC_CONST;
 
 /**
  * clutter_box2d_actor_set_manipulatable:
  * @actor: a #ClutterActor in a ClutterBox2D container.
  *
  * Utility function that uses a mouse joint as well as mouse capture making
- * it possible to interact with the box2d simulation using the specified actor,
- * this call also sets @actor as reactive.
+ * it possible to interact with the provided actor, this call installs
+ * handlers for press, release and motion as well as setting @actor as
+ * reactive.
  */
 void clutter_box2d_actor_set_manipulatable (ClutterActor *actor);
-
 
 G_END_DECLS
 

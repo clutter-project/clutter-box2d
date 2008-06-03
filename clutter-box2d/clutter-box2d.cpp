@@ -55,13 +55,6 @@ typedef enum
   CLUTTER_BOX2D_JOINT_MOUSE
 } ClutterBox2DJointType;
 
-ClutterBox2DActor *
-clutter_box2d_get_actor (ClutterBox2D   *box2d,
-                         ClutterActor   *actor)
-{
-  return CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta (CLUTTER_CONTAINER (box2d), actor));
-}
-
 
 static GObject * clutter_box2d_constructor (GType                  type,
                                             guint                  n_params,
@@ -463,17 +456,4 @@ clutter_box2d_get_simulating (ClutterBox2D *box2d)
   ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
 
   return clutter_timeline_is_playing (priv->timeline);
-}
-
-void *
-clutter_box2d_actor_get_body (ClutterBox2D *box2d,
-                              ClutterActor *actor)
-{
-  ClutterBox2DActor *box2d_actor = clutter_box2d_get_actor (box2d, actor);
-  return box2d_actor->body;
-}
-
-void * clutter_box2d_get_world      (ClutterBox2D *box2d)
-{
-  return box2d->world;
 }
