@@ -26,6 +26,9 @@ G_DEFINE_TYPE_WITH_CODE (ClutterBox2D, clutter_box2d, CLUTTER_TYPE_GROUP,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
                              clutter_container_iface_init));
 
+void _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor);
+
+
 #define CLUTTER_BOX2D_GET_PRIVATE(obj)                 \
   (G_TYPE_INSTANCE_GET_PRIVATE ((obj), CLUTTER_TYPE_BOX2D, ClutterBox2DPrivate))
 
@@ -333,7 +336,7 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
  * the physics computation
  */
 void
-sync_body (ClutterBox2DActor *box2d_actor)
+_clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor)
 {
   gint x, y;
   gdouble rot;
@@ -371,8 +374,8 @@ sync_body (ClutterBox2DActor *box2d_actor)
  * be smaller than the threshold accepted when sync_body is being run to avoid
  * introducing errors.
  */
-void
-sync_actor (ClutterBox2DActor *box2d_actor)
+static void
+_clutter_box2d_sync_actor (ClutterBox2DActor *box2d_actor)
 {
   ClutterActor *actor = CLUTTER_CHILD_META (box2d_actor)->actor;
   b2Body       *body  = box2d_actor->body;
@@ -417,7 +420,7 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
     for (iter = actors; iter; iter = g_list_next (iter))
       {
         ClutterBox2DActor *box2d_actor = (ClutterBox2DActor*) iter->data;
-        sync_body (box2d_actor);
+        _clutter_box2d_sync_body (box2d_actor);
       }
 
     if (msecs == 0)
@@ -431,7 +434,7 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
     for (iter = actors; iter; iter = g_list_next (iter))
       {
         ClutterBox2DActor *box2d_actor = (ClutterBox2DActor*) iter->data;
-        sync_actor (box2d_actor);
+        _clutter_box2d_sync_actor (box2d_actor);
       }
     g_list_free (actors);
   }

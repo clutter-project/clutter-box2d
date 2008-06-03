@@ -85,7 +85,6 @@ struct _ClutterBox2DActorClass
 GType   clutter_box2d_actor_get_type  (void) G_GNUC_CONST;
 
 
-
 /**
  * clutter_box2d_actor_set_manipulatable:
  * @actor: a #ClutterActor in a ClutterBox2D container.
@@ -96,8 +95,6 @@ GType   clutter_box2d_actor_get_type  (void) G_GNUC_CONST;
  */
 void clutter_box2d_actor_set_manipulatable (ClutterActor *actor);
 
-void sync_body  (ClutterBox2DActor *box2d_actor);
-void sync_actor (ClutterBox2DActor *box2d_actor);
 
 G_END_DECLS
 

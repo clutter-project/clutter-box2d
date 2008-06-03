@@ -23,6 +23,9 @@
 #include <string.h>
 #include <clutter/clutter.h>
 
+/* defined in clutter-box2d-actor.h */
+void _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor);
+
 G_DEFINE_TYPE (ClutterBox2DActor, clutter_box2d_actor, CLUTTER_TYPE_CHILD_META);
 
 #define CLUTTER_BOX2D_ACTOR_GET_PRIVATE(obj) \
@@ -70,6 +73,7 @@ clutter_box2d_actor_get_type2 (ClutterBox2D *box2d,
   return box2d_actor->type;
 }
 
+
 static void
 clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
                                ClutterBox2DType   type)
@@ -113,7 +117,7 @@ clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
         {
           box2d_actor->body = world->CreateStaticBody (&bodyDef);
         }
-      sync_body (box2d_actor);
+      _clutter_box2d_sync_body (box2d_actor);
       box2d_actor->body->SetMassFromShapes ();
     }
   g_hash_table_insert (box2d->bodies, box2d_actor->body, box2d_actor);
