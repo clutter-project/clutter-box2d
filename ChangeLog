@@ -1,5 +1,12 @@
 2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
 
+	* examples/popup.c: (popup_add2), (popup_add_slider):
+	* examples/scene-pyramid.c: (scene_pyramid):
+	* examples/wrap-group.c: (wrap_group_add): removed older
+	clutter_actor_show().
+
+2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d-actor.cpp: 
 	* clutter-box2d/clutter-box2d-actor.h:
 	moved the mode setting (static/dynamic/none) to a child property.

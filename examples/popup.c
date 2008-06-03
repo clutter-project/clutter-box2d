@@ -90,8 +90,6 @@ popup_add2 (const gchar *name,
   clutter_actor_set_opacity (group, 0x00);
   stuff_actor_fade_in (group, 0xff);
 
-  clutter_actor_show_all (group);
-
   {
     gint w, h;
     w = clutter_actor_get_width (label);
@@ -280,7 +278,6 @@ popup_add_slider (const gchar *name,
   clutter_actor_set_opacity (group, 0x00);
   stuff_actor_fade_in (group, 0xff);
 
-  clutter_actor_show_all (group);
   {
     gint w, h;
     w = clutter_actor_get_width (label);

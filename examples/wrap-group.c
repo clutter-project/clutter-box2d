@@ -79,8 +79,6 @@ wrap_group_add (ClutterGroup *group,
 
   if (height > info->max_height)
     info->max_height = height;
-
-  clutter_actor_show (child);
 }
 
 #include <stdlib.h>

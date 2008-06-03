@@ -14,7 +14,6 @@ scene_pyramid (Scene *scene)
 
   group = clutter_box2d_new ();
   clutter_group_add (CLUTTER_GROUP (stage), group);
-  clutter_actor_show (group);
   scene->group = group;
 
   add_cage (group, FALSE);
