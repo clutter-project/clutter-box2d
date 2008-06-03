@@ -8,8 +8,7 @@ libclutter_box2d_@CLUTTER_BOX2D_MAJORMINOR@_la_SOURCES = \
     clutter-box2d.cpp         \
     clutter-box2d-actor.cpp   \
     clutter-box2d-joint.cpp   \
-    clutter-box2d-actor.h     \
-    clutter-box2d-interaction.c
+    clutter-box2d-actor.h
 
 clutter_box2dheaders_HEADERS = clutter-box2d.h clutter-box2d-joint.h
 clutter_box2dheadersdir = $(includedir)/clutter-0.7/clutter-box2d

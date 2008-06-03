@@ -26,6 +26,10 @@
 /* defined in clutter-box2d-actor.h */
 void _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor);
 
+G_BEGIN_DECLS
+void tidy_cursor (gint x, gint y);
+G_END_DECLS
+
 G_DEFINE_TYPE (ClutterBox2DActor, clutter_box2d_actor, CLUTTER_TYPE_CHILD_META);
 
 #define CLUTTER_BOX2D_ACTOR_GET_PRIVATE(obj) \
@@ -40,23 +44,34 @@ enum
   PROP_LINEAR_VELOCITY,
   PROP_ANGULAR_VELOCITY,
   PROP_MODE,
+  PROP_MANIPULATABLE,
 };
 
 struct _ClutterBox2DActorPrivate {
-  /* currently empty, since ClutterBox2D is currently tightly coupled
-   * with this class, everything is accessed through the instance structure.
-   */
+  gboolean manipulatable;
+  guint    press_handler;
+  guint    release_handler;
+  guint    motion_handler;
+  gboolean was_reactive;
 };
 
-
-static void      dispose      (GObject               *object);
+static void     dispose                     (GObject      *object);
+static gboolean clutter_box2d_actor_press   (ClutterActor *actor,
+                                             ClutterEvent *event,
+                                             gpointer      data);
+static gboolean clutter_box2d_actor_release (ClutterActor *actor,
+                                             ClutterEvent *event,
+                                             gpointer      data);
+static gboolean clutter_box2d_actor_motion  (ClutterActor *actor,
+                                             ClutterEvent *event,
+                                             gpointer      data);
 
 
 ClutterBox2DActor *
 clutter_box2d_get_actor (ClutterBox2D   *box2d,
                           ClutterActor   *actor)
 {
-    return CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta (CLUTTER_CONTAINER (box2d), actor));
+  return CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta (CLUTTER_CONTAINER (box2d), actor));
 }
 
 
@@ -135,12 +150,50 @@ clutter_box2d_actor_set_property (GObject      *gobject,
 {
   ClutterChildMeta  *child_meta;
   ClutterBox2DActor *box2d_actor;
+  ClutterBox2DActorPrivate *priv;
 
   child_meta = CLUTTER_CHILD_META (gobject);
   box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
+  priv = box2d_actor->priv;
  
   switch (prop_id)
     {
+    case PROP_MANIPULATABLE:
+      if (g_value_get_boolean (value))
+        {
+          ClutterActor *actor = child_meta->actor;
+          priv->manipulatable = TRUE;
+          priv->was_reactive = clutter_actoer_get_reactive (actor);
+          clutter_actor_set_reactive (actor, TRUE);
+          priv->press_handler = 
+          g_signal_connect (actor, "button-press-event",
+                            G_CALLBACK (clutter_box2d_actor_press),
+                            NULL);
+          priv->motion_handler = 
+          g_signal_connect (actor, "motion-event",
+                            G_CALLBACK (clutter_box2d_actor_motion),
+                            NULL);
+          priv->release_handler = 
+          g_signal_connect (actor, "button-release-event",
+                            G_CALLBACK (clutter_box2d_actor_release),
+                            NULL);
+        }
+      else
+        {
+          if (priv->manipulatable)
+            {
+              ClutterActor *actor = child_meta->actor;
+
+              if (!priv->was_reactive)
+                clutter_actor_set_reactive (actor, FALSE);
+              g_signal_handler_disconnect (actor, priv->press_handler);
+              g_signal_handler_disconnect (actor, priv->motion_handler);
+              g_signal_handler_disconnect (actor, priv->release_handler);
+              priv->manipulatable = FALSE;
+            }
+        }
+      break;
+
     case PROP_IS_BULLET:
       box2d_actor->body->SetBullet (g_value_get_boolean (value));
       break;
@@ -197,6 +250,9 @@ clutter_box2d_actor_get_property (GObject      *gobject,
     case PROP_MODE:
       g_value_set_int (value, box2d_actor->type);
       break;
+    case PROP_MANIPULATABLE:
+      g_value_set_int (value, priv->manipulatable);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -233,14 +289,25 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
                                    PROP_MODE,
                                    g_param_spec_int ("mode",
                                                      "Box2d Mode",
-                                                     "The mode of the actor (none, static or dynamic)",
+                                   "The mode of the actor (none, static or dynamic)",
                                                      0, G_MAXINT, 0,
                                                      (GParamFlags)G_PARAM_READWRITE));
   g_object_class_install_property (gobject_class,
                                    PROP_IS_BULLET,
                                    g_param_spec_boolean ("is-bullet",
                                                          "Is bullet",
-                                                         "Wheter this object is a bullet (fast moving object that should not be allowed tunneling through other dynamic objects.)",
+                                     "Whether this object is a bullet (fast moving "
+                                     "object that should not be allowed tunneling "
+                                     "through other dynamic objects.)",
+                                                         FALSE,
+                                                         (GParamFlags)G_PARAM_READWRITE));
+
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_MANIPULATABLE,
+                                   g_param_spec_boolean ("manipulatable",
+                                                         "Manipulatable",
+                                     "Whether the user is able to interact (using a pointer device) with this actor or not.)",
                                                          FALSE,
                                                          (GParamFlags)G_PARAM_READWRITE));
 
@@ -251,6 +318,7 @@ static void
 clutter_box2d_actor_init (ClutterBox2DActor *self)
 {
   self->priv = CLUTTER_BOX2D_ACTOR_GET_PRIVATE (self);
+  self->priv->manipulatable = FALSE;
 }
 
 static void
@@ -265,3 +333,121 @@ dispose (GObject *object)
 
   G_OBJECT_CLASS (clutter_box2d_actor_parent_class)->dispose (object);
 }
+
+
+/*
+void clutter_box2d_actor_set_manipulatable (ClutterActor *actor)
+{
+}*/
+
+
+/* for multi-touch this needs to be made re-entrant */
+
+static ClutterBox2DJoint *mouse_joint = NULL;
+static ClutterActor      *manipulated_actor = NULL;
+static ClutterUnit        start_x, start_y;
+
+static void actor_died (gpointer data,
+                        GObject *where_the_object_was)
+{
+  manipulated_actor = NULL;
+}
+
+static gboolean
+clutter_box2d_actor_press (ClutterActor *actor,
+                           ClutterEvent *event,
+                           gpointer      data)
+{
+
+  if (clutter_box2d_get_simulating (
+      CLUTTER_BOX2D (clutter_actor_get_parent (actor))))
+    {
+
+      start_x = CLUTTER_UNITS_FROM_INT (event->button.x);
+      start_y = CLUTTER_UNITS_FROM_INT (event->button.y);
+
+      clutter_actor_transform_stage_point (
+        clutter_actor_get_parent (actor),
+        start_x, start_y,
+        &start_x, &start_y);
+
+      g_object_weak_ref (G_OBJECT (actor), actor_died, NULL);
+      clutter_grab_pointer (actor);
+
+      mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
+                        clutter_actor_get_parent (actor)),
+                        actor, &(ClutterVertex){start_x, start_y});
+      manipulated_actor = actor;
+    }
+  return FALSE;
+}
+
+static gboolean
+clutter_box2d_actor_motion (ClutterActor *actor,
+                          ClutterEvent *event,
+                          gpointer      data)
+{
+  if (mouse_joint)
+    {
+      ClutterUnit x;
+      ClutterUnit y;
+      ClutterUnit dx;
+      ClutterUnit dy;
+
+      x = CLUTTER_UNITS_FROM_INT (event->motion.x);
+      y = CLUTTER_UNITS_FROM_INT (event->motion.y);
+
+      tidy_cursor (event->motion.x, event->motion.y);
+
+      if (!manipulated_actor)
+        return FALSE;
+      clutter_actor_transform_stage_point (
+        clutter_actor_get_parent (actor),
+        x, y,
+        &x, &y);
+
+       dx = x - start_x;
+       dy = y - start_y;
+
+       ClutterVertex target = { x, y };
+       clutter_box2d_mouse_joint_update_target (mouse_joint, &target);
+    }
+  return FALSE;
+}
+
+
+static gboolean
+clutter_box2d_actor_release (ClutterActor *actor,
+                             ClutterEvent *event,
+                             gpointer      data)
+{
+
+
+  if (mouse_joint)
+    {
+      clutter_box2d_joint_destroy (mouse_joint);
+      mouse_joint = NULL;
+      clutter_ungrab_pointer ();
+
+      if (manipulated_actor)
+        g_object_weak_unref (G_OBJECT (actor), actor_died, NULL);
+      manipulated_actor = NULL;
+
+      /* since the ungrab also was valid for this release we redeliver the
+       * event to maintain the state of the click count.
+       */
+      if(1){ 
+        ClutterEvent *synthetic_release;
+        synthetic_release = clutter_event_new (CLUTTER_BUTTON_RELEASE);
+        memcpy (synthetic_release, event, sizeof (ClutterButtonEvent));
+        synthetic_release->any.source = NULL;
+        clutter_do_event (synthetic_release); /* skip queue */
+        clutter_event_free (synthetic_release);
+      }
+
+      return FALSE;
+    }
+
+  return FALSE;
+}
+

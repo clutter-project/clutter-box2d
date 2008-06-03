@@ -86,17 +86,6 @@ ClutterBox2DActor * clutter_box2d_get_actor (ClutterBox2D   *box2d,
 
 GType   clutter_box2d_actor_get_type  (void) G_GNUC_CONST;
 
-/**
- * clutter_box2d_actor_set_manipulatable:
- * @actor: a #ClutterActor in a ClutterBox2D container.
- *
- * Utility function that uses a mouse joint as well as mouse capture making
- * it possible to interact with the provided actor, this call installs
- * handlers for press, release and motion as well as setting @actor as
- * reactive.
- */
-void clutter_box2d_actor_set_manipulatable (ClutterActor *actor);
-
 G_END_DECLS
 
 #endif

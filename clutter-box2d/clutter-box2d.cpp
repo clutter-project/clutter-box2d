@@ -266,10 +266,16 @@ static void
 clutter_box2d_destroy_child_meta (ClutterContainer *box2d,
                                   ClutterActor     *actor)
 {
+  gboolean manipulatable;
   ClutterBox2DActor *box2d_actor =
      CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta ( box2d, actor));
 
   g_assert (box2d_actor->world);
+
+  g_object_get (box2d_actor, "manipulatable", &manipulatable, NULL);
+  if (manipulatable)
+    g_object_set (box2d_actor, "manipulatable", FALSE, NULL);
+
 
   g_hash_table_remove (CLUTTER_BOX2D (box2d)->actors, actor);
   g_hash_table_remove (CLUTTER_BOX2D (box2d)->bodies, box2d_actor->body);

@@ -1,5 +1,19 @@
 2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d/clutter-box2d-actor.h:
+	* clutter-box2d/clutter-box2d-actor.cpp: added a "manipulatable"
+	property, when this property is set on an actor the actor is set
+	reactive and registers handlers for press, motion and release that
+	allows manipulation of dynamic physics actors using a pointer device.
+	Removed similar functionality that was exposed as utility functions.
+	* clutter-box2d/clutter-box2d.cpp: remove handler for manipulation
+	when actor gets removed from container.
+
+	* clutter-box2d/clutter-box2d-interaction.c: removed
+	* clutter-box2d/Makefile.am: updated
+
+2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d-actor.cpp: removed
 	clutter_box2d_actor_get_type2 and clutter_box2d_actor_get_type calls.
 	* clutter-box2d/clutter-box2d.h: moved clutter_box2d_get_actor ...
