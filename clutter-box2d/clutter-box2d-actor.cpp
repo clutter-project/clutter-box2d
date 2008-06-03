@@ -163,7 +163,7 @@ clutter_box2d_actor_set_property (GObject      *gobject,
         {
           ClutterActor *actor = child_meta->actor;
           priv->manipulatable = TRUE;
-          priv->was_reactive = clutter_actoer_get_reactive (actor);
+          priv->was_reactive = clutter_actor_get_reactive (actor);
           clutter_actor_set_reactive (actor, TRUE);
           priv->press_handler = 
           g_signal_connect (actor, "button-press-event",
@@ -226,9 +226,13 @@ clutter_box2d_actor_get_property (GObject      *gobject,
 {
   ClutterChildMeta  *child_meta;
   ClutterBox2DActor *box2d_actor;
+  ClutterBox2DActorPrivate *priv;
 
   child_meta = CLUTTER_CHILD_META (gobject);
   box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
+  priv = box2d_actor->priv;
+ 
+
  
   switch (prop_id)
     {

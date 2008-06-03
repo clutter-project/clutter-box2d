@@ -1,5 +1,10 @@
 2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d/clutter-box2d-actor.cpp: cleaned up code to track the
+	manipulatable state of actors.
+
+2008-06-03  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d-actor.h:
 	* clutter-box2d/clutter-box2d-actor.cpp: added a "manipulatable"
 	property, when this property is set on an actor the actor is set
