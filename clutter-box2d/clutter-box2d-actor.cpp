@@ -53,6 +53,9 @@ struct _ClutterBox2DActorPrivate {
   guint    release_handler;
   guint    motion_handler;
   gboolean was_reactive;
+
+  ClutterBox2DJoint *mouse_joint;
+  ClutterUnit        start_x, start_y;
 };
 
 static void     dispose                     (GObject      *object);
@@ -168,15 +171,15 @@ clutter_box2d_actor_set_property (GObject      *gobject,
           priv->press_handler = 
           g_signal_connect (actor, "button-press-event",
                             G_CALLBACK (clutter_box2d_actor_press),
-                            NULL);
+                            child_meta);
           priv->motion_handler = 
           g_signal_connect (actor, "motion-event",
                             G_CALLBACK (clutter_box2d_actor_motion),
-                            NULL);
+                            child_meta);
           priv->release_handler = 
           g_signal_connect (actor, "button-release-event",
                             G_CALLBACK (clutter_box2d_actor_release),
-                            NULL);
+                            child_meta);
         }
       else
         {
@@ -339,51 +342,41 @@ dispose (GObject *object)
 }
 
 
-/*
-void clutter_box2d_actor_set_manipulatable (ClutterActor *actor)
-{
-}*/
-
-
-/* for multi-touch this needs to be made re-entrant */
-
-static ClutterBox2DJoint *mouse_joint       = NULL;
-static ClutterActor      *manipulated_actor = NULL;
-static ClutterUnit        start_x, start_y;
-
-static void actor_died (gpointer data,
-                        GObject *where_the_object_was)
-{
-  manipulated_actor = NULL;
-}
-
 static gboolean
 clutter_box2d_actor_press (ClutterActor *actor,
                            ClutterEvent *event,
                            gpointer      data)
 {
+  ClutterChildMeta  *child_meta;
+  ClutterBox2DActor *box2d_actor;
+  ClutterBox2DActorPrivate *priv;
+
+  child_meta = CLUTTER_CHILD_META (data);
+  box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
+  priv = box2d_actor->priv;
 
   if (clutter_box2d_get_simulating (
       CLUTTER_BOX2D (clutter_actor_get_parent (actor))))
     {
 
-      start_x = CLUTTER_UNITS_FROM_INT (event->button.x);
-      start_y = CLUTTER_UNITS_FROM_INT (event->button.y);
+      priv->start_x = CLUTTER_UNITS_FROM_INT (event->button.x);
+      priv->start_y = CLUTTER_UNITS_FROM_INT (event->button.y);
 
       clutter_actor_transform_stage_point (
         clutter_actor_get_parent (actor),
-        start_x, start_y,
-        &start_x, &start_y);
+        priv->start_x, priv->start_y,
+        &priv->start_x, &priv->start_y);
 
       g_object_ref (actor);
-      /* the weak ref will never hit since we have a real ref */
-      g_object_weak_ref (G_OBJECT (actor), actor_died, NULL);
+#if 0
+      clutter_grab_pointer_device (actor, device);
+#else
       clutter_grab_pointer (actor);
+#endif
 
-      mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
+      priv->mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
                         clutter_actor_get_parent (actor)),
-                        actor, &(ClutterVertex){start_x, start_y});
-      manipulated_actor = actor;
+                        actor, &(ClutterVertex){priv->start_x, priv->start_y});
     }
   return FALSE;
 }
@@ -393,7 +386,15 @@ clutter_box2d_actor_motion (ClutterActor *actor,
                             ClutterEvent *event,
                             gpointer      data)
 {
-  if (mouse_joint)
+  ClutterChildMeta  *child_meta;
+  ClutterBox2DActor *box2d_actor;
+  ClutterBox2DActorPrivate *priv;
+
+  child_meta = CLUTTER_CHILD_META (data);
+  box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
+  priv = box2d_actor->priv;
+
+  if (priv->mouse_joint)
     {
       ClutterUnit x;
       ClutterUnit y;
@@ -403,20 +404,19 @@ clutter_box2d_actor_motion (ClutterActor *actor,
       x = CLUTTER_UNITS_FROM_INT (event->motion.x);
       y = CLUTTER_UNITS_FROM_INT (event->motion.y);
 
+      /* something like this is needed since the pointer is grabbed */
       /* tidy_cursor (event->motion.x, event->motion.y); */
 
-      if (!manipulated_actor)
-        return FALSE;
       clutter_actor_transform_stage_point (
         clutter_actor_get_parent (actor),
         x, y,
         &x, &y);
 
-       dx = x - start_x;
-       dy = y - start_y;
+       dx = x - priv->start_x;
+       dy = y - priv->start_y;
 
        ClutterVertex target = { x, y };
-       clutter_box2d_mouse_joint_update_target (mouse_joint, &target);
+       clutter_box2d_mouse_joint_update_target (priv->mouse_joint, &target);
     }
   return FALSE;
 }
@@ -427,17 +427,22 @@ clutter_box2d_actor_release (ClutterActor *actor,
                              ClutterEvent *event,
                              gpointer      data)
 {
+  ClutterChildMeta  *child_meta;
+  ClutterBox2DActor *box2d_actor;
+  ClutterBox2DActorPrivate *priv;
 
+  child_meta = CLUTTER_CHILD_META (data);
+  box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
+  priv = box2d_actor->priv;
 
-  if (mouse_joint)
+  if (priv->mouse_joint)
     {
-      clutter_box2d_joint_destroy (mouse_joint);
-      mouse_joint = NULL;
+      clutter_box2d_joint_destroy (priv->mouse_joint);
+      priv->mouse_joint = NULL;
+
+      /* perhaps a new special call is needed here for multi-touch? */
       clutter_ungrab_pointer ();
 
-      if (manipulated_actor)
-        g_object_weak_unref (G_OBJECT (actor), actor_died, NULL);
-      manipulated_actor = NULL;
       g_object_unref (actor);
 
       /* since the ungrab also was valid for this release we redeliver the

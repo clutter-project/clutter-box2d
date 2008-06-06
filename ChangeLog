@@ -1,5 +1,11 @@
 2008-06-06  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d/clutter-box2d-actor.cpp: store the state for pointer
+	manipulation of dynamic actors in the child-meta class, in preparation
+	for multi-touch.
+
+2008-06-06  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d-actor.cpp: made the manipulatable state
 	work correctly by using the boolean paramspec, also keep a reference
 	to the actor to avoid the actor getting destroyed.
