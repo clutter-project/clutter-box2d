@@ -255,7 +255,7 @@ clutter_box2d_actor_get_property (GObject      *gobject,
       g_value_set_int (value, box2d_actor->type);
       break;
     case PROP_MANIPULATABLE:
-      g_value_set_int (value, priv->manipulatable);
+      g_value_set_boolean (value, priv->manipulatable);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
@@ -347,7 +347,7 @@ void clutter_box2d_actor_set_manipulatable (ClutterActor *actor)
 
 /* for multi-touch this needs to be made re-entrant */
 
-static ClutterBox2DJoint *mouse_joint = NULL;
+static ClutterBox2DJoint *mouse_joint       = NULL;
 static ClutterActor      *manipulated_actor = NULL;
 static ClutterUnit        start_x, start_y;
 
@@ -375,6 +375,8 @@ clutter_box2d_actor_press (ClutterActor *actor,
         start_x, start_y,
         &start_x, &start_y);
 
+      g_object_ref (actor);
+      /* the weak ref will never hit since we have a real ref */
       g_object_weak_ref (G_OBJECT (actor), actor_died, NULL);
       clutter_grab_pointer (actor);
 
@@ -388,8 +390,8 @@ clutter_box2d_actor_press (ClutterActor *actor,
 
 static gboolean
 clutter_box2d_actor_motion (ClutterActor *actor,
-                          ClutterEvent *event,
-                          gpointer      data)
+                            ClutterEvent *event,
+                            gpointer      data)
 {
   if (mouse_joint)
     {
@@ -401,7 +403,7 @@ clutter_box2d_actor_motion (ClutterActor *actor,
       x = CLUTTER_UNITS_FROM_INT (event->motion.x);
       y = CLUTTER_UNITS_FROM_INT (event->motion.y);
 
-      tidy_cursor (event->motion.x, event->motion.y);
+      /* tidy_cursor (event->motion.x, event->motion.y); */
 
       if (!manipulated_actor)
         return FALSE;
@@ -436,6 +438,7 @@ clutter_box2d_actor_release (ClutterActor *actor,
       if (manipulated_actor)
         g_object_weak_unref (G_OBJECT (actor), actor_died, NULL);
       manipulated_actor = NULL;
+      g_object_unref (actor);
 
       /* since the ungrab also was valid for this release we redeliver the
        * event to maintain the state of the click count.
