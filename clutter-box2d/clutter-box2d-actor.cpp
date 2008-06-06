@@ -374,9 +374,13 @@ clutter_box2d_actor_press (ClutterActor *actor,
       clutter_grab_pointer (actor);
 #endif
 
-      priv->mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
-                        clutter_actor_get_parent (actor)),
-                        actor, &(ClutterVertex){priv->start_x, priv->start_y});
+      {
+        ClutterVertex vertex = {priv->start_x, priv->start_y};
+
+       priv->mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
+                           clutter_actor_get_parent (actor)),
+                           actor, &vertex);
+      }
     }
   return FALSE;
 }

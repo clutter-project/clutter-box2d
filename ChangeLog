@@ -1,3 +1,8 @@
+2008-06-07  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d/clutter-box2d-actor.cpp: changed possibly unportable
+	inline definitions of on stack structure.
+
 2008-06-06  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d-actor.cpp: store the state for pointer
