@@ -1,3 +1,8 @@
+2008-06-12  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d/clutter-box2d-actor.cpp: added code to cope with
+	multi-touch (#if 0'd out).
+
 2008-06-07  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d-actor.cpp: changed possibly unportable

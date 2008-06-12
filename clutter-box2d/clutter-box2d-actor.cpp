@@ -54,6 +54,7 @@ struct _ClutterBox2DActorPrivate {
   guint    motion_handler;
   gboolean was_reactive;
 
+  gint               device_id;
   ClutterBox2DJoint *mouse_joint;
   ClutterUnit        start_x, start_y;
 };
@@ -111,8 +112,8 @@ clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
     {
       b2BodyDef bodyDef;
 
-      bodyDef.linearDamping = 0.0f;
-      bodyDef.angularDamping = 0.02f;
+      bodyDef.linearDamping = 0.5f;
+      bodyDef.angularDamping = 0.5f;
 
       SYNCLOG ("making an actor to be %s\n",
                type == CLUTTER_BOX2D_STATIC ? "static" : "dynamic");
@@ -369,18 +370,22 @@ clutter_box2d_actor_press (ClutterActor *actor,
 
       g_object_ref (actor);
 #if 0
-      clutter_grab_pointer_device (actor, device);
+      clutter_grab_pointer_for_device (actor, 
+          clutter_event_get_device_id (event));
 #else
       clutter_grab_pointer (actor);
 #endif
 
       {
         ClutterVertex vertex = {priv->start_x, priv->start_y};
-
-       priv->mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
-                           clutter_actor_get_parent (actor)),
-                           actor, &vertex);
+        priv->mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
+                            clutter_actor_get_parent (actor)),
+                            actor, &vertex);
       }
+
+#if 0
+      priv->device_id = clutter_event_get_device_id (event);
+#endif
     }
   return FALSE;
 }
@@ -404,6 +409,13 @@ clutter_box2d_actor_motion (ClutterActor *actor,
       ClutterUnit y;
       ClutterUnit dx;
       ClutterUnit dy;
+#if 0
+      gint id = clutter_event_get_device_id (event);
+
+      if (id != priv->device_id)
+          return FALSE;
+#endif
+
 
       x = CLUTTER_UNITS_FROM_INT (event->motion.x);
       y = CLUTTER_UNITS_FROM_INT (event->motion.y);
@@ -441,11 +453,20 @@ clutter_box2d_actor_release (ClutterActor *actor,
 
   if (priv->mouse_joint)
     {
+#if 0
+      gint id = clutter_event_get_device_id (event);
+      if (id != priv->device_id)
+         return FALSE;
+#endif
+
       clutter_box2d_joint_destroy (priv->mouse_joint);
       priv->mouse_joint = NULL;
 
-      /* perhaps a new special call is needed here for multi-touch? */
+#if 0
+      clutter_ungrab_pointer_for_device (id);
+#else
       clutter_ungrab_pointer ();
+#endif
 
       g_object_unref (actor);
 
@@ -461,6 +482,7 @@ clutter_box2d_actor_release (ClutterActor *actor,
         clutter_event_free (synthetic_release);
       }
 
+      priv->device_id = 111; /* this id should not be in use */
       return FALSE;
     }
 
