@@ -1,5 +1,14 @@
 2008-06-12  Øyvind Kolås  <pippin@o-hand.com>
 
+	* clutter-box2d/clutter-box2d-util.h: added a file with utility calls
+	for use when building interfaces using ClutterBox2D, for now the
+	ability to maintain the relative positions of two actors.
+	* clutter-box2d/clutter-box2d-util.c:
+	* clutter-box2d/Makefile.am: added new files.
+	* clutter-box2d/clutter-box2d.h: #include "clutter-box2d-util.h"
+
+2008-06-12  Øyvind Kolås  <pippin@o-hand.com>
+
 	* clutter-box2d/clutter-box2d-actor.cpp: added code to cope with
 	multi-touch (#if 0'd out).
 

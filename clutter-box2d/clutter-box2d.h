@@ -162,3 +162,4 @@ G_END_DECLS
 #endif
 
 #include "clutter-box2d-joint.h"
+#include "clutter-box2d-util.h"
