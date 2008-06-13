@@ -13,7 +13,14 @@
 #ifndef __CLUTTER_BOX2D_UTIL_H_
 #define __CLUTTER_BOX2D_UTIL_H_
 
-void clutter_box2d_actor_track (ClutterActor *actor,
-                                ClutterActor *other);
+typedef enum { 
+  CLUTTER_BOX2D_TRACK_POSITION = 1 << 0,
+  CLUTTER_BOX2D_TRACK_ROTATION = 1 << 1,
+  CLUTTER_BOX2D_TRACK_ALL      = 0xff
+} ClutterBox2DTrackFlags;
 
+void clutter_box2d_actor_track (ClutterActor           *actor,
+                                ClutterActor           *other,
+                                ClutterBox2DTrackFlags  flags);
+                                
 #endif

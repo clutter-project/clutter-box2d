@@ -10,6 +10,7 @@
  */
 
 #include <clutter/clutter.h>
+#include "clutter-box2d-util.h"
 
 typedef struct TrackData
 {
@@ -17,20 +18,39 @@ typedef struct TrackData
   ClutterActor *other;
   ClutterUnit   rel_x;
   ClutterUnit   rel_y;
+  ClutterFixed  rel_angle;
+  gint          prev_angle;
   gint          x_handler;
   gint          y_handler;
+  gint          rotation_handler;
 } TrackData;
 
 
-static void clutter_box2d_actor_track_update (ClutterActor *actor,
-                                              GParamSpec   *pspec,
-                                              gpointer      data)
+static void clutter_box2d_actor_track_position (ClutterActor *actor,
+                                                GParamSpec   *pspec,
+                                                gpointer      data)
 {
   TrackData *td;
   ClutterUnit x, y;
   td = data;
   clutter_actor_get_positionu (td->other, &x, &y);
   clutter_actor_set_positionu (td->self, x + td->rel_x, y + td->rel_y);
+}
+
+static void clutter_box2d_actor_track_rotation (ClutterActor *actor,
+                                                GParamSpec   *pspec,
+                                                gpointer      data)
+{
+  TrackData *td;
+  ClutterFixed angle;
+  td = data;
+
+  angle = clutter_actor_get_rotationx (td->other, CLUTTER_Z_AXIS, 0,0,0);
+  if (angle != td->prev_angle)
+    {
+      clutter_actor_set_rotationx (td->self, CLUTTER_Z_AXIS, angle + td->rel_angle, 0,0,0);
+      td->prev_angle = angle;
+    }
 }
 
 /* 
@@ -42,8 +62,10 @@ static void clutter_box2d_actor_track_update (ClutterActor *actor,
  * most useful when "other" is a box2d controlled actor (that might be hidden) and
  * actor is a user visible ClutterActor.
  */
-void clutter_box2d_actor_track (ClutterActor *actor,
-                                ClutterActor *other)
+
+void clutter_box2d_actor_track (ClutterActor           *actor,
+                                ClutterActor           *other,
+                                ClutterBox2DTrackFlags  flags)
 {
   TrackData *td;
   td = g_object_get_data (G_OBJECT (actor), "track-data");
@@ -64,6 +86,11 @@ void clutter_box2d_actor_track (ClutterActor *actor,
       g_signal_handler_disconnect (td->other, td->y_handler);
       td->y_handler = 0;
     }
+  if (td->rotation_handler)
+    {
+      g_signal_handler_disconnect (td->other, td->rotation_handler);
+      td->rotation_handler = 0;
+    }
   if (!other)
     {
       return;
@@ -75,11 +102,24 @@ void clutter_box2d_actor_track (ClutterActor *actor,
   td->rel_x = clutter_actor_get_xu (actor) - clutter_actor_get_xu (other);
   td->rel_y = clutter_actor_get_yu (actor) - clutter_actor_get_yu (other);
 
+
+  td->rel_angle = clutter_actor_get_rotationx (actor, CLUTTER_Z_AXIS, 0,0,0)-
+                  clutter_actor_get_rotationx (other, CLUTTER_Z_AXIS, 0,0,0);
+
   /* listen for notifies when the others position change and then change
    * the position of ourself accordingly.
    */
-  td->x_handler = g_signal_connect (G_OBJECT (other), "notify::x",
-                                  G_CALLBACK (clutter_box2d_actor_track_update), td);
-  td->y_handler = g_signal_connect (G_OBJECT (other), "notify::y",
-                                  G_CALLBACK (clutter_box2d_actor_track_update), td);
+  if (flags & CLUTTER_BOX2D_TRACK_POSITION)
+    {
+      td->x_handler = g_signal_connect (G_OBJECT (other), "notify::x",
+                                      G_CALLBACK (clutter_box2d_actor_track_position), td);
+      td->y_handler = g_signal_connect (G_OBJECT (other), "notify::y",
+                                      G_CALLBACK (clutter_box2d_actor_track_position), td);
+    }
+
+  if (flags & CLUTTER_BOX2D_TRACK_ROTATION)
+    {
+      td->rotation_handler = g_signal_connect (G_OBJECT (other), "notify::rotation-angle-z",
+                             G_CALLBACK (clutter_box2d_actor_track_rotation), td);
+    }
 }

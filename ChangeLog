@@ -1,3 +1,10 @@
+2008-06-13  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d/clutter-box2d-util.[ch]:
+	(clutter_box2d_actor_track): made this utility call able to track
+	position and|or rotation, which set of gemoetrical properties are
+	being mimicked are controlled through a new final flags argument.
+
 2008-06-12  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d-util.h: added a file with utility calls
