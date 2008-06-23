@@ -1,3 +1,10 @@
+2008-06-23  Øyvind Kolås  <pippin@o-hand.com>
+
+	* clutter-box2d/clutter-box2d-util.c: made the
+	clutter_box2d_actor_track listen for changed to the allocation
+	property instead of individually listening for changes to ::x and ::y,
+	this fixes issues with some missed updates.
+
 2008-06-13  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d-util.[ch]:

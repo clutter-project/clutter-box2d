@@ -35,6 +35,7 @@ static void clutter_box2d_actor_track_position (ClutterActor *actor,
   td = data;
   clutter_actor_get_positionu (td->other, &x, &y);
   clutter_actor_set_positionu (td->self, x + td->rel_x, y + td->rel_y);
+  clutter_actor_queue_redraw (actor);
 }
 
 static void clutter_box2d_actor_track_rotation (ClutterActor *actor,
@@ -98,7 +99,6 @@ void clutter_box2d_actor_track (ClutterActor           *actor,
   td->other = other;
 
 
-
   td->rel_x = clutter_actor_get_xu (actor) - clutter_actor_get_xu (other);
   td->rel_y = clutter_actor_get_yu (actor) - clutter_actor_get_yu (other);
 
@@ -111,10 +111,18 @@ void clutter_box2d_actor_track (ClutterActor           *actor,
    */
   if (flags & CLUTTER_BOX2D_TRACK_POSITION)
     {
+#if 0
       td->x_handler = g_signal_connect (G_OBJECT (other), "notify::x",
                                       G_CALLBACK (clutter_box2d_actor_track_position), td);
       td->y_handler = g_signal_connect (G_OBJECT (other), "notify::y",
                                       G_CALLBACK (clutter_box2d_actor_track_position), td);
+#else
+      /* we listen to notifications of changes on the allocation detail not the individual x and y
+       * properties (doing so seems to be slightly broken)
+       */
+      td->y_handler = g_signal_connect (G_OBJECT (other), "notify::allocation",
+                                      G_CALLBACK (clutter_box2d_actor_track_position), td);
+#endif
     }
 
   if (flags & CLUTTER_BOX2D_TRACK_ROTATION)
