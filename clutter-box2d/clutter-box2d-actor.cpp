@@ -369,12 +369,8 @@ clutter_box2d_actor_press (ClutterActor *actor,
         &priv->start_x, &priv->start_y);
 
       g_object_ref (actor);
-#if 0
       clutter_grab_pointer_for_device (actor, 
           clutter_event_get_device_id (event));
-#else
-      clutter_grab_pointer (actor);
-#endif
 
       {
         ClutterVertex vertex = {priv->start_x, priv->start_y};
@@ -383,9 +379,7 @@ clutter_box2d_actor_press (ClutterActor *actor,
                             actor, &vertex);
       }
 
-#if 0
       priv->device_id = clutter_event_get_device_id (event);
-#endif
     }
   return FALSE;
 }
@@ -409,13 +403,10 @@ clutter_box2d_actor_motion (ClutterActor *actor,
       ClutterUnit y;
       ClutterUnit dx;
       ClutterUnit dy;
-#if 0
       gint id = clutter_event_get_device_id (event);
 
       if (id != priv->device_id)
           return FALSE;
-#endif
-
 
       x = CLUTTER_UNITS_FROM_INT (event->motion.x);
       y = CLUTTER_UNITS_FROM_INT (event->motion.y);
@@ -453,20 +444,14 @@ clutter_box2d_actor_release (ClutterActor *actor,
 
   if (priv->mouse_joint)
     {
-#if 0
       gint id = clutter_event_get_device_id (event);
       if (id != priv->device_id)
          return FALSE;
-#endif
 
       clutter_box2d_joint_destroy (priv->mouse_joint);
       priv->mouse_joint = NULL;
 
-#if 0
       clutter_ungrab_pointer_for_device (id);
-#else
-      clutter_ungrab_pointer ();
-#endif
 
       g_object_unref (actor);
 
