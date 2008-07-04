@@ -1,5 +1,9 @@
 2008-07-04  Øyvind Kolås  <pippin@o-hand.com>
 
+	* examples/blockbox.c: removed reference to custom_curosr.
+
+2008-07-04  Øyvind Kolås  <pippin@o-hand.com>
+
 	Modified to work better with XInput enabled clutter.
 
 	* clutter-box2d/clutter-box2d-actor.cpp:

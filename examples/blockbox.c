@@ -112,9 +112,6 @@ add_controls (ClutterActor *stage)
   g_object_set_data (G_OBJECT (controls), "_", "foo");
 }
 
-#include "custom-cursor.h"
-#include "custom-cursor.c"
-
 gint
 main (int   argc,
       char *argv[])
