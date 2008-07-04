@@ -139,6 +139,7 @@ add_hand (ClutterActor *group,
   clutter_actor_set_position (actor, x, y);
 
   clutter_container_child_set (CLUTTER_CONTAINER (group), actor,
+                               "manipulatable", TRUE,
                                "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
   return actor;
 }

@@ -1,3 +1,15 @@
+2008-07-04  Øyvind Kolås  <pippin@o-hand.com>
+
+	Modified to work better with XInput enabled clutter.
+
+	* clutter-box2d/clutter-box2d-actor.cpp:
+	* examples/blockbox.c: (main):
+	* examples/scene-about.c: (scene_about):
+	* examples/scene-bridge.c: (scene_bridge):
+	* examples/scene-chain.c: (scene_chain):
+	* examples/scene-table.c: (scene_table):
+	* examples/util.c: (add_hand):
+
 2008-06-25  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d-actor.cpp: adapt to new multiple device

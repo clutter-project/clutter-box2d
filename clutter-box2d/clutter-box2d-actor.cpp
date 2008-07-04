@@ -342,7 +342,6 @@ dispose (GObject *object)
   G_OBJECT_CLASS (clutter_box2d_actor_parent_class)->dispose (object);
 }
 
-
 static gboolean
 clutter_box2d_actor_press (ClutterActor *actor,
                            ClutterEvent *event,
@@ -371,8 +370,9 @@ clutter_box2d_actor_press (ClutterActor *actor,
       g_object_ref (actor);
       clutter_grab_pointer_for_device (actor, 
           clutter_event_get_device_id (event));
+      g_print ("grab: %p:%i\n", actor, clutter_event_get_device_id (event));
 
-      {
+      if (priv->mouse_joint == 0){
         ClutterVertex vertex = {priv->start_x, priv->start_y};
         priv->mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
                             clutter_actor_get_parent (actor)),
@@ -407,6 +407,8 @@ clutter_box2d_actor_motion (ClutterActor *actor,
 
       if (id != priv->device_id)
           return FALSE;
+
+      g_print ("motion: %p:%i\n", actor, id);
 
       x = CLUTTER_UNITS_FROM_INT (event->motion.x);
       y = CLUTTER_UNITS_FROM_INT (event->motion.y);
@@ -452,6 +454,7 @@ clutter_box2d_actor_release (ClutterActor *actor,
       priv->mouse_joint = NULL;
 
       clutter_ungrab_pointer_for_device (id);
+      g_print ("ungrab: %p:%i\n", actor, id);
 
       g_object_unref (actor);
 

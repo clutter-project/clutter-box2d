@@ -30,6 +30,7 @@ scene_table (Scene *scene)
 
       clutter_container_child_set (CLUTTER_CONTAINER (scene->group),
                                    add_hand (scene->group, x, y),
+                                   "manipulatable", TRUE,
                                    "mode", CLUTTER_BOX2D_DYNAMIC,
                                    NULL);
                               

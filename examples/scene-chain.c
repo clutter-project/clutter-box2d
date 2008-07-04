@@ -48,6 +48,7 @@ scene_chain (Scene *scene)
         clutter_group_add (CLUTTER_GROUP (group), box);
 
         clutter_container_child_set (CLUTTER_CONTAINER (group), box,
+                                       "manipulatable", TRUE,
                                      "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
 
         {

@@ -39,6 +39,7 @@ scene_about (Scene *scene)
   clutter_group_add (CLUTTER_GROUP (group), rectangle);
 
   clutter_container_child_set (CLUTTER_CONTAINER (group), rectangle,
+                               "manipulatable", TRUE,
                                "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
 
   title = clutter_label_new_full ("Sans 40px", "Clutter-Box2D", &color2);
@@ -47,6 +48,7 @@ scene_about (Scene *scene)
   clutter_group_add (CLUTTER_GROUP (group), title);
 
   clutter_container_child_set (CLUTTER_CONTAINER (group), title,
+                               "manipulatable", TRUE,
                                "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
 
   clutter_box2d_set_simulating (CLUTTER_BOX2D (group), simulating);

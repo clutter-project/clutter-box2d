@@ -112,6 +112,9 @@ add_controls (ClutterActor *stage)
   g_object_set_data (G_OBJECT (controls), "_", "foo");
 }
 
+#include "custom-cursor.h"
+#include "custom-cursor.c"
+
 gint
 main (int   argc,
       char *argv[])
@@ -137,8 +140,11 @@ main (int   argc,
                     G_CALLBACK (stage_key_release_cb),
                     NULL);
 
-  actor_manipulator_init (stage);
+  if(0)actor_manipulator_init (stage);
+
+
   clutter_actor_show (stage);
+  /*custom_cursor (0,0,0);*/
   clutter_main ();
 
   return EXIT_SUCCESS;
