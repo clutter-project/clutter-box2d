@@ -1,5 +1,9 @@
 2008-07-23  Emmanuele Bassi  <ebassi@openedhand.com>
 
+	* clutter-box2d.pc.in: Update the pc file. (Gwenole Beauchesne)
+
+2008-07-23  Emmanuele Bassi  <ebassi@openedhand.com>
+
 	* configure.ac:
 	* Makefile.am:
 	* clutter-box2d/Makefile.am: Build against Clutter 0.8.
