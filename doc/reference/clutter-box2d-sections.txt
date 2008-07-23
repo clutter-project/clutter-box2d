@@ -3,39 +3,44 @@
 <TITLE>ClutterBox2D</TITLE>
 ClutterBox2DType
 ClutterBox2D
+ClutterBox2DClass
 clutter_box2d_new
 clutter_box2d_set_simulating
 clutter_box2d_get_simulating
-clutter_box2d_set_gravity
-
 
 <SUBSECTION Standard>
 CLUTTER_BOX2D
 CLUTTER_IS_BOX2D
 CLUTTER_TYPE_BOX2D
-clutter_box2d_get_type
 CLUTTER_BOX2D_CLASS
 CLUTTER_IS_BOX2D_CLASS
 CLUTTER_BOX2D_GET_CLASS
+
 <SUBSECTION Private>
 ClutterBox2DPrivate
 clutter_box2d_get_type
 </SECTION>
 
 <SECTION>
-<FILE>clutter-box2d-actor</FILE>
+<FILE>clutter-box2d-actor<FILE>
 <TITLE>ClutterBox2D Actor</TITLE>
-clutter_box2d_actor_set_type
+ClutterBox2DActor
+ClutterBox2DActorClass
+ClutterBox2DTrackFlags
+clutter_box2d_actor_track
+clutter_box2d_get_actor
+
+<SUBSECTION Standard>
+CLUTTER_BOX2D_ACTOR
+CLUTTER_BOX2D_ACTOR_CLASS
+CLUTTER_BOX2D_ACTOR_GET_CLASS
+CLUTTER_IS_BOX2D_ACTOR
+CLUTTER_IS_BOX2D_ACTOR_CLASS
+CLUTTER_TYPE_BOX2D_ACTOR
+
+<SUBSECTION Private>
+ClutterBox2DActorPrivate
 clutter_box2d_actor_get_type
-clutter_box2d_actor_set_bullet
-clutter_box2d_actor_is_bullet
-clutter_box2d_actor_get_angular_velocity
-clutter_box2d_actor_get_linear_velocity
-clutter_box2d_actor_set_angular_velocity
-clutter_box2d_actor_set_linear_velocity
-clutter_box2d_actor_apply_force
-clutter_box2d_actor_apply_impulse
-clutter_box2d_actor_apply_torque
 </SECTION>
 
 <SECTION>

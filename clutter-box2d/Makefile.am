@@ -16,4 +16,4 @@ clutter_box2dheaders_HEADERS =\
     clutter-box2d-joint.h     \
     clutter-box2d-util.h
 
-clutter_box2dheadersdir = $(includedir)/clutter-0.7/clutter-box2d
+clutter_box2dheadersdir = $(includedir)/clutter-0.8/clutter-box2d

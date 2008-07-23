@@ -21,6 +21,7 @@
 #include "../b2WorldCallbacks.h"
 #include "../../Common/b2BlockAllocator.h"
 
+#include <cstring>
 #include <memory>
 #include <new>
 

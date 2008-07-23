@@ -1,3 +1,18 @@
+2008-07-23  Emmanuele Bassi  <ebassi@openedhand.com>
+
+	* configure.ac:
+	* Makefile.am:
+	* clutter-box2d/Makefile.am: Build against Clutter 0.8.
+
+	* doc/reference/clutter-box2d-sections.txt: Documentation fixes.
+
+	* box2d/Source/Collision/b2BroadPhase.cpp:
+	* box2d/Source/Common/b2BlockAllocator.cpp:
+	* box2d/Source/Dynamics/Contacts/b2CircleContact.cpp:
+	* box2d/Source/Dynamics/Contacts/b2PolyAndCircleContact.cpp:
+	* box2d/Source/Dynamics/Contacts/b2PolyContact.cpp: Fix
+	build by including cstring (needed for memcpy and memset).
+
 2008-07-04  Øyvind Kolås  <pippin@o-hand.com>
 
 	* examples/blockbox.c: removed reference to custom_curosr.
