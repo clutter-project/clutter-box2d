@@ -28,7 +28,7 @@ public:
 		{
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
-			ground = m_world->CreateStaticBody(&bd);
+			ground = m_world->CreateBody(&bd);
 
 			b2PolygonDef sd;
 			sd.SetAsBox(50.0f, 10.0f);
@@ -50,7 +50,7 @@ public:
 			{
 				b2BodyDef bd;
 				bd.position.Set(0.5f + i, y);
-				b2Body* body = m_world->CreateDynamicBody(&bd);
+				b2Body* body = m_world->CreateBody(&bd);
 				body->CreateShape(&sd);
 				body->SetMassFromShapes();
 

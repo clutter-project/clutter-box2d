@@ -33,7 +33,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
-			ground = m_world->CreateStaticBody(&bd);
+			ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -49,7 +49,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 7.0f);
-			b2Body* body = m_world->CreateDynamicBody(&bd);
+			b2Body* body = m_world->CreateBody(&bd);
 			body->CreateShape(&sd);
 			body->SetMassFromShapes();
 
@@ -64,7 +64,7 @@ public:
 			// Define follower.
 			sd.SetAsBox(0.5f, 4.0f);
 			bd.position.Set(0.0f, 13.0f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&sd);
 			body->SetMassFromShapes();
 
@@ -77,7 +77,7 @@ public:
 			// Define piston
 			sd.SetAsBox(1.5f, 1.5f);
 			bd.position.Set(0.0f, 17.0f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&sd);
 			body->SetMassFromShapes();
 
@@ -95,7 +95,7 @@ public:
 			// Create a payload
 			sd.density = 2.0f;
 			bd.position.Set(0.0f, 23.0f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&sd);
 			body->SetMassFromShapes();
 		}
@@ -120,10 +120,10 @@ public:
 	void Step(Settings* settings)
 	{
 		Test::Step(settings);
-		DrawString(5, m_textLine, "Keys: (f) toggle friction, (m) toggle motor");
+		m_debugDraw.DrawString(5, m_textLine, "Keys: (f) toggle friction, (m) toggle motor");
 		m_textLine += 15;
 		float32 torque = m_joint1->GetMotorTorque();
-		DrawString(5, m_textLine, "Motor Torque = %5.0f", (float) torque);
+		m_debugDraw.DrawString(5, m_textLine, "Motor Torque = %5.0f", (float) torque);
 		m_textLine += 15;
 	}
 

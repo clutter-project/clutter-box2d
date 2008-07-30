@@ -44,7 +44,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 10.0f);
-			m_body1 = m_world->CreateStaticBody(&bd);
+			m_body1 = m_world->CreateBody(&bd);
 			m_shape1 = m_body1->CreateShape(&sd);
 		}
 #endif
@@ -74,18 +74,16 @@ public:
 #else
 			bd.position.Set(0.0f, 10.0f);
 #endif
-			m_body2 = m_world->CreateDynamicBody(&bd);
+			m_body2 = m_world->CreateBody(&bd);
 			m_shape2 = m_body2->CreateShape(&sd);
 			m_body2->SetMassFromShapes();
 		}
 
 		m_world->SetGravity(b2Vec2(0.0f, 0.0f));
-		m_world->SetPositionCorrection(false);
 	}
 
 	~DistanceTest()
 	{
-		m_world->SetPositionCorrection(true);
 	}
 
 	static Test* Create()
@@ -95,19 +93,22 @@ public:
 
 	void Step(Settings* settings)
 	{
+		int32 positionIterations = settings->positionIterations;
+		settings->positionIterations = 0;
 		settings->pause = 1;
 		Test::Step(settings);
+		settings->positionIterations = positionIterations;
 		settings->pause = 0;
 
 		b2Vec2 x1, x2;
 		float32 distance = b2Distance(&x1, &x2, m_shape1, m_body1->GetXForm(), m_shape2, m_body2->GetXForm());
 
-		DrawString(5, m_textLine, "distance = %g", (float) distance);
+		m_debugDraw.DrawString(5, m_textLine, "distance = %g", (float) distance);
 		m_textLine += 15;
 
 		extern int32 g_GJK_Iterations;
 
-		DrawString(5, m_textLine, "iterations = %d", g_GJK_Iterations);
+		m_debugDraw.DrawString(5, m_textLine, "iterations = %d", g_GJK_Iterations);
 		m_textLine += 15;
 
 		glPointSize(4.0f);

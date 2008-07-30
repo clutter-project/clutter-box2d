@@ -31,7 +31,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -20.0f);
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -43,7 +43,7 @@ public:
 			bd.position.Set(-4.0f, 22.0f);
 			bd.angle = -0.25f;
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -54,7 +54,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(10.5f, 19.0f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -66,7 +66,7 @@ public:
 			bd.position.Set(4.0f, 14.0f);
 			bd.angle = 0.25f;
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -77,7 +77,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(-10.5f, 11.0f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -89,7 +89,7 @@ public:
 			bd.position.Set(-4.0f, 6.0f);
 			bd.angle = -0.25f;
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -104,7 +104,7 @@ public:
 			{
 				b2BodyDef bd;
 				bd.position.Set(-15.0f + 4.0f * i, 28.0f);
-				b2Body* body = m_world->CreateDynamicBody(&bd);
+				b2Body* body = m_world->CreateBody(&bd);
 
 				sd.friction = friction[i];
 				body->CreateShape(&sd);

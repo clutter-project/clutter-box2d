@@ -51,7 +51,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -63,14 +63,14 @@ public:
 		triangleShapeDef.vertices[2].Set(0.0f, 2.0f);
 		triangleShapeDef.density = 1.0f;
 
-		triangleShapeDef.groupIndex = k_smallGroup;
-		triangleShapeDef.categoryBits = k_triangleCategory;
-		triangleShapeDef.maskBits = k_triangleMask;
+		triangleShapeDef.filter.groupIndex = k_smallGroup;
+		triangleShapeDef.filter.categoryBits = k_triangleCategory;
+		triangleShapeDef.filter.maskBits = k_triangleMask;
 
 		b2BodyDef triangleBodyDef;
 		triangleBodyDef.position.Set(-5.0f, 2.0f);
 
-		b2Body* body1 = m_world->CreateDynamicBody(&triangleBodyDef);
+		b2Body* body1 = m_world->CreateBody(&triangleBodyDef);
 		body1->CreateShape(&triangleShapeDef);
 		body1->SetMassFromShapes();
 
@@ -78,11 +78,11 @@ public:
 		triangleShapeDef.vertices[0] *= 2.0f;
 		triangleShapeDef.vertices[1] *= 2.0f;
 		triangleShapeDef.vertices[2] *= 2.0f;
-		triangleShapeDef.groupIndex = k_largeGroup;
+		triangleShapeDef.filter.groupIndex = k_largeGroup;
 		triangleBodyDef.position.Set(-5.0f, 6.0f);
 		triangleBodyDef.fixedRotation = true; // look at me!
 
-		b2Body* body2 = m_world->CreateDynamicBody(&triangleBodyDef);
+		b2Body* body2 = m_world->CreateBody(&triangleBodyDef);
 		body2->CreateShape(&triangleShapeDef);
 		body2->SetMassFromShapes();
 
@@ -91,23 +91,23 @@ public:
 		boxShapeDef.SetAsBox(1.0f, 0.5f);
 		boxShapeDef.density = 1.0f;
 
-		boxShapeDef.groupIndex = k_smallGroup;
-		boxShapeDef.categoryBits = k_boxCategory;
-		boxShapeDef.maskBits = k_boxMask;
+		boxShapeDef.filter.groupIndex = k_smallGroup;
+		boxShapeDef.filter.categoryBits = k_boxCategory;
+		boxShapeDef.filter.maskBits = k_boxMask;
 
 		b2BodyDef boxBodyDef;
 		boxBodyDef.position.Set(0.0f, 2.0f);
 
-		b2Body* body3 = m_world->CreateDynamicBody(&boxBodyDef);
+		b2Body* body3 = m_world->CreateBody(&boxBodyDef);
 		body3->CreateShape(&boxShapeDef);
 		body3->SetMassFromShapes();
 
 		// Large box (recycle definitions)
 		boxShapeDef.SetAsBox(2.0f, 1.0f);
-		boxShapeDef.groupIndex = k_largeGroup;
+		boxShapeDef.filter.groupIndex = k_largeGroup;
 		boxBodyDef.position.Set(0.0f, 6.0f);
 
-		b2Body* body4 = m_world->CreateDynamicBody(&boxBodyDef);
+		b2Body* body4 = m_world->CreateBody(&boxBodyDef);
 		body4->CreateShape(&boxShapeDef);
 		body4->SetMassFromShapes();
 
@@ -116,23 +116,23 @@ public:
 		circleShapeDef.radius = 1.0f;
 		circleShapeDef.density = 1.0f;
 
-		circleShapeDef.groupIndex = k_smallGroup;
-		circleShapeDef.categoryBits = k_circleCategory;
-		circleShapeDef.maskBits = k_circleMask;
+		circleShapeDef.filter.groupIndex = k_smallGroup;
+		circleShapeDef.filter.categoryBits = k_circleCategory;
+		circleShapeDef.filter.maskBits = k_circleMask;
 
 		b2BodyDef circleBodyDef;
 		circleBodyDef.position.Set(5.0f, 2.0f);
 		
-		b2Body* body5 = m_world->CreateDynamicBody(&circleBodyDef);
+		b2Body* body5 = m_world->CreateBody(&circleBodyDef);
 		body5->CreateShape(&circleShapeDef);
 		body5->SetMassFromShapes();
 
 		// Large circle
 		circleShapeDef.radius *= 2.0f;
-		circleShapeDef.groupIndex = k_largeGroup;
+		circleShapeDef.filter.groupIndex = k_largeGroup;
 		circleBodyDef.position.Set(5.0f, 6.0f);
 
-		b2Body* body6 = m_world->CreateDynamicBody(&circleBodyDef);
+		b2Body* body6 = m_world->CreateBody(&circleBodyDef);
 		body6->CreateShape(&circleShapeDef);
 		body6->SetMassFromShapes();
 	}

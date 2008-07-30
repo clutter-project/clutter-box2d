@@ -426,7 +426,7 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
       return;
 
     /* Iterate Box2D simulation of bodies */
-    world->Step (msecs / 1000.0, steps);
+    world->Step (msecs / 1000.0, steps, steps);
 
 
     /* syncronize actor to have geometrical sync with bodies */

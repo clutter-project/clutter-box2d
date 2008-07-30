@@ -35,11 +35,11 @@ public:
 			poly1.vertices[2].Set(1.0f,0);
 			poly1.vertices[1].Set(2.2f,-0.2f);
 			poly1.vertices[0].Set(2.2f,-0.74f);
-			poly1.groupIndex = -1;
+			poly1.filter.groupIndex = -1;
 
 			poly1.density		= 20.0f;
 			poly1.friction		= 0.68f;
-			poly1.groupIndex	= -1;
+			poly1.filter.groupIndex	= -1;
 
 			// top half
 			poly2.vertexCount = 4;
@@ -47,16 +47,16 @@ public:
 			poly2.vertices[2].Set(-1.3f,0.7f);
 			poly2.vertices[1].Set(0.5f,0.74f);
 			poly2.vertices[0].Set(1.0f,0);
-			poly2.groupIndex = -1;
+			poly2.filter.groupIndex = -1;
 
 			poly2.density		= 5.0f;
 			poly2.friction		= 0.68f;
-			poly2.groupIndex	= -1;
+			poly2.filter.groupIndex	= -1;
 
 			b2BodyDef bd;
 			bd.position.Set(-35.0f, 2.8f);
 
-			m_vehicle = m_world->CreateDynamicBody(&bd);
+			m_vehicle = m_world->CreateBody(&bd);
 			m_vehicle->CreateShape(&poly1);
 			m_vehicle->CreateShape(&poly2);
 			m_vehicle->SetMassFromShapes();
@@ -67,18 +67,18 @@ public:
 			circ.density = 40.0f;
 			circ.radius = 0.38608f;
 			circ.friction = 0.8f;
-			circ.groupIndex = -1;
+			circ.filter.groupIndex = -1;
 
 			b2BodyDef bd;
 			bd.allowSleep = false;
 			bd.position.Set(-33.8f, 2.0f);
 
-			m_rightWheel = m_world->CreateDynamicBody(&bd);
+			m_rightWheel = m_world->CreateBody(&bd);
 			m_rightWheel->CreateShape(&circ);
 			m_rightWheel->SetMassFromShapes();
 
 			bd.position.Set(-36.2f, 2.0f);
-			m_leftWheel = m_world->CreateDynamicBody(&bd);
+			m_leftWheel = m_world->CreateBody(&bd);
 			m_leftWheel->CreateShape(&circ);
 			m_leftWheel->SetMassFromShapes();
 		}
@@ -106,7 +106,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(-25.0f, 1.0f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&box);
 		}
 
@@ -118,7 +118,7 @@ public:
 			box.friction = 0.62f;
 			bd.position.Set(27.0f - 30.0f, 3.1f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&box);
 		}
 
@@ -130,7 +130,7 @@ public:
 			box.friction = 0.62f;
 			bd.position.Set(55.0f - 30.0f, 3.1f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&box);
 		}
 
@@ -142,7 +142,7 @@ public:
 			box.friction = 0.62f;
 			bd.position.Set(41.0f, 2.0f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&box);
 		}
 
@@ -154,7 +154,7 @@ public:
 			box.friction = 0.62f;
 			bd.position.Set(50.0f, 4.0f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&box);
 		}
 
@@ -166,28 +166,36 @@ public:
 			box.friction = 0.62f;
 			bd.position.Set(85.0f, 2.0f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&box);
 		}
+	}
+
+	void Step(Settings* settings)
+	{
+		m_debugDraw.DrawString(5, m_textLine, "Keys: left = a, brake = s, right = d");
+		m_textLine += 15;
+
+		Test::Step(settings);
 	}
 
 	void Keyboard(unsigned char key)
 	{
 		switch (key)
 		{
-		case ',':
+		case 'a':
 			m_leftJoint->SetMaxMotorTorque(800.0f);
 			m_leftJoint->SetMotorSpeed(12.0f);
 			break;
 
-		case '.':
-			m_leftJoint->SetMaxMotorTorque(1200.0f);
-			m_leftJoint->SetMotorSpeed(-36.0f);
-			break;
-
-		case '/':
+		case 's':
 			m_leftJoint->SetMaxMotorTorque(100.0f);
 			m_leftJoint->SetMotorSpeed(0.0f);
+			break;
+
+		case 'd':
+			m_leftJoint->SetMaxMotorTorque(1200.0f);
+			m_leftJoint->SetMotorSpeed(-36.0f);
 			break;
 		}
 	}

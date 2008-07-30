@@ -262,9 +262,12 @@ public:
 	/// Get the user data pointer that was provided in the body definition.
 	void* GetUserData();
 
+	/// Set the user data. Use this to store your application specific data.
+	void SetUserData(void* data);
+
+	/// Get the parent world of this body.
 	b2World* GetWorld();
 
-	//--------------- Internals Below -------------------
 private:
 
 	friend class b2World;
@@ -298,7 +301,7 @@ private:
 		e_maxTypes,
 	};
 
-	b2Body(const b2BodyDef* bd, uint16 type, b2World* world);
+	b2Body(const b2BodyDef* bd, b2World* world);
 	~b2Body();
 
 	bool SynchronizeShapes();
@@ -312,10 +315,11 @@ private:
 	void Advance(float32 t);
 
 	uint16 m_flags;
-	uint16 m_type;
+	int16 m_type;
+
+	int32 m_islandIndex;
 
 	b2XForm m_xf;		// the body origin transform
-
 	b2Sweep m_sweep;	// the swept motion for CCD
 
 	b2Vec2 m_linearVelocity;
@@ -514,6 +518,11 @@ inline b2Body* b2Body::GetNext()
 inline void* b2Body::GetUserData()
 {
 	return m_userData;
+}
+
+inline void b2Body::SetUserData(void* data)
+{
+	m_userData = data;
 }
 
 inline bool b2Body::IsConnected(const b2Body* other) const

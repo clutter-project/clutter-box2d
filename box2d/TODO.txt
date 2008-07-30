@@ -106,37 +106,50 @@ Version 2.0.0
 - Update manual. DONE
 
 Version 2.1.0
-- Meshes (segment soup).
-- Ray casts.
+- Convex hull tool. DONE
+- Convex decomposition tool. DONE
 - Wiki. DONE
+- User refilter. DONE
+- Soft distance constraint. DONE
+- Contact block solver. DONE
+- Block solve for prismatic joint. DONE
+- Add separate iteration count for positions. DONE
+- Use impulses instead of forces to support fixed-point. DONE
+- Look at mouse joints for multi-touch. DONE
+- Wake joint bodies when the motor state is modified.
+- Ray casts.
+- Manual debug draw call.
+- Make solver more cache friendly.
+- Enable TOI joints. Just wipe the impulses.
+- Fix polytope + prevent rotation bug.
+- Enable SVN mailing list.
+- Fix polytope ray cast for edges parallel to ray.
+- Allow joints be attached to static bodies.
+- Better documentation of how to install listeners & filters.
+
+Version 2.2.0
+- Sensors should generate Boolean events.
+- Merge add/persist/remove with results.
+- Accessors for friction, density, damping.
+- Friction/motor joint for top down games.
+- CMake.
+- Kequalized crash. Check for NaN/Inf input.
 - Pairs and proxies use small block allocator?
 - Bounds use growable array?
 - Don't sleep until position error is low?
-- Allow non-solid polygon edges.
-- User refilter.
-- CMake.
-- Kequalized crash.
-- Soft distance constraint. DONE
-- 
-
-Version 2.2.0
 - Handle orphaned gear joint.
-- Friction/motor joint for top down games.
 - Rolling resistance for circles.
 - Add comments to examples and testbed.
 
 Version 2.3.0
-- Convex hull tool.
+
 - Angle joint.
 - Weld joint.
-- Speculative contacts.
 
 Version 2.4.0
 - Spline joints.
-- Contact block solver.
 
 Version 2.5.0
-- Convex decomposition.
 - Kinematic bodies.
 
 Version 2.6.0
@@ -145,7 +158,7 @@ Version 2.6.0
 
 Version 3+
 - Performance.
-- Try position correction clamping and larger Baumgarte.
+- Meshes (segment soup).
 - Characters.
 - Vehicles.
 - Tree constraints.

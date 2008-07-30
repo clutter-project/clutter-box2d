@@ -33,7 +33,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 20.0f);
 			bd.angle = 0.0f;
-			m_body1 = m_world->CreateStaticBody(&bd);
+			m_body1 = m_world->CreateBody(&bd);
 			m_shape1 = m_body1->CreateShape(&sd);
 		}
 
@@ -45,7 +45,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(9.6363468f, 28.050615f);
 			bd.angle = 1.6408679f;
-			m_body2 = m_world->CreateDynamicBody(&bd);
+			m_body2 = m_world->CreateBody(&bd);
 			m_shape2 = (b2PolygonShape*)m_body2->CreateShape(&sd);
 			m_body2->SetMassFromShapes();
 		}
@@ -84,7 +84,7 @@ public:
 
 		float32 toi = b2TimeOfImpact(m_shape1, sweep1, m_shape2, sweep2);
 
-		DrawString(5, m_textLine, "toi = %g", (float) toi);
+		m_debugDraw.DrawString(5, m_textLine, "toi = %g", (float) toi);
 		m_textLine += 15;
 
 		b2XForm xf2;

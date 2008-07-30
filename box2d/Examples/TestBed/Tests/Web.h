@@ -32,7 +32,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
-			ground = m_world->CreateStaticBody(&bd);
+			ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -45,22 +45,22 @@ public:
 			b2BodyDef bd;
 
 			bd.position.Set(-5.0f, 5.0f);
-			m_bodies[0] = m_world->CreateDynamicBody(&bd);
+			m_bodies[0] = m_world->CreateBody(&bd);
 			m_bodies[0]->CreateShape(&sd);
 			m_bodies[0]->SetMassFromShapes();
 
 			bd.position.Set(5.0f, 5.0f);
-			m_bodies[1] = m_world->CreateDynamicBody(&bd);
+			m_bodies[1] = m_world->CreateBody(&bd);
 			m_bodies[1]->CreateShape(&sd);
 			m_bodies[1]->SetMassFromShapes();
 
 			bd.position.Set(5.0f, 15.0f);
-			m_bodies[2] = m_world->CreateDynamicBody(&bd);
+			m_bodies[2] = m_world->CreateBody(&bd);
 			m_bodies[2]->CreateShape(&sd);
 			m_bodies[2]->SetMassFromShapes();
 
 			bd.position.Set(-5.0f, 15.0f);
-			m_bodies[3] = m_world->CreateDynamicBody(&bd);
+			m_bodies[3] = m_world->CreateBody(&bd);
 			m_bodies[3]->CreateShape(&sd);
 			m_bodies[3]->SetMassFromShapes();
 
@@ -185,7 +185,9 @@ public:
 	void Step(Settings* settings)
 	{
 		Test::Step(settings);
-		DrawString(5, m_textLine, "Press: (b) to delete a body, (j) to delete a joint");
+		m_debugDraw.DrawString(5, m_textLine, "This demonstrates a soft distance joint.");
+		m_textLine += 15;
+		m_debugDraw.DrawString(5, m_textLine, "Press: (b) to delete a body, (j) to delete a joint");
 		m_textLine += 15;
 	}
 

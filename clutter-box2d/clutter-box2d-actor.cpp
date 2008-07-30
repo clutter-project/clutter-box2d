@@ -26,10 +26,6 @@
 /* defined in clutter-box2d-actor.h */
 void _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor);
 
-G_BEGIN_DECLS
-void tidy_cursor (gint x, gint y);
-G_END_DECLS
-
 G_DEFINE_TYPE (ClutterBox2DActor, clutter_box2d_actor, CLUTTER_TYPE_CHILD_META);
 
 #define CLUTTER_BOX2D_ACTOR_GET_PRIVATE(obj) \
@@ -115,6 +111,7 @@ clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
       bodyDef.linearDamping = 0.5f;
       bodyDef.angularDamping = 0.5f;
 
+
       SYNCLOG ("making an actor to be %s\n",
                type == CLUTTER_BOX2D_STATIC ? "static" : "dynamic");
 
@@ -122,14 +119,20 @@ clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
 
       if (type == CLUTTER_BOX2D_DYNAMIC)
         {
-          box2d_actor->body = world->CreateDynamicBody (&bodyDef);
+          box2d_actor->body = world->CreateBody (&bodyDef);
         }
       else if (type == CLUTTER_BOX2D_STATIC)
         {
-          box2d_actor->body = world->CreateStaticBody (&bodyDef);
+
+          box2d_actor->body = world->CreateBody (&bodyDef);
         }
       _clutter_box2d_sync_body (box2d_actor);
-      box2d_actor->body->SetMassFromShapes ();
+
+
+      if (type == CLUTTER_BOX2D_DYNAMIC)
+        {
+          box2d_actor->body->SetMassFromShapes ();
+        }
     }
   g_hash_table_insert (box2d->bodies, box2d_actor->body, box2d_actor);
 }
@@ -412,9 +415,6 @@ clutter_box2d_actor_motion (ClutterActor *actor,
 
       x = CLUTTER_UNITS_FROM_INT (event->motion.x);
       y = CLUTTER_UNITS_FROM_INT (event->motion.y);
-
-      /* something like this is needed since the pointer is grabbed */
-      /* tidy_cursor (event->motion.x, event->motion.y); */
 
       clutter_actor_transform_stage_point (
         clutter_actor_get_parent (actor),

@@ -27,6 +27,8 @@
 #include <cstdio>
 #include <cstdarg>
 
+#include <cstring>
+
 void DebugDraw::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color)
 {
 	glColor3f(color.r, color.g, color.b);
@@ -140,7 +142,7 @@ void DebugDraw::DrawXForm(const b2XForm& xf)
 	glEnd();
 }
 
-void DrawPoint(const b2Vec2& p, float32 size, const b2Color& color)
+void DebugDraw::DrawPoint(const b2Vec2& p, float32 size, const b2Color& color)
 {
 	glPointSize(size);
 	glBegin(GL_POINTS);
@@ -150,16 +152,7 @@ void DrawPoint(const b2Vec2& p, float32 size, const b2Color& color)
 	glPointSize(1.0f);
 }
 
-void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color)
-{
-	glColor3f(color.r, color.g, color.b);
-	glBegin(GL_LINES);
-	glVertex2f(p1.x, p1.y);
-	glVertex2f(p2.x, p2.y);
-	glEnd();
-}
-
-void DrawString(int x, int y, const char *string, ...)
+void DebugDraw::DrawString(int x, int y, const char *string, ...)
 {
 	char buffer[128];
 
@@ -192,7 +185,7 @@ void DrawString(int x, int y, const char *string, ...)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-void DrawAABB(b2AABB* aabb, const b2Color& c)
+void DebugDraw::DrawAABB(b2AABB* aabb, const b2Color& c)
 {
 	glColor3f(c.r, c.g, c.b);
 	glBegin(GL_LINE_LOOP);

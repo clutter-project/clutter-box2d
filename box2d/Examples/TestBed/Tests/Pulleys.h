@@ -31,7 +31,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
-			ground = m_world->CreateStaticBody(&bd);
+			ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -48,12 +48,12 @@ public:
 			b2BodyDef bd;
 
 			bd.position.Set(-10.0f, y);
-			b2Body* body1 = m_world->CreateDynamicBody(&bd);
+			b2Body* body1 = m_world->CreateBody(&bd);
 			body1->CreateShape(&sd);
 			body1->SetMassFromShapes();
 
 			bd.position.Set(10.0f, y);
-			b2Body* body2 = m_world->CreateDynamicBody(&bd);
+			b2Body* body2 = m_world->CreateBody(&bd);
 			body2->CreateShape(&sd);
 			body2->SetMassFromShapes();
 
@@ -83,7 +83,7 @@ public:
 
 		float32 ratio = m_joint1->GetRatio();
 		float32 L = m_joint1->GetLength1() + ratio * m_joint1->GetLength2();
-		DrawString(5, m_textLine, "L1 + %4.2f * L2 = %4.2f", (float) ratio, (float) L);
+		m_debugDraw.DrawString(5, m_textLine, "L1 + %4.2f * L2 = %4.2f", (float) ratio, (float) L);
 		m_textLine += 15;
 	}
 

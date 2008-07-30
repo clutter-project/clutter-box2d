@@ -1,4 +1,4 @@
-Box2D Version 2.0.1
+Box2D Version 2.0.2
 
 Welcome to Box2D!
 

@@ -32,7 +32,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
-			b1 = m_world->CreateStaticBody(&bd);
+			b1 = m_world->CreateBody(&bd);
 			b1->CreateShape(&sd);
 		}
 
@@ -42,7 +42,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(-1.5f, 10.0f);
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -56,7 +56,7 @@ public:
 			{
 				b2BodyDef bd;
 				bd.position.Set(-6.0f + 1.0f * i, 11.25f);
-				b2Body* body = m_world->CreateDynamicBody(&bd);
+				b2Body* body = m_world->CreateBody(&bd);
 				body->CreateShape(&sd);
 				body->SetMassFromShapes();
 			}
@@ -68,7 +68,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(1.0f, 6.0f);
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -79,7 +79,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(-7.0f, 4.0f);
-			b2 = m_world->CreateStaticBody(&bd);
+			b2 = m_world->CreateBody(&bd);
 			b2->CreateShape(&sd);
 		}
 
@@ -93,7 +93,7 @@ public:
 			bd.position.Set(-0.9f, 1.0f);
 			bd.angle = -0.15f;
 
-			b3 = m_world->CreateDynamicBody(&bd);
+			b3 = m_world->CreateBody(&bd);
 			b3->CreateShape(&sd);
 			b3->SetMassFromShapes();
 		}
@@ -114,7 +114,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(-10.0f, 15.0f);
-			b4 = m_world->CreateDynamicBody(&bd);
+			b4 = m_world->CreateBody(&bd);
 			b4->CreateShape(&sd);
 			b4->SetMassFromShapes();
 		}
@@ -127,7 +127,7 @@ public:
 		{
 			b2BodyDef bd;
 			bd.position.Set(6.5f, 3.0f);
-			b5 = m_world->CreateDynamicBody(&bd);
+			b5 = m_world->CreateBody(&bd);
 
 			b2PolygonDef sd;
 			sd.density = 10.0f;
@@ -158,7 +158,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(6.5f, 4.1f);
-			b6 = m_world->CreateDynamicBody(&bd);
+			b6 = m_world->CreateBody(&bd);
 			b6->CreateShape(&sd);
 			b6->SetMassFromShapes();
 		}
@@ -176,7 +176,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(7.4f, 1.0f);
 
-			b7 = m_world->CreateDynamicBody(&bd);
+			b7 = m_world->CreateBody(&bd);
 			b7->CreateShape(&sd);
 			b7->SetMassFromShapes();
 		}
@@ -199,7 +199,7 @@ public:
 			{
 				b2BodyDef bd;
 				bd.position.Set(5.9f + 2.0f * sd.radius * i, 2.4f);
-				b2Body* body = m_world->CreateDynamicBody(&bd);
+				b2Body* body = m_world->CreateBody(&bd);
 				body->CreateShape(&sd);
 				body->SetMassFromShapes();
 			}

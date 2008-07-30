@@ -37,7 +37,7 @@ public:
 			sd.restitution = 0.1f;
 			b2BodyDef bd;
 			bd.position.Set(-1.0f, -7.5f);
-			m_ground = m_world->CreateStaticBody(&bd);
+			m_ground = m_world->CreateBody(&bd);
 			m_ground->CreateShape(&sd);
 		}
 		/// Upper static body
@@ -48,7 +48,7 @@ public:
 			sd.restitution = 0.001f;  
 			b2BodyDef bd;
 			bd.position.Set(-20.f, 93.0f);
-			b2Body* g = m_world->CreateStaticBody(&bd);
+			b2Body* g = m_world->CreateBody(&bd);
 			g->CreateShape(&sd);
 			sd.SetAsBox(15.f, 0.50f,b2Vec2(-15.0f,12.5f),0.0f);
             g->CreateShape(&sd);
@@ -64,7 +64,7 @@ public:
 			sd.restitution = 0.1f;  
 			b2BodyDef bd;
 			bd.position.Set(-49.3f, 50.0f);
-			b2Body* g = m_world->CreateStaticBody(&bd);
+			b2Body* g = m_world->CreateBody(&bd);
 			g->CreateShape(&sd);
         }
 		/// Right wall
@@ -75,7 +75,7 @@ public:
 			sd.restitution = 0.1f;  
 			b2BodyDef bd;
 			bd.position.Set(45.f, 50.0f);
-			b2Body* g = m_world->CreateStaticBody(&bd);
+			b2Body* g = m_world->CreateBody(&bd);
 			g->CreateShape(&sd);
         }
 		/// Left channel right upper wall  
@@ -87,7 +87,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(-42.0f, 70.0f);
 		    bd.angle = -0.03f*b2_pi;
-			b2Body* g = m_world->CreateStaticBody(&bd);
+			b2Body* g = m_world->CreateBody(&bd);
 			g->CreateShape(&sd);
 		}
 		/// Left channel right lower wall
@@ -98,7 +98,7 @@ public:
 			sd.restitution = 0.01f;  
 			b2BodyDef bd;
 			bd.position.Set(-44.0f, 27.0f);
-			b2Body* g = m_world->CreateStaticBody(&bd);
+			b2Body* g = m_world->CreateBody(&bd);
 			g->CreateShape(&sd);
         /// Bottom motors
 		    b2CircleDef cd;
@@ -108,7 +108,7 @@ public:
 			cd.restitution = 0.2f;
         /// 1. 
 			bd.position.Set(-40.0f,2.5f);
-			b2Body* body = m_world->CreateDynamicBody(&bd);
+			b2Body* body = m_world->CreateBody(&bd);
 			body->CreateShape(&cd);
             body->SetMassFromShapes(); 
             b2RevoluteJointDef jr;
@@ -120,7 +120,7 @@ public:
         /// 1. left down
 			bd.position.Set(-46.0f,-2.5f);
             cd. radius = 1.5f;  jr.motorSpeed  = -20.f;
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&cd);
             sd.SetAsBox(2.0f, 0.50f);
             body->CreateShape(&sd);
@@ -130,7 +130,7 @@ public:
         /// 2.
             cd.radius   = 3.0f; jr.motorSpeed  = 20.f;
 			bd.position.Set(-32.0f,2.5f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&cd);
             body->SetMassFromShapes(); 
 			jr.Initialize (g,body,body->GetWorldCenter()+b2Vec2(0.f,1.f));
@@ -138,35 +138,35 @@ public:
         /// 3.
             jr.motorSpeed     = 20.f;
 			bd.position.Set(-24.0f,1.5f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&cd);
             body->SetMassFromShapes(); 
 			jr.Initialize (g,body,body->GetWorldCenter()+b2Vec2(0.f,1.f));
 			m_world->CreateJoint(&jr);
         /// 4.
 			bd.position.Set(-16.0f,0.8f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&cd);
             body->SetMassFromShapes(); 
 			jr.Initialize (g,body,body->GetWorldCenter()+b2Vec2(0.f,1.f));
 			m_world->CreateJoint(&jr);
         /// 5.
 			bd.position.Set(-8.0f,0.5f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&cd);
             body->SetMassFromShapes(); 
 			jr.Initialize (g,body,body->GetWorldCenter()+b2Vec2(0.f,1.f));
 			m_world->CreateJoint(&jr);
         /// 6.
 			bd.position.Set(0.0f,0.1f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&cd);
             body->SetMassFromShapes(); 
 			jr.Initialize (g,body,body->GetWorldCenter()+b2Vec2(0.f,1.f));
 			m_world->CreateJoint(&jr);
         /// 7.
 			bd.position.Set(8.0f,-0.5f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&cd);
 			sd.SetAsBox(3.7f, 0.5f);
 			body->CreateShape(&sd);
@@ -177,7 +177,7 @@ public:
             sd.SetAsBox(5.f, 0.5f);
             sd.density = 2.0f;
 			bd.position.Set(18.0f,1.f);
-			b2Body* rightmotor = m_world->CreateDynamicBody(&bd);
+			b2Body* rightmotor = m_world->CreateBody(&bd);
 			rightmotor->CreateShape(&sd);
 			sd.SetAsBox(4.5f, 0.5f, b2Vec2(0.f,0.f),b2_pi/3.f);
 			rightmotor->CreateShape(&sd);
@@ -194,7 +194,7 @@ public:
             sd.SetAsBox(8.5f, 0.5f);
             sd.density = 2.0f;
 			bd.position.Set(-34.0f,17.f);
-			body = m_world->CreateDynamicBody(&bd);
+			body = m_world->CreateBody(&bd);
 			body->CreateShape(&sd);
 			sd.SetAsBox(8.5f, 0.5f, b2Vec2(0.f,0.f),b2_pi*.5f);
 			body->CreateShape(&sd);
@@ -210,7 +210,7 @@ public:
             sd.SetAsBox(3.0f,4.f);
             sd.density = 10.0f;
 			bd.position.Set(-16.0f,17.f);
-			b2Body *hammerleft = m_world->CreateDynamicBody(&bd);
+			b2Body *hammerleft = m_world->CreateBody(&bd);
 			hammerleft->CreateShape(&sd);
 			hammerleft->SetMassFromShapes();
 			b2DistanceJointDef jd;
@@ -218,7 +218,7 @@ public:
 			m_world->CreateJoint(&jd);
 
 			bd.position.Set(4.0f,17.f);
-			b2Body *hammerright = m_world->CreateDynamicBody(&bd);
+			b2Body *hammerright = m_world->CreateBody(&bd);
 			hammerright->CreateShape(&sd);
 			hammerright->SetMassFromShapes();
 			jd.Initialize(body, hammerright, body->GetWorldCenter()-b2Vec2(0.f,6.f), hammerright->GetWorldCenter() );
@@ -226,7 +226,7 @@ public:
             /// pusher
             sd.SetAsBox(6.f,0.75f);
 			bd.position.Set(-21.0f,9.f);
-			b2Body* pusher = m_world->CreateDynamicBody(&bd);
+			b2Body* pusher = m_world->CreateBody(&bd);
 			pusher->CreateShape(&sd);
 			sd.SetAsBox(2.f,1.5f,b2Vec2(-5.f,0.f),0.f);
 			pusher->SetMassFromShapes();
@@ -245,7 +245,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(-15.5f, 12.f);
             bd.angle = 0.0;
-			b2Body* g = m_world->CreateStaticBody(&bd);
+			b2Body* g = m_world->CreateBody(&bd);
 			g->CreateShape(&sd);
 		    
 			sd.SetAsBox(8.f, 0.5f, b2Vec2(23.f,0.f),0.f);
@@ -277,7 +277,7 @@ public:
             b2PolygonDef sd;
 
 			bd.position.Set(40.0f,4.0f);
-			m_elev = m_world->CreateDynamicBody(&bd);
+			m_elev = m_world->CreateBody(&bd);
 
 			sd.SetAsBox(0.5f, 2.5f,b2Vec2(3.0f,-3.0f), 0.f);
 			sd.density     = 1.f;
@@ -303,7 +303,7 @@ public:
             sd.SetAsBox(2.3f, 0.5f,b2Vec2(1.f,0.0f), 0.0f);
             sd.density = 0.5f;
             bd.position.Set(29.0f,6.5f);
-			b2Body* body = m_world->CreateDynamicBody(&bd);
+			b2Body* body = m_world->CreateBody(&bd);
 			body->CreateShape(&sd);
             sd.SetAsBox(2.5f, 0.5f,b2Vec2(3.0f,-2.f), b2_pi/2.f);
             body->CreateShape(&sd);
@@ -330,7 +330,7 @@ public:
             /// upper body exit
             sd.SetAsBox(14.0f, 0.5f,b2Vec2(-3.5f,-10.0f), 0.0f);
             bd.position.Set(17.5f,96.0f);
-            body = m_world->CreateStaticBody(&bd);
+            body = m_world->CreateBody(&bd);
             body->CreateShape(&sd);
 		}
 		/// "Elastic body" 64 bodies - something like a lin. elastic compound
@@ -340,7 +340,7 @@ public:
 			sd.SetAsBox(0.55f, 0.55f);
 			sd.density    = 1.5f;
 			sd.friction   = 0.01f;
-			sd.groupIndex = -1;
+			sd.filter.groupIndex = -1;
 			b2Vec2       startpoint(30.f,20.f);
 			b2BodyDef    bd;
 			bd.isBullet   = false;
@@ -351,7 +351,7 @@ public:
                 {
 					bd.position.Set(j*1.02f, 2.51f + 1.02f * i);
 					bd.position  += startpoint;
-					b2Body* body  = m_world->CreateDynamicBody(&bd);
+					b2Body* body  = m_world->CreateBody(&bd);
 					bodies[8*i+j] = body;
 					body->CreateShape(&sd);
 					body->SetMassFromShapes();

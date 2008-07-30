@@ -31,7 +31,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
-			ground = m_world->CreateStaticBody(&bd);
+			ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
@@ -46,11 +46,11 @@ public:
 			const int32 numPlanks = 30;
 
 			b2Body* prevBody = ground;
-			for (int i = 0; i < numPlanks; ++i)
+			for (int32 i = 0; i < numPlanks; ++i)
 			{
 				b2BodyDef bd;
 				bd.position.Set(-14.5f + 1.0f * i, 5.0f);
-				b2Body* body = m_world->CreateDynamicBody(&bd);
+				b2Body* body = m_world->CreateBody(&bd);
 				body->CreateShape(&sd);
 				body->SetMassFromShapes();
 
@@ -64,6 +64,35 @@ public:
 			b2Vec2 anchor(-15.0f + 1.0f * numPlanks, 5.0f);
 			jd.Initialize(prevBody, ground, anchor);
 			m_world->CreateJoint(&jd);
+		}
+
+		for (int32 i = 0; i < 2; ++i)
+		{
+			b2PolygonDef sd;
+			sd.vertexCount = 3;
+			sd.vertices[0].Set(-0.5f, 0.0f);
+			sd.vertices[1].Set(0.5f, 0.0f);
+			sd.vertices[2].Set(0.0f, 1.5f);
+			sd.density = 1.0f;
+
+			b2BodyDef bd;
+			bd.position.Set(-8.0f + 8.0f * i, 12.0f);
+			b2Body* body = m_world->CreateBody(&bd);
+			body->CreateShape(&sd);
+			body->SetMassFromShapes();
+		}
+
+		for (int32 i = 0; i < 3; ++i)
+		{
+			b2CircleDef sd;
+			sd.radius = 0.5f;
+			sd.density = 1.0f;
+
+			b2BodyDef bd;
+			bd.position.Set(-6.0f + 6.0f * i, 10.0f);
+			b2Body* body = m_world->CreateBody(&bd);
+			body->CreateShape(&sd);
+			body->SetMassFromShapes();
 		}
 	}
 

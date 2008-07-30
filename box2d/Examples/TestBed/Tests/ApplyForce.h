@@ -31,7 +31,7 @@ public:
 		{
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 20.0f);
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 
 			b2PolygonDef sd;
 			sd.density = 0.0f;
@@ -79,7 +79,7 @@ public:
 
 			bd.position.Set(0.0f, 1.05f);
 			bd.angle = b2_pi;
-			m_body = m_world->CreateDynamicBody(&bd);
+			m_body = m_world->CreateBody(&bd);
 			m_body->CreateShape(&sd1);
 			m_body->CreateShape(&sd2);
 			m_body->SetMassFromShapes();

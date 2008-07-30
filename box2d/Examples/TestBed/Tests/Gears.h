@@ -28,7 +28,7 @@ public:
 		{
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
-			ground = m_world->CreateStaticBody(&bd);
+			ground = m_world->CreateBody(&bd);
 
 			b2PolygonDef sd;
 			sd.SetAsBox(50.0f, 10.0f);
@@ -50,7 +50,7 @@ public:
 
 			b2BodyDef bd1;
 			bd1.position.Set(-3.0f, 12.0f);
-			b2Body* body1 = m_world->CreateDynamicBody(&bd1);
+			b2Body* body1 = m_world->CreateBody(&bd1);
 			body1->CreateShape(&circle1);
 			body1->SetMassFromShapes();
 
@@ -64,7 +64,7 @@ public:
 
 			b2BodyDef bd2;
 			bd2.position.Set(0.0f, 12.0f);
-			b2Body* body2 = m_world->CreateDynamicBody(&bd2);
+			b2Body* body2 = m_world->CreateBody(&bd2);
 			body2->CreateShape(&circle2);
 			body2->SetMassFromShapes();
 
@@ -74,7 +74,7 @@ public:
 
 			b2BodyDef bd3;
 			bd3.position.Set(2.5f, 12.0f);
-			b2Body* body3 = m_world->CreateDynamicBody(&bd3);
+			b2Body* body3 = m_world->CreateBody(&bd3);
 			body3->CreateShape(&box);
 			body3->SetMassFromShapes();
 
@@ -121,12 +121,12 @@ public:
 		
 		ratio = m_joint4->GetRatio();
 		value = m_joint1->GetJointAngle() + ratio * m_joint2->GetJointAngle();
-		DrawString(5, m_textLine, "theta1 + %4.2f * theta2 = %4.2f", (float) ratio, (float) value);
+		m_debugDraw.DrawString(5, m_textLine, "theta1 + %4.2f * theta2 = %4.2f", (float) ratio, (float) value);
 		m_textLine += 15;
 
 		ratio = m_joint5->GetRatio();
 		value = m_joint2->GetJointAngle() + ratio * m_joint3->GetJointTranslation();
-		DrawString(5, m_textLine, "theta2 + %4.2f * delta = %4.2f", (float) ratio, (float) value);
+		m_debugDraw.DrawString(5, m_textLine, "theta2 + %4.2f * delta = %4.2f", (float) ratio, (float) value);
 		m_textLine += 15;
 	}
 

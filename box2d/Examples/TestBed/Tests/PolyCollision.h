@@ -38,7 +38,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 10.0f);
-			m_body1 = m_world->CreateStaticBody(&bd);
+			m_body1 = m_world->CreateBody(&bd);
 			m_body1->CreateShape(&sd);
 		}
 
@@ -49,18 +49,16 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 10.0f);
-			m_body2 = m_world->CreateDynamicBody(&bd);
+			m_body2 = m_world->CreateBody(&bd);
 			m_body2->CreateShape(&sd);
 			m_body2->SetMassFromShapes();
 		}
 
 		m_world->SetGravity(b2Vec2_zero);
-		m_world->SetPositionCorrection(false);
 	}
 
 	~PolyCollision()
 	{
-		m_world->SetPositionCorrection(true);
 	}
 
 	static Test* Create()
@@ -70,8 +68,11 @@ public:
 
 	void Step(Settings* settings)
 	{
+		int32 positionIterations = settings->positionIterations;
+		settings->positionIterations = 0;
 		settings->pause = 1;
 		Test::Step(settings);
+		settings->positionIterations = positionIterations;
 		settings->pause = 0;
 	}
 

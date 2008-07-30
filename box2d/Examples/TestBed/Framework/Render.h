@@ -39,12 +39,13 @@ public:
 	void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color);
 
 	void DrawXForm(const b2XForm& xf);
+
+    void DrawPoint(const b2Vec2& p, float32 size, const b2Color& color);
+
+    void DrawString(int x, int y, const char* string, ...); 
+
+    void DrawAABB(b2AABB* aabb, const b2Color& color);
 };
 
-void DrawPoint(const b2Vec2& p, float32 size, const b2Color& color);
-void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color);
-
-void DrawString(int x, int y, const char* string, ...);
-void DrawAABB(b2AABB* aabb, const b2Color& color);
 
 #endif

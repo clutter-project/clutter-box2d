@@ -32,13 +32,13 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 			ground->CreateShape(&sd);
 		}
 
 		b2BodyDef bodydef;
 		bodydef.position.Set(0.0f, 10.0f);
-		m_body = m_world->CreateDynamicBody(&bodydef);
+		m_body = m_world->CreateBody(&bodydef);
 
 		b2PolygonDef sd;
 		sd.SetAsBox(4.0f, 4.0f, b2Vec2(0.0f, 0.0f), 0.0f);
@@ -76,6 +76,14 @@ public:
 			}
 			break;
 		}
+	}
+
+
+	void Step(Settings* settings)
+	{
+		Test::Step(settings);
+		m_debugDraw.DrawString(5, m_textLine, "Press: (c) create a shape, (d) destroy a shape.");
+		m_textLine += 15;
 	}
 
 	static Test* Create()

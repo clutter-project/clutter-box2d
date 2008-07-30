@@ -35,7 +35,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 20.0f);
-			b2Body* body = m_world->CreateStaticBody(&bd);
+			b2Body* body = m_world->CreateBody(&bd);
 			body->CreateShape(&sd);
 		}
 
@@ -115,7 +115,7 @@ public:
 		{
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 20.0f);
-			b2Body* body = m_world->CreateStaticBody(&bd);
+			b2Body* body = m_world->CreateBody(&bd);
 
 			b2PolygonDef sd;
 			sd.density = 0.0f;
@@ -178,7 +178,7 @@ public:
 
 			b2BodyDef bd;
 			bd.position.Set( 0.0f, 15.0f );
-			b2Body* body = m_world->CreateDynamicBody(&bd);
+			b2Body* body = m_world->CreateBody(&bd);
 			body->CreateShape(&sd_bottom);
 			body->CreateShape(&sd_left);
 			body->CreateShape(&sd_right);
@@ -207,7 +207,7 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 15.0f + i);
 			bd.isBullet = true;
-			b2Body* body = m_world->CreateDynamicBody(&bd);
+			b2Body* body = m_world->CreateBody(&bd);
 			body->SetAngularVelocity(b2Random(-50.0f, 50.0f));
 
 			b2CircleDef sd;

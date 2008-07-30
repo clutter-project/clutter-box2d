@@ -27,6 +27,7 @@ namespace
 {
 	int32 testIndex = 0;
 	int32 testSelection = 0;
+	int32 testCount = 0;
 	TestEntry* entry;
 	Test* test;
 	Settings settings;
@@ -103,7 +104,7 @@ void SimulationLoop()
 	settings.hz = settingsHz;
 	test->Step(&settings);
 
-	DrawString(5, 15, entry->name);
+	test->DrawTitle(5, 15, entry->name);
 
 	glutSwapBuffers();
 
@@ -156,7 +157,28 @@ void Keyboard(unsigned char key, int x, int y)
 			test->LaunchBomb();
 		}
 		break;
+ 
 
+		// Press [ to prev test.
+	case '[':
+		--testSelection;
+		if (testSelection < 0)
+		{
+			testSelection = testCount - 1;
+		}
+		glui->sync_live();
+		break;
+
+		// Press ] to next test.
+	case ']':
+		++testSelection;
+		if (testSelection == testCount)
+		{
+			testSelection = 0;
+		}
+		glui->sync_live();
+		break;
+		
 	default:
 		if (test)
 		{
@@ -172,6 +194,7 @@ void KeyboardSpecial(int key, int x, int y)
 
 	switch (key)
 	{
+	case GLUT_ACTIVE_SHIFT:
 		// Press left to pan left.
 	case GLUT_KEY_LEFT:
 		viewCenter.x -= 0.5f;
@@ -210,17 +233,27 @@ void Mouse(int32 button, int32 state, int32 x, int32 y)
 	// Use the mouse to move things around.
 	if (button == GLUT_LEFT_BUTTON)
 	{
+		int mod = glutGetModifiers();
+		b2Vec2 p = ConvertScreenToWorld(x, y);
 		if (state == GLUT_DOWN)
 		{
 			b2Vec2 p = ConvertScreenToWorld(x, y);
-			test->MouseDown(p);
+			if (mod == GLUT_ACTIVE_SHIFT)
+			{
+				test->ShiftMouseDown(p);
+			}
+			else
+			{
+				test->MouseDown(p);
+			}
 		}
 		
 		if (state == GLUT_UP)
 		{
-			test->MouseUp();
+			test->MouseUp(p);
 		}
-	} else if (button == GLUT_RIGHT_BUTTON)
+	}
+	else if (button == GLUT_RIGHT_BUTTON)
 	{
 		if (state == GLUT_DOWN)
 		{	
@@ -240,7 +273,8 @@ void MouseMotion(int32 x, int32 y)
 	b2Vec2 p = ConvertScreenToWorld(x, y);
 	test->MouseMove(p);
 	
-	if (rMouseDown){
+	if (rMouseDown)
+	{
 		b2Vec2 diff = p - lastp;
 		viewCenter.x -= diff.x;
 		viewCenter.y -= diff.y;
@@ -250,15 +284,27 @@ void MouseMotion(int32 x, int32 y)
 }
 
 void MouseWheel(int wheel, int direction, int x, int y)
-{	B2_NOT_USED(wheel);
+{
+	B2_NOT_USED(wheel);
 	B2_NOT_USED(x);
 	B2_NOT_USED(y);
-	if (direction > 0) {
+	if (direction > 0)
+	{
 		viewZoom /= 1.1f;
-	} else {
+	}
+	else
+	{
 		viewZoom *= 1.1f;
 	}
 	Resize(width, height);
+}
+
+void Restart(int)
+{
+	delete test;
+	entry = g_testEntries + testIndex;
+	test = entry->createFcn();
+    Resize(width, height);
 }
 
 void Pause(int)
@@ -274,6 +320,15 @@ void SingleStep(int)
 
 int main(int argc, char** argv)
 {
+	testCount = 0;
+	while (g_testEntries[testCount].createFcn != NULL)
+	{
+		++testCount;
+	}
+
+	testIndex = b2Clamp(testIndex, 0, testCount-1);
+	testSelection = testIndex;
+
 	entry = g_testEntries + testIndex;
 	test = entry->createFcn();
 
@@ -304,16 +359,19 @@ int main(int argc, char** argv)
 
 	glui->add_separator();
 
-	GLUI_Spinner* iterationSpinner =
-		glui->add_spinner("Iterations", GLUI_SPINNER_INT, &settings.iterationCount);
-	iterationSpinner->set_int_limits(1, 100);
+	GLUI_Spinner* velocityIterationSpinner =
+		glui->add_spinner("Vel Iters", GLUI_SPINNER_INT, &settings.velocityIterations);
+	velocityIterationSpinner->set_int_limits(1, 500);
+
+	GLUI_Spinner* positionIterationSpinner =
+		glui->add_spinner("Pos Iters", GLUI_SPINNER_INT, &settings.positionIterations);
+	positionIterationSpinner->set_int_limits(0, 100);
 
 	GLUI_Spinner* hertzSpinner =
 		glui->add_spinner("Hertz", GLUI_SPINNER_FLOAT, &settingsHz);
 
 	hertzSpinner->set_float_limits(5.0f, 200.0f);
 
-	glui->add_checkbox("Position Correction", &settings.enablePositionCorrection);
 	glui->add_checkbox("Warm Starting", &settings.enableWarmStarting);
 	glui->add_checkbox("Time of Impact", &settings.enableTOI);
 
@@ -344,6 +402,7 @@ int main(int argc, char** argv)
 
 	glui->add_button("Pause", 0, Pause);
 	glui->add_button("Single Step", 0, SingleStep);
+	glui->add_button("Restart", 0, Restart);
 
 	glui->add_button("Quit", 0,(GLUI_Update_CB)exit);
 	glui->set_main_gfx_window( mainWindow );

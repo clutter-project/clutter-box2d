@@ -31,7 +31,8 @@ struct Settings
 {
 	Settings() :
 		hz(60.0f),
-		iterationCount(10),
+		velocityIterations(10),
+		positionIterations(8),
 		drawStats(0),
 		drawShapes(1),
 		drawJoints(1),
@@ -45,14 +46,14 @@ struct Settings
 		drawFrictionForces(0),
 		drawCOMs(0),
 		enableWarmStarting(1),
-		enablePositionCorrection(1),
 		enableTOI(1),
 		pause(0),
 		singleStep(0)
 		{}
 
 	float32 hz;
-	int32 iterationCount;
+	int32 velocityIterations;
+	int32 positionIterations;
 	int32 drawShapes;
 	int32 drawJoints;
 	int32 drawCoreShapes;
@@ -66,7 +67,6 @@ struct Settings
 	int32 drawCOMs;
 	int32 drawStats;
 	int32 enableWarmStarting;
-	int32 enablePositionCorrection;
 	int32 enableTOI;
 	int32 pause;
 	int32 singleStep;
@@ -104,9 +104,9 @@ const int32 k_maxContactPoints = 2048;
 class ContactListener : public b2ContactListener
 {
 public:
-	void Add(b2ContactPoint* point);
-	void Persist(b2ContactPoint* point);
-	void Remove(b2ContactPoint* point);
+	void Add(const b2ContactPoint* point);
+	void Persist(const b2ContactPoint* point);
+	void Remove(const b2ContactPoint* point);
 
 	Test* test;
 };
@@ -137,17 +137,25 @@ public:
 	virtual ~Test();
 
 	void SetTextLine(int32 line) { m_textLine = line; }
+    void DrawTitle(int x, int y, const char *string);
 	virtual void Step(Settings* settings);
 	virtual void Keyboard(unsigned char key) { B2_NOT_USED(key); }
-	void MouseDown(const b2Vec2& p);
-	void MouseUp();
+	void ShiftMouseDown(const b2Vec2& p);
+	virtual void MouseDown(const b2Vec2& p);
+	virtual void MouseUp(const b2Vec2& p);
 	void MouseMove(const b2Vec2& p);
 	void LaunchBomb();
+	void LaunchBomb(const b2Vec2& position, const b2Vec2& velocity);
+	
+	void SpawnBomb(const b2Vec2& worldPt);
+	void CompleteBombSpawn(const b2Vec2& p);
+
 
 	// Let derived tests know that a joint was destroyed.
 	virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
 	virtual void BoundaryViolated(b2Body* body) { B2_NOT_USED(body); }
 
+    
 protected:
 	friend class DestructionListener;
 	friend class BoundaryListener;
@@ -164,6 +172,9 @@ protected:
 	b2World* m_world;
 	b2Body* m_bomb;
 	b2MouseJoint* m_mouseJoint;
+	b2Vec2 m_bombSpawnPoint;
+	bool m_bombSpawning;
+	b2Vec2 m_mouseWorld;
 };
 
 #endif

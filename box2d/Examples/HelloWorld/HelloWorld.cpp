@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 	// Call the body factory which allocates memory for the ground body
 	// from a pool and creates the ground box shape (also from a pool).
 	// The body is also added to the world.
-	b2Body* groundBody = world.CreateStaticBody(&groundBodyDef);
+	b2Body* groundBody = world.CreateBody(&groundBodyDef);
 
 	// Define the ground box shape.
 	b2PolygonDef groundShapeDef;
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 	// Define the dynamic body. We set its position and call the body factory.
 	b2BodyDef bodyDef;
 	bodyDef.position.Set(0.0f, 4.0f);
-	b2Body* body = world.CreateDynamicBody(&bodyDef);
+	b2Body* body = world.CreateBody(&bodyDef);
 
 	// Define another box shape for our dynamic body.
 	b2PolygonDef shapeDef;
@@ -87,14 +87,15 @@ int main(int argc, char** argv)
 	// second (60Hz) and 10 iterations. This provides a high quality simulation
 	// in most game scenarios.
 	float32 timeStep = 1.0f / 60.0f;
-	int32 iterations = 10;
+	int32 velocityIterations = 8;
+	int32 positionIterations = 1;
 
 	// This is our little game loop.
 	for (int32 i = 0; i < 60; ++i)
 	{
 		// Instruct the world to perform a single step of simulation. It is
 		// generally best to keep the time step and iterations fixed.
-		world.Step(timeStep, iterations);
+		world.Step(timeStep, velocityIterations, positionIterations);
 
 		// Now print the position and angle of the body.
 		b2Vec2 position = body->GetPosition();

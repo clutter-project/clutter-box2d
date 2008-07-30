@@ -21,9 +21,9 @@
 #include "../b2WorldCallbacks.h"
 #include "../../Common/b2BlockAllocator.h"
 
-#include <cstring>
 #include <memory>
 #include <new>
+#include <cstring>
 
 b2Contact* b2PolygonContact::Create(b2Shape* shape1, b2Shape* shape2, b2BlockAllocator* allocator)
 {
@@ -40,8 +40,8 @@ void b2PolygonContact::Destroy(b2Contact* contact, b2BlockAllocator* allocator)
 b2PolygonContact::b2PolygonContact(b2Shape* s1, b2Shape* s2)
 	: b2Contact(s1, s2)
 {
-	b2Assert(m_shape1->m_type == e_polygonShape);
-	b2Assert(m_shape2->m_type == e_polygonShape);
+	b2Assert(m_shape1->GetType() == e_polygonShape);
+	b2Assert(m_shape2->GetType() == e_polygonShape);
 	m_manifold.pointCount = 0;
 }
 

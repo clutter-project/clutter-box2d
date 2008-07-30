@@ -48,7 +48,7 @@ void BoundaryListener::Violation(b2Body* body)
 	}
 }
 
-void ContactListener::Add(b2ContactPoint* point)
+void ContactListener::Add(const b2ContactPoint* point)
 {
 	if (test->m_pointCount == k_maxContactPoints)
 	{
@@ -66,7 +66,7 @@ void ContactListener::Add(b2ContactPoint* point)
 	++test->m_pointCount;
 }
 
-void ContactListener::Persist(b2ContactPoint* point)
+void ContactListener::Persist(const b2ContactPoint* point)
 {
 	if (test->m_pointCount == k_maxContactPoints)
 	{
@@ -84,7 +84,7 @@ void ContactListener::Persist(b2ContactPoint* point)
 	++test->m_pointCount;
 }
 
-void ContactListener::Remove(b2ContactPoint* point)
+void ContactListener::Remove(const b2ContactPoint* point)
 {
 	if (test->m_pointCount == k_maxContactPoints)
 	{
@@ -122,6 +122,8 @@ Test::Test()
 	m_world->SetBoundaryListener(&m_boundaryListener);
 	m_world->SetContactListener(&m_contactListener);
 	m_world->SetDebugDraw(&m_debugDraw);
+	
+	m_bombSpawning = false;
 }
 
 Test::~Test()
@@ -131,8 +133,15 @@ Test::~Test()
 	m_world = NULL;
 }
 
+void Test::DrawTitle(int x, int y, const char *string)
+{
+    m_debugDraw.DrawString(x, y, string);
+}
+
 void Test::MouseDown(const b2Vec2& p)
 {
+	m_mouseWorld = p;
+	
 	if (m_mouseJoint != NULL)
 	{
 		return;
@@ -153,12 +162,12 @@ void Test::MouseDown(const b2Vec2& p)
 	for (int32 i = 0; i < count; ++i)
 	{
 		b2Body* shapeBody = shapes[i]->GetBody();
-		if (shapeBody->IsStatic() == false)
+		if (shapeBody->IsStatic() == false && shapeBody->GetMass() > 0.0f)
 		{
 			bool inside = shapes[i]->TestPoint(shapeBody->GetXForm(), p);
 			if (inside)
 			{
-				body = shapes[i]->m_body;
+				body = shapes[i]->GetBody();
 				break;
 			}
 		}
@@ -171,8 +180,8 @@ void Test::MouseDown(const b2Vec2& p)
 		md.body2 = body;
 		md.target = p;
 #ifdef TARGET_FLOAT32_IS_FIXED
-		md.maxForce = (body->m_mass < 16.0)? 
-			(1000.0f * body->m_mass) : float32(16000.0);
+		md.maxForce = (body->GetMass() < 16.0)? 
+			(1000.0f * body->GetMass()) : float32(16000.0);
 #else
 		md.maxForce = 1000.0f * body->GetMass();
 #endif
@@ -181,17 +190,52 @@ void Test::MouseDown(const b2Vec2& p)
 	}
 }
 
-void Test::MouseUp()
+void Test::SpawnBomb(const b2Vec2& worldPt)
+{
+	m_bombSpawnPoint = worldPt;
+	m_bombSpawning = true;
+}
+    
+void Test::CompleteBombSpawn(const b2Vec2& p)
+{
+	if (!m_bombSpawning) return;
+	const float multiplier = 30.0f;
+	b2Vec2 vel = m_bombSpawnPoint - p;
+	vel *= multiplier;
+	LaunchBomb(m_bombSpawnPoint,vel);
+	m_bombSpawning = false;
+}
+
+void Test::ShiftMouseDown(const b2Vec2& p)
+{
+	m_mouseWorld = p;
+	
+	if (m_mouseJoint != NULL)
+	{
+		return;
+	}
+
+	SpawnBomb(p);
+}
+
+void Test::MouseUp(const b2Vec2& p)
 {
 	if (m_mouseJoint)
 	{
 		m_world->DestroyJoint(m_mouseJoint);
 		m_mouseJoint = NULL;
 	}
+	
+	if (m_bombSpawning)
+	{
+		CompleteBombSpawn(p);
+	}
 }
 
 void Test::MouseMove(const b2Vec2& p)
 {
+	m_mouseWorld = p;
+	
 	if (m_mouseJoint)
 	{
 		m_mouseJoint->SetTarget(p);
@@ -199,6 +243,13 @@ void Test::MouseMove(const b2Vec2& p)
 }
 
 void Test::LaunchBomb()
+{
+	b2Vec2 p(b2Random(-15.0f, 15.0f), 30.0f);
+	b2Vec2 v = -5.0f * p;
+	LaunchBomb(p, v);
+}
+
+void Test::LaunchBomb(const b2Vec2& position, const b2Vec2& velocity)
 {
 	if (m_bomb)
 	{
@@ -208,18 +259,31 @@ void Test::LaunchBomb()
 
 	b2BodyDef bd;
 	bd.allowSleep = true;
-	bd.position.Set(b2Random(-15.0f, 15.0f), 30.0f);
+	bd.position = position;
+	
 	bd.isBullet = true;
-	m_bomb = m_world->CreateDynamicBody(&bd);
-	m_bomb->SetLinearVelocity(-5.0f * bd.position);
-
+	m_bomb = m_world->CreateBody(&bd);
+	m_bomb->SetLinearVelocity(velocity);
+	
 	b2CircleDef sd;
 	sd.radius = 0.3f;
 	sd.density = 20.0f;
 	sd.restitution = 0.1f;
-	m_bomb->CreateShape(&sd);
 	
-	m_bomb->SetMassFromShapes();
+	b2Vec2 minV = position - b2Vec2(0.3f,0.3f);
+	b2Vec2 maxV = position + b2Vec2(0.3f,0.3f);
+	
+	b2AABB aabb;
+	aabb.lowerBound = minV;
+	aabb.upperBound = maxV;
+	
+	bool inRange = m_world->InRange(aabb);
+
+	if (inRange)
+	{
+		m_bomb->CreateShape(&sd);
+		m_bomb->SetMassFromShapes();
+	}
 }
 
 void Test::Step(Settings* settings)
@@ -237,7 +301,7 @@ void Test::Step(Settings* settings)
 			timeStep = 0.0f;
 		}
 
-		DrawString(5, m_textLine, "****PAUSED****");
+		m_debugDraw.DrawString(5, m_textLine, "****PAUSED****");
 		m_textLine += 15;
 	}
 
@@ -252,12 +316,11 @@ void Test::Step(Settings* settings)
 	m_debugDraw.SetFlags(flags);
 
 	m_world->SetWarmStarting(settings->enableWarmStarting > 0);
-	m_world->SetPositionCorrection(settings->enablePositionCorrection > 0);
 	m_world->SetContinuousPhysics(settings->enableTOI > 0);
 
 	m_pointCount = 0;
 
-	m_world->Step(timeStep, settings->iterationCount);
+	m_world->Step(timeStep, settings->velocityIterations, settings->positionIterations);
 
 	m_world->Validate();
 
@@ -269,16 +332,16 @@ void Test::Step(Settings* settings)
 
 	if (settings->drawStats)
 	{
-		DrawString(5, m_textLine, "proxies(max) = %d(%d), pairs(max) = %d(%d)",
+		m_debugDraw.DrawString(5, m_textLine, "proxies(max) = %d(%d), pairs(max) = %d(%d)",
 			m_world->GetProxyCount(), b2_maxProxies,
 			m_world->GetPairCount(), b2_maxPairs);
 		m_textLine += 15;
 
-		DrawString(5, m_textLine, "bodies/contacts/joints = %d/%d/%d",
+		m_debugDraw.DrawString(5, m_textLine, "bodies/contacts/joints = %d/%d/%d",
 			m_world->GetBodyCount(), m_world->GetContactCount(), m_world->GetJointCount());
 		m_textLine += 15;
 
-		DrawString(5, m_textLine, "heap bytes = %d", b2_byteCount);
+		m_debugDraw.DrawString(5, m_textLine, "heap bytes = %d", b2_byteCount);
 		m_textLine += 15;
 	}
 
@@ -302,6 +365,21 @@ void Test::Step(Settings* settings)
 		glVertex2f(p2.x, p2.y);
 		glEnd();
 	}
+	
+	if (m_bombSpawning){
+		glPointSize(4.0f);
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glBegin(GL_POINTS);
+		glColor3f(0.0f, 0.0f, 1.0f);
+		glVertex2f(m_bombSpawnPoint.x, m_bombSpawnPoint.y);
+		glEnd();
+		
+		glColor3f(0.8f, 0.8f, 0.8f);
+		glBegin(GL_LINES);
+		glVertex2f(m_mouseWorld.x, m_mouseWorld.y);
+		glVertex2f(m_bombSpawnPoint.x, m_bombSpawnPoint.y);
+		glEnd();
+	}
 
 	if (settings->drawContactPoints)
 	{
@@ -315,24 +393,24 @@ void Test::Step(Settings* settings)
 			if (point->state == 0)
 			{
 				// Add
-				DrawPoint(point->position, 10.0f, b2Color(0.3f, 0.95f, 0.3f));
+				m_debugDraw.DrawPoint(point->position, 10.0f, b2Color(0.3f, 0.95f, 0.3f));
 			}
 			else if (point->state == 1)
 			{
 				// Persist
-				DrawPoint(point->position, 5.0f, b2Color(0.3f, 0.3f, 0.95f));
+				m_debugDraw.DrawPoint(point->position, 5.0f, b2Color(0.3f, 0.3f, 0.95f));
 			}
 			else
 			{
 				// Remove
-				DrawPoint(point->position, 10.0f, b2Color(0.95f, 0.3f, 0.3f));
+				m_debugDraw.DrawPoint(point->position, 10.0f, b2Color(0.95f, 0.3f, 0.3f));
 			}
 
 			if (settings->drawContactNormals == 1)
 			{
 				b2Vec2 p1 = point->position;
 				b2Vec2 p2 = p1 + k_axisScale * point->normal;
-				DrawSegment(p1, p2, b2Color(0.4f, 0.9f, 0.4f));
+				m_debugDraw.DrawSegment(p1, p2, b2Color(0.4f, 0.9f, 0.4f));
 			}
 			else if (settings->drawContactForces == 1)
 			{

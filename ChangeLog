@@ -1,3 +1,14 @@
+2008-07-30  Øyvind Kolås  <pippin@o-hand.com>
+
+	Updated Box2D from upstream svn.
+
+	* box2d/: updated to upstream box2d (svn revision 170).
+	* box2d/Makefile.am: recreated to match source.
+	* clutter-box2d/clutter-box2d-actor.cpp: changed how static actors are
+	created to reflect new upstream methods.
+	* clutter-box2d/clutter-box2d.cpp: world->Step() got another steps
+	argument.
+
 2008-07-23  Emmanuele Bassi  <ebassi@openedhand.com>
 
 	* clutter-box2d.pc.in: Update the pc file. (Gwenole Beauchesne)

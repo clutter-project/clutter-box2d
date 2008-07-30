@@ -30,17 +30,30 @@ public:
 			b2BodyDef bd;
 			bd.position.Set(0.0f, -10.0f);
 
-			b2Body* ground = m_world->CreateStaticBody(&bd);
+			b2Body* ground = m_world->CreateBody(&bd);
 
-			b2PolygonDef sd;
-			sd.SetAsBox(50.0f, 10.0f);
-			ground->CreateShape(&sd);
+			{
+				b2PolygonDef sd;
+				sd.SetAsBox(50.0f, 10.0f);
+				ground->CreateShape(&sd);
+			}
 
-			b2CircleDef cd;
-			cd.isSensor = true;
-			cd.radius = 5.0f;
-			cd.localPosition.Set(0.0f, 20.0f);
-			m_sensor = ground->CreateShape(&cd);
+#if 0
+			{
+				b2PolygonDef sd;
+				sd.SetAsBox(10.0f, 2.0f, b2Vec2(0.0f, 20.0f), 0.0f);
+				sd.isSensor = true;
+				m_sensor = ground->CreateShape(&sd);
+			}
+#else
+			{
+				b2CircleDef cd;
+				cd.isSensor = true;
+				cd.radius = 5.0f;
+				cd.localPosition.Set(0.0f, 20.0f);
+				m_sensor = ground->CreateShape(&cd);
+			}
+#endif
 		}
 
 		{
@@ -53,7 +66,7 @@ public:
 				b2BodyDef bd;
 				bd.position.Set(-10.0f + 3.0f * i, 20.0f);
 
-				b2Body* body = m_world->CreateDynamicBody(&bd);
+				b2Body* body = m_world->CreateBody(&bd);
 
 				body->CreateShape(&sd);
 				body->SetMassFromShapes();
