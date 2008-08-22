@@ -276,6 +276,8 @@ clutter_box2d_destroy_child_meta (ClutterContainer *box2d,
   if (manipulatable)
     g_object_set (box2d_actor, "manipulatable", FALSE, NULL);
 
+  if (box2d_actor->body)
+    box2d_actor->world->DestroyBody (box2d_actor->body);
 
   g_hash_table_remove (CLUTTER_BOX2D (box2d)->actors, actor);
   g_hash_table_remove (CLUTTER_BOX2D (box2d)->bodies, box2d_actor->body);
