@@ -424,8 +424,13 @@ clutter_box2d_actor_motion (ClutterActor *actor,
        dx = x - priv->start_x;
        dy = y - priv->start_y;
 
-       ClutterVertex target = { x, y };
-       clutter_box2d_mouse_joint_update_target (priv->mouse_joint, &target);
+       /* priv->mouse_joint may have been deleted while processing
+        * events during clutter_actor_transform_stage_point */
+       if (priv->mouse_joint)
+         {
+           ClutterVertex target = { x, y };
+           clutter_box2d_mouse_joint_update_target (priv->mouse_joint, &target);
+         }
     }
   return FALSE;
 }

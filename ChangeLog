@@ -1,3 +1,10 @@
+2008-09-09  Øyvind Kolås  <pippin@linux.intel.com>
+
+	* clutter-box2d/clutter-box2d-actor.cpp: applied patch from
+	James Ketrenos <jketreno@linux.intel.com> that fixes potential
+	dereferencing of NULL pointer in clutter_box2d_actor_motion,
+	closing bug #867.
+
 2008-08-22  Øyvind Kolås  <pippin@o-hand.com>
 
 	* clutter-box2d/clutter-box2d.cpp: applied patch from
