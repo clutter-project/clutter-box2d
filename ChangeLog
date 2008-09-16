@@ -1,8 +1,14 @@
-2008-08-11  Murray Cumming  <murrayc@murrayc.com>
+2008-09-16  Øyvind Kolås  <pippin@linux.intel.com>
+
+	* clutter-box2d/clutter-box2d.cpp: fixed a typo in a property
+	registration , also in patch for bug #1095 from Murray Cumming.
+
+2008-08-16  Murray Cumming  <murrayc@murrayc.com>
 
 	* clutter-box2d/clutter-box2d-joint.cpp:
 	* clutter-box2d/clutter-box2d-joint.h: clutter_box2d_add_mouse_joint(): 
 	Make the target vertex parameter const, as in the other functions.
+	Closing bug #1095.
 
 2008-09-09  Øyvind Kolås  <pippin@linux.intel.com>
 

@@ -153,7 +153,7 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
   g_object_class_install_property (gobject_class,
                                    PROP_SIMULATING,
                                    g_param_spec_boolean ("simulating",
-                                                         "Simulatin",
+                                                         "Simulating",
                                                          "Whether ClutterBox2D is performing physical simulation or not.",
                                                          TRUE,
                                                          static_cast<GParamFlags>(G_PARAM_READWRITE)));
