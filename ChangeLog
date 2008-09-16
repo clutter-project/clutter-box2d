@@ -1,3 +1,9 @@
+2008-08-11  Murray Cumming  <murrayc@murrayc.com>
+
+	* clutter-box2d/clutter-box2d-joint.cpp:
+	* clutter-box2d/clutter-box2d-joint.h: clutter_box2d_add_mouse_joint(): 
+	Make the target vertex parameter const, as in the other functions.
+
 2008-09-09  Øyvind Kolås  <pippin@linux.intel.com>
 
 	* clutter-box2d/clutter-box2d-actor.cpp: applied patch from

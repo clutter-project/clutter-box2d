@@ -237,9 +237,9 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
 
 
 ClutterBox2DJoint *
-clutter_box2d_add_mouse_joint (ClutterBox2D  *box2d,
-                               ClutterActor  *actor,
-                               ClutterVertex *target)
+clutter_box2d_add_mouse_joint (ClutterBox2D        *box2d,
+                               ClutterActor        *actor,
+                               const ClutterVertex *target)
 {
   /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
   b2MouseJointDef md;
