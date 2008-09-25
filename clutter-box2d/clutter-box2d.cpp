@@ -18,6 +18,7 @@
 #include <clutter/clutter.h>
 #include "clutter-box2d.h"
 #include "clutter-box2d-actor.h"
+#include "clutter-box2d-contact.h"
 #include "math.h"
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
@@ -214,6 +215,9 @@ clutter_box2d_constructor (GType                  type,
   g_signal_connect (priv->timeline, "new-frame",
                     G_CALLBACK (clutter_box2d_iterate), object);
 
+  CLUTTER_BOX2D (object)->contact_listener = (_ClutterBox2DContactListener *)
+                            new __ClutterBox2DContactListener (CLUTTER_BOX2D (object));
+
   return object;
 }
 
@@ -239,6 +243,12 @@ clutter_box2d_dispose (GObject *object)
     {
       g_hash_table_destroy (self->bodies);
       self->bodies = NULL;
+    }
+
+  if (self->contact_listener)
+    {
+      delete (__ClutterBox2DContactListener *)self ->contact_listener;
+      self ->contact_listener = NULL;
     }
 }
 
@@ -438,8 +448,29 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
         _clutter_box2d_sync_actor (box2d_actor);
       }
     g_list_free (actors);
-  }
 
+    /* Process list of collisions and emit signals for any actors with
+     * a registered callback. */
+    for (iter = box2d->collisions; iter; iter = g_list_next (iter))
+      {
+        ClutterBox2DCollision  *collision;
+        ClutterBox2DActor      *box2d_actor;
+        ClutterBox2DActorClass *klass;
+
+        collision = CLUTTER_BOX2D_COLLISION (iter->data);
+
+        box2d_actor = clutter_box2d_get_actor (box2d, collision->actor1);
+        klass = CLUTTER_BOX2D_ACTOR_CLASS (G_OBJECT_GET_CLASS (box2d_actor));
+        g_signal_emit_by_name (box2d_actor, "collision", collision);
+        box2d_actor = clutter_box2d_get_actor (box2d, collision->actor2);
+        klass = CLUTTER_BOX2D_ACTOR_CLASS (G_OBJECT_GET_CLASS (box2d_actor));
+        g_signal_emit_by_name (box2d_actor, "collision", collision);
+
+        g_object_unref (collision);
+      }
+    g_list_free (box2d->collisions);
+    box2d->collisions = NULL;
+  }
 }
 
 void

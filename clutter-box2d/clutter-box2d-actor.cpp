@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <clutter/clutter.h>
+#include "clutter-box2d-marshal.h"
 
 /* defined in clutter-box2d-actor.h */
 void _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor);
@@ -42,6 +43,14 @@ enum
   PROP_MODE,
   PROP_MANIPULATABLE,
 };
+
+enum
+{
+  COLLISION,
+  LAST_SIGNAL
+};
+
+static gint box2d_actor_signals[LAST_SIGNAL];
 
 struct _ClutterBox2DActorPrivate {
   gboolean manipulatable;
@@ -279,6 +288,15 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
   gobject_class->set_property = clutter_box2d_actor_set_property;
   gobject_class->get_property = clutter_box2d_actor_get_property;
 
+  box2d_actor_signals[COLLISION] = g_signal_new ("collision",
+                                 G_TYPE_FROM_CLASS (gobject_class),
+                                 G_SIGNAL_RUN_LAST,
+                                 0,
+                                 NULL, NULL,
+                                 clutter_box2d_marshal_VOID__OBJECT,
+                                 G_TYPE_NONE, 1, 
+                                 CLUTTER_TYPE_BOX2D_COLLISION);
+
   g_object_class_install_property (gobject_class,
                                    PROP_LINEAR_VELOCITY,
                                    g_param_spec_boxed ("linear-velocity",
@@ -481,4 +499,3 @@ clutter_box2d_actor_release (ClutterActor *actor,
 
   return FALSE;
 }
-

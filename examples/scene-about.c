@@ -2,6 +2,15 @@
 #include "clutter-box2d.h"
 #include "blockbox.h"
 
+static void
+collision_cb (ClutterActor          *actor,
+              ClutterBox2DCollision *collision,
+              gpointer               userdata)
+{
+  g_print ("collision reported %p,%p intensity: %f  tangent_force: %f\n",
+  collision->normal_force, collision->tangent_force);
+}
+
 void
 scene_about (Scene *scene)
 {
@@ -50,6 +59,15 @@ scene_about (Scene *scene)
   clutter_container_child_set (CLUTTER_CONTAINER (group), title,
                                "manipulatable", TRUE,
                                "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
+
+  /* report collisions involving the title */
+  {
+    ClutterChildMeta *child_meta;
+
+    child_meta = clutter_container_get_child_meta (CLUTTER_CONTAINER (group), title);
+    g_signal_connect (G_OBJECT (child_meta), "collision", G_CALLBACK (collision_cb),
+                      (void*)0xf00);
+  }
 
   clutter_box2d_set_simulating (CLUTTER_BOX2D (group), simulating);
 

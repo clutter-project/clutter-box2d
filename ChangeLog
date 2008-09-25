@@ -1,3 +1,21 @@
+2008-09-25  Øyvind Kolås  <pippin@linux.intel.com>
+
+	Added support for callbacks for collisions, based on a patch from
+	James Ketrenos <jketereno@linux.intel.com> for bug #1116.
+
+	* clutter-box2d/Makefile.am:
+	* clutter-box2d/clutter-box2d-actor.cpp:
+	* clutter-box2d/clutter-box2d-collision.cpp:
+	* clutter-box2d/clutter-box2d-collision.h:
+	* clutter-box2d/clutter-box2d-contact.cpp:
+	* clutter-box2d/clutter-box2d-contact.h:
+	* clutter-box2d/clutter-box2d-marshal.list:
+	* clutter-box2d/clutter-box2d.cpp:
+	* clutter-box2d/clutter-box2d.h:
+
+	* examples/scene-about.c: (collision_cb), (scene_about): print some
+	debug output when collisions occur.
+
 2008-09-16  Øyvind Kolås  <pippin@linux.intel.com>
 
 	* clutter-box2d/clutter-box2d.cpp: fixed a typo in a property

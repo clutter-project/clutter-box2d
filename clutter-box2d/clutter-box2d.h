@@ -12,6 +12,9 @@
 
 #include <clutter/clutter-group.h>
 
+/* Abstract declaration of ClutterBox2DContactListener */
+typedef struct _ClutterBox2DContactListener ClutterBox2DContactListener;
+
 G_BEGIN_DECLS
 
 /**
@@ -64,6 +67,10 @@ struct _ClutterBox2D
   GHashTable      *actors; /* a hash table that maps actors to */
   GHashTable      *bodies; /* a hash table that maps bodies to */
   GHashTable      *joints;
+
+  GList           *collisions; /* List of ClutterBox2DCollision contact 
+                                * points from last iteration through time */
+  ClutterBox2DContactListener *contact_listener;
 };
 
 struct _ClutterBox2DClass
@@ -155,11 +162,10 @@ typedef enum {
   CLUTTER_BOX2D_STATIC,
 } ClutterBox2DType;
 
-
-
 G_END_DECLS
 
 #endif
 
 #include "clutter-box2d-joint.h"
 #include "clutter-box2d-util.h"
+#include "clutter-box2d-collision.h"
