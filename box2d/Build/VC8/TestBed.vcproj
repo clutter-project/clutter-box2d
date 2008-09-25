@@ -310,6 +310,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\Examples\TestBed\Tests\RaycastTest.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\Examples\TestBed\Tests\Revolute.h"
 				>
 			</File>
@@ -323,6 +327,10 @@
 			</File>
 			<File
 				RelativePath="..\..\Examples\TestBed\Tests\SliderCrank.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Examples\TestBed\Tests\SphereStack.h"
 				>
 			</File>
 			<File
@@ -362,6 +370,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\Examples\TestBed\Tests\LineJoint.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -1,5 +1,12 @@
 2008-09-25  Øyvind Kolås  <pippin@linux.intel.com>
 
+	Updated Box2D from upstream svn.
+
+	* box2d/: updated to upstream box2d (svn revision 175).
+	* box2d/Makefile.am: recreated to match source.
+
+2008-09-25  Øyvind Kolås  <pippin@linux.intel.com>
+
 	Added support for callbacks for collisions, based on a patch from
 	James Ketrenos <jketereno@linux.intel.com> for bug #1116.
 

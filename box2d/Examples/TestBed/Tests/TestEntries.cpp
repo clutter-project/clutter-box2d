@@ -41,11 +41,13 @@
 #include "Dominos.h"
 #include "ElasticBody.h"
 #include "Gears.h"
+#include "LineJoint.h"
 #include "PolyCollision.h"
 #include "PolyShapes.h"
 #include "Prismatic.h"
 #include "Pulleys.h"
 #include "Pyramid.h"
+#include "RaycastTest.h"
 #include "Revolute.h"
 #include "SensorTest.h"
 #include "ShapeEditing.h"
@@ -61,6 +63,7 @@
 
 TestEntry g_testEntries[] =
 {
+	{"Line Joint", LineJoint::Create},
 	{"SphereStack", SphereStack::Create},
 	{"Pyramid", Pyramid::Create},
 	{"Prismatic", Prismatic::Create},
@@ -93,5 +96,6 @@ TestEntry g_testEntries[] =
 	{"Broad Phase", BroadPhaseTest::Create},
 	{"PolyCollision", PolyCollision::Create},
 	{"Elastic Body", ElasticBody::Create},
+	{"Raycast Test", RaycastTest::Create},
 	{NULL, NULL}
 };

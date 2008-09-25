@@ -382,6 +382,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\Source\Dynamics\Joints\b2LineJoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Dynamics\Joints\b2LineJoint.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Source\Dynamics\Joints\b2MouseJoint.cpp"
 					>
 				</File>

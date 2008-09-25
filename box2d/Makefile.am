@@ -14,6 +14,8 @@ Source/Dynamics/Joints/b2PrismaticJoint.cpp \
 Source/Dynamics/Joints/b2MouseJoint.h \
 Source/Dynamics/Joints/b2GearJoint.cpp \
 Source/Dynamics/Joints/b2DistanceJoint.h \
+Source/Dynamics/Joints/b2LineJoint.h \
+Source/Dynamics/Joints/b2LineJoint.cpp \
 Source/Dynamics/Joints/b2Joint.cpp \
 Source/Dynamics/Joints/b2PulleyJoint.h \
 Source/Dynamics/Joints/b2PrismaticJoint.h \

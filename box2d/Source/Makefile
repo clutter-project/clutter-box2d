@@ -24,6 +24,7 @@ SOURCES = \
 	./Dynamics/Joints/b2PrismaticJoint.cpp \
 	./Dynamics/Joints/b2DistanceJoint.cpp \
 	./Dynamics/Joints/b2GearJoint.cpp \
+	./Dynamics/Joints/b2LineJoint.cpp \
 	./Common/b2StackAllocator.cpp \
 	./Common/b2Math.cpp \
 	./Common/b2BlockAllocator.cpp \

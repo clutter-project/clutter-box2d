@@ -116,14 +116,16 @@ Version 2.1.0
 - Add separate iteration count for positions. DONE
 - Use impulses instead of forces to support fixed-point. DONE
 - Look at mouse joints for multi-touch. DONE
-- Wake joint bodies when the motor state is modified.
-- Ray casts.
+- Line joint for vehicle wheels + suspension. DONE
+- Wake joint bodies when the motor state is modified. DONE
+- Ray casts. DONE
+- Fix polytope + prevent rotation bug. DONE
+- Fix polytope ray cast for edges parallel to ray. DONE
+- Allow friction and damping to be modified on the fly. DONE
 - Manual debug draw call.
 - Make solver more cache friendly.
 - Enable TOI joints. Just wipe the impulses.
-- Fix polytope + prevent rotation bug.
-- Enable SVN mailing list.
-- Fix polytope ray cast for edges parallel to ray.
+- Enable SVN mailing list. DONE : box2d-svn@lists.sourceforge.net
 - Allow joints be attached to static bodies.
 - Better documentation of how to install listeners & filters.
 
