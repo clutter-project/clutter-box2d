@@ -1,4 +1,4 @@
-/**
+/*
  * This file provides the declaration for the 
  * ClutterBox2DCollision object passed to the signal handlers for the 
  * "collision" signal found on ClutterBox2DActor.
@@ -34,17 +34,17 @@ GType clutter_box2d_collision_get_type (void) G_GNUC_CONST;
 
 /**
  * ClutterBox2DCollision:
- * @actor1        Body 1 in collision
- * @actor2        Body 2 in collision
+ * @actor1: Body 1 in collision
+ * @actor2: Body 2 in collision
  *
  * Contact point information associated with a collision in Box2D.
  *
- * NOTE:  The signal callback "collision" emitted by ClutterBox2DActor
+ * <note>The signal callback "collision" emitted by ClutterBox2DActor
  * provides the ClutterBox2DActor as the instance (which is the Box2D actor
  * which shadows the ClutterActor typically referenced by the calling 
  * application)  As such, the caller code should typically use the
  * ClutterActor obtained through @actor1 to reference the "real" ClutterActor
- * involved in the collision.
+ * involved in the collision.</note>
  *
  */
 struct _ClutterBox2DCollision
@@ -52,8 +52,11 @@ struct _ClutterBox2DCollision
   /*< private >*/
   GObject parent_instance;
 
+  /*< public >*/
   ClutterActor   *actor1;       /* Actor 1 in collision */
   ClutterActor   *actor2;       /* Actor 2 in collision */
+
+  /*< private >*/
   ClutterVertex  position;      /* Box2D world coordinates for collision point */
   ClutterVertex  normal;        /* Unit vector pointing from Actor1 to Actor2 */
   gdouble        normal_force;  /* Contact solver's calculated collision 

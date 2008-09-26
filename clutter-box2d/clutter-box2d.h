@@ -138,7 +138,7 @@ gboolean  clutter_box2d_get_simulating (ClutterBox2D *box2d);
 
 
 
-/* <- not two dots, this not picked up by gtk-doc
+/**
  * ClutterBox2DActor:
  *
  * This structure contains the combined state of an actor and a body, all

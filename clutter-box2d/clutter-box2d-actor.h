@@ -20,14 +20,6 @@
 
 G_BEGIN_DECLS
 
-/**
- * SECTION:clutter-box2d
- * @short_description: Container with physics engine
- *
- * ClutterBox2D is a container that can physically simulate collisions
- * between dynamic and static actors.
- */
-
 #define CLUTTER_TYPE_BOX2D_ACTOR    clutter_box2d_actor_get_type ()
 
 #define CLUTTER_BOX2D_ACTOR(obj) \
@@ -50,11 +42,6 @@ G_BEGIN_DECLS
   (G_TYPE_INSTANCE_GET_CLASS ((obj), \
                               CLUTTER_TYPE_BOX2D_ACTOR, ClutterBox2DActorClass))
 
-/**
- * ClutterBox2DActor:
- *
- * The #ClutterBox2DActor physics container, the struct has no public fields.
- */
 typedef struct _ClutterBox2DActor        ClutterBox2DActor;
 typedef struct _ClutterBox2DActorPrivate ClutterBox2DActorPrivate;
 typedef struct _ClutterBox2DActorClass   ClutterBox2DActorClass;

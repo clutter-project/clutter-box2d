@@ -22,7 +22,7 @@ clutter_box2d_get_type
 </SECTION>
 
 <SECTION>
-<FILE>clutter-box2d-actor<FILE>
+<FILE>clutter-box2d-actor</FILE>
 <TITLE>ClutterBox2D Actor</TITLE>
 ClutterBox2DActor
 ClutterBox2DActorClass
@@ -55,5 +55,3 @@ clutter_box2d_add_prismatic_joint
 clutter_box2d_add_mouse_joint
 clutter_box2d_mouse_joint_update_target
 </SECTION>
-
-

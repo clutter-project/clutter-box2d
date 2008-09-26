@@ -8,6 +8,7 @@ collision_cb (ClutterActor          *actor,
               gpointer               userdata)
 {
   g_print ("collision reported %p,%p intensity: %f  tangent_force: %f\n",
+  collision->actor1, collision->actor2,
   collision->normal_force, collision->tangent_force);
 }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * This file implements the header for the C++ class used for the
  * Box2D contact listener callback.
  *
