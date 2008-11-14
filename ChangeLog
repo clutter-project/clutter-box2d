@@ -1,5 +1,12 @@
 2008-11-14  Øyvind Kolås  <pippin@linux.intel.com>
 
+	* clutter-box2d/clutter-box2d-joint.cpp: ue g_return_val_if_fail to
+	check provided arguments.
+	* clutter-box2d/clutter-box2d-joint.h: added note about when NULL is
+	being returned in the API documentation.
+
+2008-11-14  Øyvind Kolås  <pippin@linux.intel.com>
+
 	* clutter-box2d/clutter-box2d-actor.cpp:
 	* clutter-box2d/clutter-box2d-actor.h:
 	* clutter-box2d/clutter-box2d-collision.cpp:

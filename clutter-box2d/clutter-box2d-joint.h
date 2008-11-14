@@ -42,7 +42,7 @@ typedef struct _ClutterBox2DJoint   ClutterBox2DJoint;
  * actors that should coincide. The actors are allowed to rotate around this
  * point making it act like an axle.
  *
- * Returns: a ClutterBox2DJoint handle.
+ * Returns: a ClutterBox2DJoint handle or NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
                                                      ClutterActor        *actor1,
@@ -63,7 +63,7 @@ ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
  * Create a revolute joint that is defined by original positions of actors and
  * a common point specified in world coordinates.
  *
- * Returns: a ClutterBox2DJoint handle.
+ * Returns: a ClutterBox2DJoint handle or NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
                                                       ClutterActor        *actor1,
@@ -89,7 +89,7 @@ ClutterBox2DJoint *clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d
  * behavior as well. The defaults for frequency and damping_ratio to disable
  * dampening is 0.0 for both.
  *
- * Returns: a ClutterBox2DJoint handle.
+ * Returns: a ClutterBox2DJoint handle or NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
                                                      ClutterActor        *actor1,
@@ -115,7 +115,7 @@ ClutterBox2DJoint *clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
  * A prismatic joint. This joint provides one degree of freedom: translation
  * along an axis fixed in body1. Relative rotation is prevented.
  *
- * Returns: a ClutterBox2DJoint handle.
+ * Returns: a ClutterBox2DJoint handle or NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
                                                       ClutterActor        *actor1,
@@ -137,7 +137,7 @@ ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d
  * world point. This a soft constraint with a maximum force. This allows the
  * constraint to stretch and without applying huge forces.
  *
- * Returns: a ClutterBox2DJoint handle.
+ * Returns: a ClutterBox2DJoint handle or NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_mouse_joint (ClutterBox2D           *box2d,
                                                   ClutterActor           *actor,

@@ -106,6 +106,9 @@ joint_new (ClutterBox2D *box2d,
 void
 clutter_box2d_joint_destroy (ClutterBox2DJoint *joint)
 {
+  g_return_if_fail (joint);
+
+
   ((b2World*)joint->box2d->world)->DestroyJoint (joint->joint);
 
    if (joint->actor1)
@@ -134,6 +137,12 @@ clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
   /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
   b2DistanceJointDef jd;
 
+  g_return_val_if_fail (box2d, NULL);
+  g_return_val_if_fail (actor1, NULL);
+  g_return_val_if_fail (actor2, NULL);
+  g_return_val_if_fail (anchor1, NULL);
+  g_return_val_if_fail (anchor2, NULL);
+
   jd.collideConnected = false;
   jd.body1 = clutter_box2d_get_actor (box2d, actor1)->body;
   jd.body2 = clutter_box2d_get_actor (box2d, actor2)->body;
@@ -158,6 +167,7 @@ clutter_box2d_add_distance_joint2 (ClutterBox2D        *box2d,
                                    gdouble              frequency,
                                    gdouble              damping_ratio)
 {
+  g_warning ("clutter_box2d_add_distance_joint2 not yet implemented");
   /* this one should compute the length automatically based on the
    * initial configuration?
    */
@@ -175,6 +185,12 @@ clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
 {
   /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
   b2RevoluteJointDef jd;
+
+  g_return_val_if_fail (box2d, NULL);
+  g_return_val_if_fail (actor1, NULL);
+  g_return_val_if_fail (actor2, NULL);
+  g_return_val_if_fail (anchor1, NULL);
+  g_return_val_if_fail (anchor2, NULL);
 
   jd.collideConnected = false;
   jd.body1 = clutter_box2d_get_actor (box2d, actor1)->body;
@@ -219,6 +235,12 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
   b2PrismaticJointDef jd;
 
+  g_return_val_if_fail (box2d, NULL);
+  g_return_val_if_fail (actor1, NULL);
+  g_return_val_if_fail (actor2, NULL);
+  g_return_val_if_fail (anchor1, NULL);
+  g_return_val_if_fail (anchor2, NULL);
+
   jd.collideConnected = false;
   jd.body1 = clutter_box2d_get_actor (box2d, actor1)->body;
   jd.body2 = clutter_box2d_get_actor (box2d, actor2)->body;
@@ -244,6 +266,10 @@ clutter_box2d_add_mouse_joint (ClutterBox2D        *box2d,
   /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
   b2MouseJointDef md;
 
+  g_return_val_if_fail (box2d, NULL);
+  g_return_val_if_fail (actor, NULL);
+  g_return_val_if_fail (target, NULL);
+
   md.body1 = ((b2World*)box2d->world)->GetGroundBody();
   md.body2 = clutter_box2d_get_actor (box2d, actor)->body;
   md.target = b2Vec2(CLUTTER_UNITS_TO_FLOAT (target->x) * SCALE_FACTOR,
@@ -258,7 +284,12 @@ void
 clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *joint,
                                          const ClutterVertex *target)
 {
-  b2Vec2 b2target = b2Vec2(CLUTTER_UNITS_TO_FLOAT (target->x) * SCALE_FACTOR,
-                           CLUTTER_UNITS_TO_FLOAT (target->y) * SCALE_FACTOR);
+  b2Vec2 b2target;
+
+  g_return_if_fail (joint);
+  g_return_if_fail (target);
+ 
+  b2target = b2Vec2(CLUTTER_UNITS_TO_FLOAT (target->x) * SCALE_FACTOR,
+                    CLUTTER_UNITS_TO_FLOAT (target->y) * SCALE_FACTOR);
   static_cast<b2MouseJoint*>(joint->joint)->SetTarget(b2target);
 }
