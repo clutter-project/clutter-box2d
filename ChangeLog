@@ -1,3 +1,11 @@
+2008-11-14  Øyvind Kolås  <pippin@linux.intel.com>
+
+	* clutter-box2d/clutter-box2d-actor.cpp:
+	* clutter-box2d/clutter-box2d-actor.h:
+	* clutter-box2d/clutter-box2d-collision.cpp:
+	* clutter-box2d/clutter-box2d.h: Make clutter-box2d abide by single
+	header include policy and only include clutter.h
+
 2008-09-26  Emmanuele Bassi  <ebassi@linux.intel.com>
 
 	* clutter-box2d/clutter-box2d-actor.h:

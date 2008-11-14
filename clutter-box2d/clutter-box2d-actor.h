@@ -13,7 +13,7 @@
 #define _CLUTTER_BOX2D_ACTOR_H
 
 #include "Box2D.h"
-#include <clutter/clutter-child-meta.h>
+#include <clutter/clutter.h>
 #include "clutter-box2d-actor.h"
 #include "clutter-box2d.h"
 #include "math.h"

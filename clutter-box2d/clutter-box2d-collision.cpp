@@ -9,14 +9,13 @@
  *
  */
 #include "Box2D.h"
-#include <clutter/clutter-child-meta.h>
+#include <clutter/clutter.h>
 #include "clutter-box2d-actor.h"
 #include "clutter-box2d.h"
 #include "math.h"
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <clutter/clutter.h>
 
 #include "clutter-box2d-collision.h"
 

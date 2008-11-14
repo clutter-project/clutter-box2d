@@ -10,7 +10,7 @@
 #ifndef _CLUTTER_BOX2D_H
 #define _CLUTTER_BOX2D_H
 
-#include <clutter/clutter-group.h>
+#include <clutter/clutter.h>
 
 /* Abstract declaration of ClutterBox2DContactListener */
 typedef struct _ClutterBox2DContactListener ClutterBox2DContactListener;
