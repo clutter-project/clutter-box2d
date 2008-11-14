@@ -1,9 +1,15 @@
 2008-11-14  Øyvind Kolås  <pippin@linux.intel.com>
 
-	* clutter-box2d/clutter-box2d-joint.cpp: ue g_return_val_if_fail to
+	Applied patch from lilli.szafranski@intel.com closing bug #1224
+	* clutter-box2d/clutter-box2d-joint.cpp: make use of provided
+	frequency and damping arguments. 
+
+2008-11-14  Øyvind Kolås  <pippin@linux.intel.com>
+
+	* clutter-box2d/clutter-box2d-joint.cpp: use g_return_val_if_fail to
 	check provided arguments.
 	* clutter-box2d/clutter-box2d-joint.h: added note about when NULL is
-	being returned in the API documentation.
+	being returned in the API documentation. Closing bug #1262.
 
 2008-11-14  Øyvind Kolås  <pippin@linux.intel.com>
 

@@ -151,8 +151,8 @@ clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
   jd.localAnchor2 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor2->x) * SCALE_FACTOR,
                            CLUTTER_UNITS_TO_FLOAT (anchor2->y) * SCALE_FACTOR);
   jd.length = length * SCALE_FACTOR;
-  jd.frequencyHz = 0.0;
-  jd.dampingRatio = 0.0;
+  jd.frequencyHz = frequency;
+  jd.dampingRatio = damping_ratio;
 
   return joint_new (box2d, ((b2World*)box2d->world)->CreateJoint (&jd));
 }
