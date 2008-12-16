@@ -259,7 +259,7 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   jd.localAnchor2 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (anchor2->x) * SCALE_FACTOR,
                            CLUTTER_UNITS_TO_FLOAT (anchor2->y) * SCALE_FACTOR);
   jd.lowerTranslation = min_length * SCALE_FACTOR;
-  jd.lowerTranslation = max_length * SCALE_FACTOR;
+  jd.upperTranslation = max_length * SCALE_FACTOR;
   jd.enableLimit = true;
   jd.localAxis1 = b2Vec2(CLUTTER_UNITS_TO_FLOAT (axis->x),
                          CLUTTER_UNITS_TO_FLOAT (axis->y));
