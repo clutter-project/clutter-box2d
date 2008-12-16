@@ -138,8 +138,6 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
   gobject_class->get_property = clutter_box2d_get_property;
   actor_class->paint          = clutter_box2d_paint;
 
-
-
   g_type_class_add_private (gobject_class, sizeof (ClutterBox2DPrivate));
 
   /* gravity can only be set, not get */
@@ -167,7 +165,8 @@ clutter_box2d_init (ClutterBox2D *self)
   self->priv = CLUTTER_BOX2D_GET_PRIVATE (self);
 }
 
-ClutterActor *   clutter_box2d_new (void)
+ClutterActor *
+clutter_box2d_new (void)
 {
   return CLUTTER_ACTOR (g_object_new (CLUTTER_TYPE_BOX2D, NULL));
 }
@@ -294,10 +293,12 @@ clutter_box2d_destroy_child_meta (ClutterContainer *box2d,
 }
 
 static ClutterChildMeta *
-clutter_box2d_get_child_meta (ClutterContainer *box2d,
-                ClutterActor     *actor)
+clutter_box2d_get_child_meta (ClutterContainer *container,
+                              ClutterActor     *actor)
 {
-  return CLUTTER_CHILD_META (g_hash_table_lookup (CLUTTER_BOX2D (box2d)->actors, actor));
+  ClutterBox2D *box2d = CLUTTER_BOX2D (container);
+
+  return CLUTTER_CHILD_META (g_hash_table_lookup (box2d->actors, actor));
 }
 
 static void clutter_container_iface_init (ClutterContainerIface *iface)
@@ -477,7 +478,11 @@ void
 clutter_box2d_set_simulating (ClutterBox2D  *box2d,
                               gboolean       simulating)
 {
-  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
+  ClutterBox2DPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_BOX2D (box2d));
+
+  priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
 
   if (simulating)
     {
@@ -492,7 +497,11 @@ clutter_box2d_set_simulating (ClutterBox2D  *box2d,
 gboolean
 clutter_box2d_get_simulating (ClutterBox2D *box2d)
 {
-  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
+  ClutterBox2DPrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), FALSE);
+
+  priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
 
   return clutter_timeline_is_playing (priv->timeline);
 }

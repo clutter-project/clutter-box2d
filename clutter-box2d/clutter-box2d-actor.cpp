@@ -76,10 +76,19 @@ static gboolean clutter_box2d_actor_motion  (ClutterActor *actor,
 
 
 ClutterBox2DActor *
-clutter_box2d_get_actor (ClutterBox2D   *box2d,
-                          ClutterActor   *actor)
+clutter_box2d_get_actor (ClutterBox2D *box2d,
+                         ClutterActor *actor)
 {
-  return CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta (CLUTTER_CONTAINER (box2d), actor));
+  ClutterChildMeta *meta;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
+
+  meta = clutter_container_get_child_meta (CLUTTER_CONTAINER (box2d), actor);
+  if (!meta)
+    return NULL;
+
+  return CLUTTER_BOX2D_ACTOR (meta);
 }
 
 
@@ -152,8 +161,10 @@ clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
                               ClutterActor      *actor,
                               ClutterBox2DType   type)
 {
-  ClutterBox2DActor   *box2d_actor = CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta (
-     CLUTTER_CONTAINER (box2d), actor));
+  ClutterBox2DActor *box2d_actor;
+  
+  box2d_actor =
+    CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta (CLUTTER_CONTAINER (box2d), actor));
   clutter_box2d_actor_set_type2 (box2d_actor, type);
 }
 
