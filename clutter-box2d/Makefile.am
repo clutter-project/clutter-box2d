@@ -34,5 +34,7 @@ clutter-box2d-marshal.h: clutter-box2d-marshal.list Makefile
 
 clutter_box2dheadersdir = $(includedir)/clutter-0.8/clutter-box2d
 
+DISTCLEANFILES = $(MARSHALFILES)
+
 EXTRA_DIST = \
-	clutter-box2d-marshal.h
+	clutter-box2d-marshal.list
