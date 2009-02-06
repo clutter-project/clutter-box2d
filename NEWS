@@ -1,0 +1,32 @@
+Release log for Clutter-Box2D.
+
+clutter-box2d-0.8.2:
+====================
+
+Changes:
+
+  - Fixed bug in prismatic joint constructor.
+  - Updated box2d version used.
+  - Updated and improved documentation.
+  - Updated and improved parameter handling in public API
+    entry points.
+  - Added support for callbacks for collisions.
+  - Bug fixes relating to reference keeping.
+  - Brought sandbox testbed app up to date with API changes.
+
+Contributors:
+
+James Ketreno <jketreno@linux.intel.com>
+Emanuelle Bassi <ebassi@linux.intel.com>
+Øyvind Kolås <pippin@linux.intel.com>
+
+
+clutter-box2d-0.8.0 
+===================
+
+Initial release
+
+Contributors:
+
+Øyvind Kolås <pippin@linux.intel.com>
+Emanuelle Bassi <ebassi@linux.intel.com>
