@@ -109,6 +109,9 @@ action_set_dynamic (ClutterActor *action,
 
   clutter_container_child_set (CLUTTER_CONTAINER (box2d),
                                actor, "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
+  clutter_container_child_set (CLUTTER_CONTAINER (box2d),
+                               actor, "manipulatable", TRUE, NULL);
+
   return FALSE;
 }
 
@@ -144,6 +147,7 @@ action_add_rectangle (ClutterActor *action,
   clutter_actor_set_size (box, 100, 100);
   clutter_actor_set_position (box, event->button.x, event->button.y);
   clutter_group_add (CLUTTER_GROUP (group), box);
+
   return FALSE;
 }
 
@@ -276,7 +280,6 @@ actor_manipulator_press (ClutterActor *stage,
     return FALSE;
 
   manipulated_actor = actor;
-  clutter_grab_pointer (stage);
 
   clutter_actor_get_positionu (actor, &orig_x, &orig_y);
   orig_rotation = clutter_actor_get_rotationx (actor, CLUTTER_Z_AXIS, NULL,
@@ -311,14 +314,19 @@ actor_manipulator_press (ClutterActor *stage,
       	  
       if (type == CLUTTER_BOX2D_DYNAMIC)
         {
+#if 0
             mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
                                                            scene_get_group ()),
                                                          manipulated_actor,
                                                          &target);
-            mode = Box2D;
+#endif
+            mode = None; /*Box2D;*/
+            manipulated_actor = NULL;
+            return FALSE;
         }
     }
 #endif
+  clutter_grab_pointer (stage);
 
   return TRUE;
 }
@@ -374,6 +382,7 @@ actor_manipulator_motion (ClutterActor *stage,
 
           case None:
             g_print ("we shouldn't be doing %s in None mode\n", G_STRLOC);
+            return FALSE;
         }
     }
   return FALSE;
@@ -387,6 +396,7 @@ actor_manipulator_release (ClutterActor *stage,
   if (manipulated_actor)
     {
       clutter_ungrab_pointer ();
+      manipulated_actor = NULL;
 
       switch (mode)
         {
@@ -402,9 +412,10 @@ actor_manipulator_release (ClutterActor *stage,
 
           case Direct:
           case None:
+            mode  = None;
+            return FALSE;
             break;
         }
-      manipulated_actor = NULL;
       mode              = None;
     }
   return TRUE;

@@ -137,8 +137,7 @@ main (int   argc,
                     G_CALLBACK (stage_key_release_cb),
                     NULL);
 
-  if(0)actor_manipulator_init (stage);
-
+  actor_manipulator_init (stage);
 
   clutter_actor_show (stage);
   /*custom_cursor (0,0,0);*/
