@@ -27,7 +27,7 @@ scene_about (Scene *scene)
   group = clutter_box2d_new ();
   clutter_group_add (CLUTTER_GROUP (stage), group);
 
-  title = clutter_label_new_full ("Sans 20px",
+  title = clutter_text_new_full ("Sans 20px",
                                   "This application is a collection\n"
                                   "clutter+box2d experiments, activate\n"
                                   "use arrows to change between tests,\n"
@@ -52,7 +52,7 @@ scene_about (Scene *scene)
                                "manipulatable", TRUE,
                                "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
 
-  title = clutter_label_new_full ("Sans 40px", "Clutter-Box2D", &color2);
+  title = clutter_text_new_full ("Sans 40px", "Clutter-Box2D", &color2);
   clutter_actor_set_position (title, 100, 120);
   clutter_actor_set_rotation (title, CLUTTER_Z_AXIS, 23, 0, 0, 0);
   clutter_group_add (CLUTTER_GROUP (group), title);

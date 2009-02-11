@@ -49,7 +49,7 @@ label_action (const gchar            *font,
   ClutterColor  ccol;
 
   clutter_color_parse (color, &ccol);
-  actor = clutter_label_new_full (font, label, &ccol);
+  actor = clutter_text_new_full (font, label, &ccol);
   clutter_actor_set_reactive (actor, TRUE);
   clutter_actor_set_opacity (actor, 0x77);
 

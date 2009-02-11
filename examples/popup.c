@@ -14,6 +14,13 @@
 
 static GList *actions = NULL;
 
+static void
+nuke_on_complete (ClutterAnimation *animation,
+                  ClutterActor     *actor)
+{
+  clutter_actor_destroy (actor);
+}
+
 void
 popup_nuke (ClutterActor *stage,
             gint          x,
@@ -21,12 +28,14 @@ popup_nuke (ClutterActor *stage,
 {
   while (actions)
     {
-      stuff_actor_fade_out_destroy (actions->data);
+      g_signal_connect (clutter_actor_animate (actions->data, CLUTTER_LINEAR, 500, "opacity", 0x00, NULL),
+                        "completed", G_CALLBACK (nuke_on_complete), actions->data);
       /*clutter_actor_destroy (actions->data);*/
       actions = g_list_remove (actions, actions->data);
     }
   wrap_group_init (CLUTTER_GROUP (stage), x - 50, y - 50, 0, 10);
 }
+
 
 static gboolean
 action_press (ClutterActor *action,
@@ -44,7 +53,7 @@ action_enter (ClutterActor *tag,
 {
   ClutterColor color = { 0xff, 0xff, 0x00, 0xff };
 
-  clutter_label_set_color (CLUTTER_LABEL (userdata), &color);
+  clutter_text_set_color (CLUTTER_TEXT (userdata), &color);
   return FALSE;
 }
 
@@ -55,7 +64,7 @@ action_leave (ClutterActor *tag,
 {
   ClutterColor color = { 0xff, 0xff, 0xff, 0xff };
 
-  clutter_label_set_color (CLUTTER_LABEL (userdata), &color);
+  clutter_text_set_color (CLUTTER_TEXT (userdata), &color);
   return FALSE;
 }
 
@@ -79,16 +88,16 @@ popup_add2 (const gchar *name,
 
   rectangle = clutter_rectangle_new_with_color (&color);
   clutter_group_add (CLUTTER_GROUP (group), rectangle);
-  label = clutter_label_new_with_text ("Sans " FONT_SIZE, name);
+  label = clutter_text_new_with_text ("Sans " FONT_SIZE, name);
 
   clutter_group_add (CLUTTER_GROUP (group), label);
 
   actions = g_list_append (actions, group);
   wrap_group_add (CLUTTER_GROUP (stage), group);
-  clutter_label_set_color (CLUTTER_LABEL (label), &color2);
+  clutter_text_set_color (CLUTTER_TEXT (label), &color2);
 
   clutter_actor_set_opacity (group, 0x00);
-  stuff_actor_fade_in (group, 0xff);
+  clutter_actor_animate (group, CLUTTER_LINEAR, 500, "opacity", 0xff, NULL);
 
   {
     gint w, h;
@@ -219,7 +228,7 @@ slider_enter (ClutterActor *tag,
   SliderData  *data  = userdata;
   ClutterColor color = { 0xff, 0xff, 0x00, 0xff };
 
-  clutter_label_set_color (CLUTTER_LABEL (data->label), &color);
+  clutter_text_set_color (CLUTTER_TEXT (data->label), &color);
   return FALSE;
 }
 
@@ -231,7 +240,7 @@ slider_leave (ClutterActor *tag,
   SliderData  *data  = userdata;
   ClutterColor color = { 0xff, 0xff, 0xff, 0xff };
 
-  clutter_label_set_color (CLUTTER_LABEL (data->label), &color);
+  clutter_text_set_color (CLUTTER_TEXT (data->label), &color);
   return FALSE;
 }
 
@@ -264,19 +273,19 @@ popup_add_slider (const gchar *name,
   rectangle = clutter_rectangle_new_with_color (&color);
   clutter_group_add (CLUTTER_GROUP (group), rectangle);
   g_print ("slider: %s %s %p %p\n", name, visual, callback, user_data);
-  label = clutter_label_new_with_text ("Sans " FONT_SIZE, name);
+  label = clutter_text_new_with_text ("Sans " FONT_SIZE, name);
 
   clutter_group_add (CLUTTER_GROUP (group), label);
 
   actions = g_list_append (actions, group);
   wrap_group_add (CLUTTER_GROUP (stage), group);
-  clutter_label_set_color (CLUTTER_LABEL (label), &color2);
+  clutter_text_set_color (CLUTTER_TEXT (label), &color2);
 
   clutter_group_add (CLUTTER_GROUP (group), through);
   clutter_actor_set_size (through, 4, 30);
 
   clutter_actor_set_opacity (group, 0x00);
-  stuff_actor_fade_in (group, 0xff);
+  clutter_actor_animate (group, CLUTTER_LINEAR, 500, "opacity", 0xff, NULL);
 
   {
     gint w, h;

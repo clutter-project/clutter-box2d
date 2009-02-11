@@ -70,7 +70,7 @@ AC_CHECK_FUNCS([memset munmap strcasecmp strdup])
 dnl ========================================================================
 
 
-pkg_modules="clutter-0.8 >= 0.8.0"
+pkg_modules="clutter-0.9 >= 0.9.0"
 PKG_CHECK_MODULES(DEPS, [$pkg_modules])
 
 if test "x$GCC" = "xyes"; then

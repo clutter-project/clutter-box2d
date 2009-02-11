@@ -60,7 +60,7 @@ action_toggle_simulating (ClutterActor *actor,
                        gpointer      userdata)
 {
   simulating = !simulating;
-  clutter_label_set_text (CLUTTER_LABEL (actor), simulating ? "◼" : "▶");
+  clutter_text_set_text (CLUTTER_TEXT (actor), simulating ? "◼" : "▶");
   clutter_box2d_set_simulating (CLUTTER_BOX2D (get_scene_no (scene_get_current ())
                                             ->group), simulating);
 }

@@ -163,7 +163,7 @@ action_add_text (ClutterActor *action,
 
   clutter_color_parse ("#888", &color);
 
-  title = clutter_label_new_full ("Sans 30px", "fnord", &color);
+  title = clutter_text_new_full ("Sans 30px", "fnord", &color);
 
   clutter_actor_set_position (title, event->button.x, event->button.y);
   clutter_group_add (CLUTTER_GROUP (group), title);
@@ -282,7 +282,7 @@ actor_manipulator_press (ClutterActor *stage,
   manipulated_actor = actor;
 
   clutter_actor_get_positionu (actor, &orig_x, &orig_y);
-  orig_rotation = clutter_actor_get_rotationx (actor, CLUTTER_Z_AXIS, NULL,
+  orig_rotation = clutter_actor_get_rotationu (actor, CLUTTER_Z_AXIS, NULL,
                                                NULL,
                                                NULL);
 
@@ -306,7 +306,7 @@ actor_manipulator_press (ClutterActor *stage,
       clutter_box2d_get_simulating (CLUTTER_BOX2D (scene_get_group ())))
     {
       ClutterBox2D *box2d  = CLUTTER_BOX2D (scene_get_group ());
-      ClutterVertex target = { start_x, start_y };
+      /*ClutterVertex target = { start_x, start_y };*/
       gint type;
       
       clutter_container_child_get (CLUTTER_CONTAINER (box2d),
@@ -375,7 +375,7 @@ actor_manipulator_motion (ClutterActor *stage,
               }
             else if (clutter_event_get_state (event) & CLUTTER_BUTTON2_MASK)
               {
-                clutter_actor_set_rotationx (manipulated_actor, CLUTTER_Z_AXIS,
+                clutter_actor_set_rotationu (manipulated_actor, CLUTTER_Z_AXIS,
                                              orig_rotation + dx, 0, 0, 0);
               }
             break;

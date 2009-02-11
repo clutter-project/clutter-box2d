@@ -43,13 +43,13 @@ static void clutter_box2d_actor_track_rotation (ClutterActor *actor,
                                                 gpointer      data)
 {
   TrackData *td;
-  ClutterFixed angle;
+  ClutterUnit angle;
   td = data;
 
-  angle = clutter_actor_get_rotationx (td->other, CLUTTER_Z_AXIS, 0,0,0);
+  angle = clutter_actor_get_rotationu (td->other, CLUTTER_Z_AXIS, 0,0,0);
   if (angle != td->prev_angle)
     {
-      clutter_actor_set_rotationx (td->self, CLUTTER_Z_AXIS, angle + td->rel_angle, 0,0,0);
+      clutter_actor_set_rotationu (td->self, CLUTTER_Z_AXIS, angle + td->rel_angle, 0,0,0);
       td->prev_angle = angle;
     }
 }
@@ -103,8 +103,8 @@ void clutter_box2d_actor_track (ClutterActor           *actor,
   td->rel_y = clutter_actor_get_yu (actor) - clutter_actor_get_yu (other);
 
 
-  td->rel_angle = clutter_actor_get_rotationx (actor, CLUTTER_Z_AXIS, 0,0,0)-
-                  clutter_actor_get_rotationx (other, CLUTTER_Z_AXIS, 0,0,0);
+  td->rel_angle = clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS, 0,0,0)-
+                  clutter_actor_get_rotation (other, CLUTTER_Z_AXIS, 0,0,0);
 
   /* listen for notifies when the others position change and then change
    * the position of ourself accordingly.
