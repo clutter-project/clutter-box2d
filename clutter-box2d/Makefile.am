@@ -32,7 +32,7 @@ clutter-box2d-marshal.c: clutter-box2d-marshal.list Makefile
 clutter-box2d-marshal.h: clutter-box2d-marshal.list Makefile
 	glib-genmarshal --prefix=clutter_box2d_marshal --header $< > $@
 
-clutter_box2dheadersdir = $(includedir)/clutter-0.8/clutter-box2d
+clutter_box2dheadersdir = $(includedir)/clutter-0.9/clutter-box2d
 
 DISTCLEANFILES = $(MARSHALFILES)
 
