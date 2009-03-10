@@ -15,13 +15,17 @@
 typedef struct TrackData
 {
   ClutterActor *self;
+
   ClutterActor *other;
   ClutterUnit   rel_x;
   ClutterUnit   rel_y;
-  ClutterFixed  rel_angle;
-  gint          prev_angle;
+
+  gdouble       rel_angle;
+  gdouble       prev_angle;
+
   gint          x_handler;
   gint          y_handler;
+
   gint          rotation_handler;
 } TrackData;
 
@@ -30,11 +34,12 @@ static void clutter_box2d_actor_track_position (ClutterActor *actor,
                                                 GParamSpec   *pspec,
                                                 gpointer      data)
 {
-  TrackData *td;
+  TrackData *td = data;
   ClutterUnit x, y;
-  td = data;
+
   clutter_actor_get_positionu (td->other, &x, &y);
   clutter_actor_set_positionu (td->self, x + td->rel_x, y + td->rel_y);
+
   clutter_actor_queue_redraw (actor);
 }
 
@@ -42,14 +47,15 @@ static void clutter_box2d_actor_track_rotation (ClutterActor *actor,
                                                 GParamSpec   *pspec,
                                                 gpointer      data)
 {
-  TrackData *td;
-  ClutterUnit angle;
-  td = data;
+  TrackData *td = data;
+  gdouble angle;
 
   angle = clutter_actor_get_rotationu (td->other, CLUTTER_Z_AXIS, 0,0,0);
   if (angle != td->prev_angle)
     {
-      clutter_actor_set_rotationu (td->self, CLUTTER_Z_AXIS, angle + td->rel_angle, 0,0,0);
+      clutter_actor_set_rotationu (td->self, CLUTTER_Z_AXIS,
+                                   angle + td->rel_angle,
+                                   0, 0, 0);
       td->prev_angle = angle;
     }
 }
@@ -102,9 +108,8 @@ void clutter_box2d_actor_track (ClutterActor           *actor,
   td->rel_x = clutter_actor_get_xu (actor) - clutter_actor_get_xu (other);
   td->rel_y = clutter_actor_get_yu (actor) - clutter_actor_get_yu (other);
 
-
-  td->rel_angle = clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS, 0,0,0)-
-                  clutter_actor_get_rotation (other, CLUTTER_Z_AXIS, 0,0,0);
+  td->rel_angle = clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS, 0, 0, 0)
+                - clutter_actor_get_rotation (other, CLUTTER_Z_AXIS, 0, 0, 0);
 
   /* listen for notifies when the others position change and then change
    * the position of ourself accordingly.
