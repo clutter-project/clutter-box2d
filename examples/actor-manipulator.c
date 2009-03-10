@@ -161,7 +161,7 @@ action_add_text (ClutterActor *action,
   ClutterActor *title;
   ClutterColor  color;
 
-  clutter_color_parse ("#888", &color);
+  clutter_color_from_string (&color, "#888");
 
   title = clutter_text_new_full ("Sans 30px", "fnord", &color);
 
