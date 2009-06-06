@@ -60,7 +60,7 @@ struct _ClutterBox2DActorPrivate {
 
   gint               device_id;
   ClutterBox2DJoint *mouse_joint;
-  ClutterUnit        start_x, start_y;
+  gfloat        start_x, start_y;
 };
 
 static void     dispose                     (GObject      *object);
@@ -226,8 +226,8 @@ clutter_box2d_actor_set_property (GObject      *gobject,
     case PROP_LINEAR_VELOCITY:
       {
         ClutterVertex *vertex = (ClutterVertex*)g_value_get_boxed (value);
-        b2Vec2 b2velocity (CLUTTER_UNITS_TO_FLOAT (vertex->x) * SCALE_FACTOR,
-                           CLUTTER_UNITS_TO_FLOAT (vertex->y) * SCALE_FACTOR);
+        b2Vec2 b2velocity ( (vertex->x) * SCALE_FACTOR,
+                            (vertex->y) * SCALE_FACTOR);
         box2d_actor->body->SetLinearVelocity (b2velocity);
       }
       break;
@@ -269,8 +269,8 @@ clutter_box2d_actor_get_property (GObject      *gobject,
       {
         /* FIXME: this is setting it, not getting it! */
         ClutterVertex *vertex = (ClutterVertex*)g_value_get_boxed (value);
-        b2Vec2 b2velocity (CLUTTER_UNITS_TO_FLOAT (vertex->x) * SCALE_FACTOR,
-                           CLUTTER_UNITS_TO_FLOAT (vertex->y) * SCALE_FACTOR);
+        b2Vec2 b2velocity ( (vertex->x) * SCALE_FACTOR,
+                            (vertex->y) * SCALE_FACTOR);
         box2d_actor->body->SetLinearVelocity (b2velocity);
       }
       break;
@@ -390,8 +390,8 @@ clutter_box2d_actor_press (ClutterActor *actor,
       CLUTTER_BOX2D (clutter_actor_get_parent (actor))))
     {
 
-      priv->start_x = CLUTTER_UNITS_FROM_INT (event->button.x);
-      priv->start_y = CLUTTER_UNITS_FROM_INT (event->button.y);
+      priv->start_x =  (event->button.x);
+      priv->start_y =  (event->button.y);
 
       clutter_actor_transform_stage_point (
         clutter_actor_get_parent (actor),
@@ -430,10 +430,10 @@ clutter_box2d_actor_motion (ClutterActor *actor,
 
   if (priv->mouse_joint)
     {
-      ClutterUnit x;
-      ClutterUnit y;
-      ClutterUnit dx;
-      ClutterUnit dy;
+      gfloat x;
+      gfloat y;
+      gfloat dx;
+      gfloat dy;
       gint id = clutter_event_get_device_id (event);
 
       if (id != priv->device_id)
@@ -441,8 +441,8 @@ clutter_box2d_actor_motion (ClutterActor *actor,
 
       g_print ("motion: %p:%i\n", actor, id);
 
-      x = CLUTTER_UNITS_FROM_INT (event->motion.x);
-      y = CLUTTER_UNITS_FROM_INT (event->motion.y);
+      x =  (event->motion.x);
+      y =  (event->motion.y);
 
       clutter_actor_transform_stage_point (
         clutter_actor_get_parent (actor),

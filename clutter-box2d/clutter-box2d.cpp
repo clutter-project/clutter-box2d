@@ -89,8 +89,8 @@ clutter_box2d_set_property (GObject      *gobject,
     case PROP_GRAVITY:
       {
         ClutterVertex *gravity = (ClutterVertex*) g_value_get_boxed (value);
-        b2Vec2 b2gravity = b2Vec2(CLUTTER_UNITS_TO_FLOAT (gravity->x),
-                                  CLUTTER_UNITS_TO_FLOAT (gravity->y));
+        b2Vec2 b2gravity = b2Vec2( (gravity->x),
+                                   (gravity->y));
         ((b2World*)box2d->world)->SetGravity (b2gravity);
       }
       break;
@@ -208,8 +208,7 @@ clutter_box2d_constructor (GType                  type,
   /* we make the timeline play continously to have a constant source
    * of new-frame events as long as the timeline is playing.
    */
-  priv->timeline = clutter_timeline_new ((int) (priv->fps * 10),
-                                         (int) priv->fps);
+  priv->timeline = clutter_timeline_new (1000);
   g_object_set (priv->timeline, "loop", TRUE, NULL);
   g_signal_connect (priv->timeline, "new-frame",
                     G_CALLBACK (clutter_box2d_iterate), object);
@@ -395,9 +394,9 @@ _clutter_box2d_sync_actor (ClutterBox2DActor *box2d_actor)
   if (!body)
     return;
 
-  clutter_actor_set_positionu (actor,
-       CLUTTER_UNITS_FROM_FLOAT (body->GetPosition ().x * INV_SCALE_FACTOR),
-       CLUTTER_UNITS_FROM_FLOAT (body->GetPosition ().y * INV_SCALE_FACTOR));
+  clutter_actor_set_position (actor,
+        (body->GetPosition ().x * INV_SCALE_FACTOR),
+        (body->GetPosition ().y * INV_SCALE_FACTOR));
 
   SYNCLOG ("setting actor position: ' %f %f angle: %f\n",
            body->GetPosition ().x,
@@ -417,7 +416,7 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
   ClutterBox2D *box2d = CLUTTER_BOX2D (data);
   guint         msecs;
 
-  clutter_timeline_get_delta (timeline, &msecs);
+  msecs = clutter_timeline_get_delta (timeline);
   ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
   gint                 steps = priv->iterations;
   b2World             *world = (b2World*)(box2d->world);

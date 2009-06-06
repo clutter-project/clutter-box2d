@@ -163,23 +163,23 @@ slider_motion (ClutterActor *slider,
                gpointer      userdata)
 {
   SliderData *data = userdata;
-  gint        ex, ey;
+  gfloat ex, ey;
 
   clutter_event_get_coords (event, &ex, &ey);
 
   if (data->in_drag &&
       data->callback)
     {
-      ClutterUnit xu2, yu2;
+      gfloat xu2, yu2;
 
       if (clutter_actor_transform_stage_point (slider,
-                                               CLUTTER_UNITS_FROM_DEVICE (ex),
-                                               CLUTTER_UNITS_FROM_DEVICE (ey),
+                                                (ex),
+                                                (ey),
                                                &xu2, &yu2))
         {
           gint x, y;
-          x = CLUTTER_UNITS_TO_DEVICE (xu2);
-          y = CLUTTER_UNITS_TO_DEVICE (yu2);
+          x =  (xu2);
+          y =  (yu2);
 
           gfloat width = clutter_actor_get_width (slider);
           gfloat value = (x / width) * (data->max - data->min) + data->min;

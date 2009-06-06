@@ -48,8 +48,8 @@ scene_bridge (Scene *scene)
                                        "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
 
           {
-            ClutterVertex anchor = { CLUTTER_UNITS_FROM_FLOAT (20 + 20 * i),
-                                     CLUTTER_UNITS_FROM_FLOAT (y) };
+            ClutterVertex anchor = {  (20 + 20 * i),
+                                      (y) };
             clutter_box2d_add_revolute_joint2 (CLUTTER_BOX2D (
                                                  group), prev_actor, box,
                                                &anchor);
@@ -66,8 +66,8 @@ scene_bridge (Scene *scene)
                                  "mode", CLUTTER_BOX2D_STATIC, NULL);
 
     {
-      ClutterVertex anchor = { CLUTTER_UNITS_FROM_FLOAT (20 + 20 * i),
-                               CLUTTER_UNITS_FROM_FLOAT (y) };
+      ClutterVertex anchor = {  (20 + 20 * i),
+                                (y) };
       clutter_box2d_add_revolute_joint2 (CLUTTER_BOX2D (
                                            group), prev_actor, box, &anchor);
     }

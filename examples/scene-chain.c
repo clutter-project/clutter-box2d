@@ -52,10 +52,10 @@ scene_chain (Scene *scene)
                                      "mode", CLUTTER_BOX2D_DYNAMIC, NULL);
 
         {
-          ClutterVertex anchor1 = { CLUTTER_UNITS_FROM_FLOAT (18.0),
-                                    CLUTTER_UNITS_FROM_FLOAT (0.0) };
-          ClutterVertex anchor2 = { CLUTTER_UNITS_FROM_FLOAT (0.0),
-                                    CLUTTER_UNITS_FROM_FLOAT (0.0) };
+          ClutterVertex anchor1 = {  (18.0),
+                                     (0.0) };
+          ClutterVertex anchor2 = {  (0.0),
+                                     (0.0) };
           clutter_box2d_add_revolute_joint (CLUTTER_BOX2D (group),
                                             prev_actor, box,
                                             &anchor1,

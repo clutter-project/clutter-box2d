@@ -17,8 +17,8 @@ typedef struct TrackData
   ClutterActor *self;
 
   ClutterActor *other;
-  ClutterUnit   rel_x;
-  ClutterUnit   rel_y;
+  gfloat   rel_x;
+  gfloat   rel_y;
 
   gdouble       rel_angle;
   gdouble       prev_angle;
@@ -35,10 +35,10 @@ static void clutter_box2d_actor_track_position (ClutterActor *actor,
                                                 gpointer      data)
 {
   TrackData *td = data;
-  ClutterUnit x, y;
+  gfloat x, y;
 
-  clutter_actor_get_positionu (td->other, &x, &y);
-  clutter_actor_set_positionu (td->self, x + td->rel_x, y + td->rel_y);
+  clutter_actor_get_position (td->other, &x, &y);
+  clutter_actor_set_position (td->self, x + td->rel_x, y + td->rel_y);
 
   clutter_actor_queue_redraw (actor);
 }
@@ -50,10 +50,10 @@ static void clutter_box2d_actor_track_rotation (ClutterActor *actor,
   TrackData *td = data;
   gdouble angle;
 
-  angle = clutter_actor_get_rotationu (td->other, CLUTTER_Z_AXIS, 0,0,0);
+  angle = clutter_actor_get_rotation (td->other, CLUTTER_Z_AXIS, 0,0,0);
   if (angle != td->prev_angle)
     {
-      clutter_actor_set_rotationu (td->self, CLUTTER_Z_AXIS,
+      clutter_actor_set_rotation (td->self, CLUTTER_Z_AXIS,
                                    angle + td->rel_angle,
                                    0, 0, 0);
       td->prev_angle = angle;
@@ -105,8 +105,8 @@ void clutter_box2d_actor_track (ClutterActor           *actor,
   td->other = other;
 
 
-  td->rel_x = clutter_actor_get_xu (actor) - clutter_actor_get_xu (other);
-  td->rel_y = clutter_actor_get_yu (actor) - clutter_actor_get_yu (other);
+  td->rel_x = clutter_actor_get_x (actor) - clutter_actor_get_x (other);
+  td->rel_y = clutter_actor_get_y (actor) - clutter_actor_get_y (other);
 
   td->rel_angle = clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS, 0, 0, 0)
                 - clutter_actor_get_rotation (other, CLUTTER_Z_AXIS, 0, 0, 0);

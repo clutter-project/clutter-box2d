@@ -17,9 +17,9 @@ typedef enum
 
 static ManipulationMode  mode              = None;
 static ClutterActor     *manipulated_actor = NULL;
-static ClutterUnit       orig_x, orig_y;
-static ClutterUnit       start_x, start_y;
-static ClutterUnit       orig_rotation;
+static gfloat       orig_x, orig_y;
+static gfloat       start_x, start_y;
+static gfloat       orig_rotation;
 
 #ifdef BOX2D_MANIPULATION
 ClutterBox2DJoint *mouse_joint = NULL;
@@ -83,8 +83,8 @@ action_set_linear_velocity (ClutterActor *action,
 {
   ClutterActor *actor;
   ClutterBox2D *box2d;
-  ClutterVertex velocity = { CLUTTER_UNITS_FROM_FLOAT (150.0f),
-                             CLUTTER_UNITS_FROM_FLOAT (-150.0f) };
+  ClutterVertex velocity = {  (150.0f),
+                              (-150.0f) };
   actor = CLUTTER_ACTOR (userdata);
   box2d = CLUTTER_BOX2D (clutter_actor_get_parent (actor));
 
@@ -225,6 +225,7 @@ actor_manipulator_press (ClutterActor *stage,
   ClutterActor *actor;
 
   actor = clutter_stage_get_actor_at_pos (CLUTTER_STAGE (stage),
+                                          CLUTTER_PICK_ALL,
                                           event->button.x,
                                           event->button.y);
 
@@ -281,13 +282,13 @@ actor_manipulator_press (ClutterActor *stage,
 
   manipulated_actor = actor;
 
-  clutter_actor_get_positionu (actor, &orig_x, &orig_y);
-  orig_rotation = clutter_actor_get_rotationu (actor, CLUTTER_Z_AXIS, NULL,
+  clutter_actor_get_position (actor, &orig_x, &orig_y);
+  orig_rotation = clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS, NULL,
                                                NULL,
                                                NULL);
 
-  start_x = CLUTTER_UNITS_FROM_INT (event->button.x);
-  start_y = CLUTTER_UNITS_FROM_INT (event->button.y);
+  start_x =  (event->button.x);
+  start_y =  (event->button.y);
 
   clutter_actor_transform_stage_point (
     clutter_actor_get_parent (manipulated_actor),
@@ -338,13 +339,13 @@ actor_manipulator_motion (ClutterActor *stage,
 {
   if (manipulated_actor)
     {
-      ClutterUnit x;
-      ClutterUnit y;
-      ClutterUnit dx;
-      ClutterUnit dy;
+      gfloat x;
+      gfloat y;
+      gfloat dx;
+      gfloat dy;
 
-      x = CLUTTER_UNITS_FROM_INT (event->button.x);
-      y = CLUTTER_UNITS_FROM_INT (event->button.y);
+      x =  (event->button.x);
+      y =  (event->button.y);
 
       clutter_actor_transform_stage_point (
         clutter_actor_get_parent (manipulated_actor),
@@ -371,11 +372,11 @@ actor_manipulator_motion (ClutterActor *stage,
                 x = orig_x + dx;
                 y = orig_y + dy;
 
-                clutter_actor_set_positionu (manipulated_actor, x, y);
+                clutter_actor_set_position (manipulated_actor, x, y);
               }
             else if (clutter_event_get_state (event) & CLUTTER_BUTTON2_MASK)
               {
-                clutter_actor_set_rotationu (manipulated_actor, CLUTTER_Z_AXIS,
+                clutter_actor_set_rotation (manipulated_actor, CLUTTER_Z_AXIS,
                                              orig_rotation + dx, 0, 0, 0);
               }
             break;

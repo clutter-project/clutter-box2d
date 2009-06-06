@@ -52,12 +52,12 @@ scene_prismatic_joint (Scene *scene)
   prev_hand = add_hand (group, 200, 100);
 
   if(0){
-    ClutterVertex anchor1 = { CLUTTER_UNITS_FROM_FLOAT (0),
-                              CLUTTER_UNITS_FROM_FLOAT (0) };
-    ClutterVertex anchor2 = { CLUTTER_UNITS_FROM_FLOAT (0),
-                              CLUTTER_UNITS_FROM_FLOAT (0) };
-    ClutterVertex axis = { CLUTTER_UNITS_FROM_FLOAT (100.0),
-                           CLUTTER_UNITS_FROM_FLOAT (20.0) };
+    ClutterVertex anchor1 = {  (0),
+                               (0) };
+    ClutterVertex anchor2 = {  (0),
+                               (0) };
+    ClutterVertex axis = {  (100.0),
+                            (20.0) };
     clutter_box2d_add_prismatic_joint (CLUTTER_BOX2D (group),
                                        first_hand, prev_hand,
                                        &anchor1, &anchor2,
