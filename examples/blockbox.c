@@ -70,7 +70,7 @@ stage_key_release_cb (ClutterStage           *stage,
                       ClutterKeyEvent        *kev,
                       gpointer                user_data)
 {
-  switch (clutter_key_event_symbol (kev))
+  switch (clutter_event_get_key_symbol ((ClutterEvent *)kev))
     {
       case CLUTTER_q:    action_quit (NULL, NULL);    break;
 
