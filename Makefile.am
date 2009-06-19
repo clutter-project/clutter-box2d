@@ -1,4 +1,6 @@
-SUBDIRS = . box2d clutter-box2d examples doc
+ACLOCAL_AMFLAGS = -I build/autotools
+
+SUBDIRS = . build box2d clutter-box2d examples doc
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc
 

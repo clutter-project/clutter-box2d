@@ -21,9 +21,20 @@ AC_INIT([clutter-box2d],
        clutter_box2d_version_major.clutter_box2d_version_minor.clutter_box2d_version_micro, 
         [http://bugzilla.o-hand.com/enter_bug.cgi?product=Clutter])
 AC_CONFIG_SRCDIR([clutter-box2d/clutter-box2d.h])
+AC_CONFIG_MACRO_DIR([build/autotools])
 AM_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([1.9])
+
+CLUTTER_BOX2D_MAJOR_VERSION=clutter_box2d_major
+CLUTTER_BOX2D_MINOR_VERSION=clutter_box2d_minor
+CLUTTER_BOX2D_MICRO_VERSION=clutter_box2d_micro
+CLUTTER_BOX2D_API_VERSION=clutter_box2d_api_version
+CLUTTER_BOX2D_VERSION=clutter_box2d_version
+AC_SUBST(CLUTTER_BOX2D_MAJOR_VERSION)
+AC_SUBST(CLUTTER_BOX2D_MINOR_VERSION)
+AC_SUBST(CLUTTER_BOX2D_MICRO_VERSION)
+AC_SUBST(CLUTTER_BOX2D_API_VERSION)
 
 CLUTTER_BOX2D_MAJORMINOR=clutter_box2d_version_major.clutter_box2d_version_minor
 AC_SUBST(CLUTTER_BOX2D_MAJORMINOR)
@@ -88,8 +99,12 @@ GTK_DOC_CHECK([1.8])
 
 dnl ========================================================================
 
+GOBJECT_INTROSPECTION_CHECK([0.6.3])
+
 AC_CONFIG_FILES([
     Makefile
+    build/Makefile
+    build/autotools/Makefile
     clutter-box2d.pc
     examples/Makefile
     box2d/Makefile
