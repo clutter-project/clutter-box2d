@@ -45,12 +45,14 @@ ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutte
 	$(QUIET_GEN)$(INTROSPECTION_SCANNER) -v \
 		--namespace ClutterBox2D --nsversion=@CLUTTER_BOX2D_API_VERSION@ \
 		--add-include-path=$(srcdir) --add-include=path=. \
-		--include=Clutter-@CLUTTER_BOX2D_API_VERSION@ \
+		--include=Clutter-0.9 \
 		--library=clutter-box2d-@CLUTTER_BOX2D_API_VERSION@ \
 		--output $@ \
 		--pkg gobject-2.0 \
-		--pkg clutter-@CLUTTER_BOX2D_API_VERSION@ \
-		clutter-box2d.h clutter-box2d-joint.h clutter-box2d-util.h
+		--pkg clutter-0.9 \
+		clutter-box2d.h \
+		clutter-box2d-joint.h \
+		clutter-box2d-util.h
 
 BUILT_GIRSOURCES += ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir
 
