@@ -7,5 +7,5 @@ Name: clutter-box2d
 Description: Clutter Box2D integration library
 Version: @VERSION@
 Libs: -L${libdir} -lclutter-box2d-@CLUTTER_BOX2D_MAJORMINOR@
-Cflags: -I${includedir}/clutter-0.9/clutter-box2d
-Requires: clutter-0.9
+Cflags: -I${includedir}/clutter-1.0/clutter-box2d
+Requires: clutter-1.0

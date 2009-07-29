@@ -29,8 +29,8 @@ AM_INIT_AUTOMAKE([1.9])
 CLUTTER_BOX2D_MAJOR_VERSION=clutter_box2d_major
 CLUTTER_BOX2D_MINOR_VERSION=clutter_box2d_minor
 CLUTTER_BOX2D_MICRO_VERSION=clutter_box2d_micro
-CLUTTER_BOX2D_API_VERSION=clutter_box2d_api_version
 CLUTTER_BOX2D_VERSION=clutter_box2d_version
+CLUTTER_BOX2D_API_VERSION=clutter_box2d_api_version
 AC_SUBST(CLUTTER_BOX2D_MAJOR_VERSION)
 AC_SUBST(CLUTTER_BOX2D_MINOR_VERSION)
 AC_SUBST(CLUTTER_BOX2D_MICRO_VERSION)
@@ -81,7 +81,7 @@ AC_CHECK_FUNCS([memset munmap strcasecmp strdup])
 dnl ========================================================================
 
 
-pkg_modules="clutter-0.9 >= 0.9.0"
+pkg_modules="clutter-1.0 >= 1.0.0"
 PKG_CHECK_MODULES(DEPS, [$pkg_modules])
 
 if test "x$GCC" = "xyes"; then

@@ -1,20 +1,20 @@
 ACLOCAL_AMFLAGS = -I build/autotools
 
-SUBDIRS = . build box2d clutter-box2d examples doc
+SUBDIRS = build box2d clutter-box2d examples doc
 
 DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc
 
-clutter-box2d-0.9.pc: clutter-box2d.pc
-	@cp -f clutter-box2d.pc clutter-box2d-0.9.pc
+clutter-box2d-@CLUTTER_BOX2D_API_VERSION@.pc: clutter-box2d.pc
+	@cp -f clutter-box2d.pc clutter-box2d-@CLUTTER_BOX2D_API_VERSION@.pc
 
-pkgconfig_DATA = clutter-box2d-0.9.pc
+pkgconfig_DATA = clutter-box2d-@CLUTTER_BOX2D_API_VERSION@.pc
 pkgconfigdir   = $(libdir)/pkgconfig
 
 INCLUDES = @GCC_FLAGS@ @DEPS_CFLAGS@ 
 
 EXTRA_DIST = clutter-box2d.pc.in
 
-CLEANFILES = clutter-box2d-0.9.pc
+CLEANFILES = clutter-box2d-@CLUTTER_BOX2D_API_VERSION@.pc
 DISTCLEANFILES = clutter-box2d.pc
 
 # Extra clean files so that maintainer-clean removes *everything*

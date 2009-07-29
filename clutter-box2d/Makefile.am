@@ -1,14 +1,14 @@
 INCLUDES = @GCC_FLAGS@ @DEPS_CFLAGS@ -I$(top_srcdir)/box2d/Include
 
-lib_LTLIBRARIES = libclutter-box2d-@CLUTTER_BOX2D_MAJORMINOR@.la
+lib_LTLIBRARIES = libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
 
 MARSHALFILES = clutter-box2d-marshal.c clutter-box2d-marshal.h
 
 BUILT_SOURCES = $(MARSHALFILES)
 
-libclutter_box2d_@CLUTTER_BOX2D_MAJORMINOR@_la_LIBADD  = @DEPS_LIBS@ $(top_builddir)/box2d/libbox2d.la
-libclutter_box2d_@CLUTTER_BOX2D_MAJORMINOR@_la_LDFLAGS = @CLUTTER_BOX2D_LT_LDFLAGS@
-libclutter_box2d_@CLUTTER_BOX2D_MAJORMINOR@_la_SOURCES = \
+libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_LIBADD  = @DEPS_LIBS@ $(top_builddir)/box2d/libbox2d.la
+libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_LDFLAGS = @CLUTTER_BOX2D_LT_LDFLAGS@
+libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_SOURCES = \
     clutter-box2d.cpp           \
     clutter-box2d-actor.cpp     \
     clutter-box2d-joint.cpp     \
@@ -32,7 +32,7 @@ clutter-box2d-marshal.c: clutter-box2d-marshal.list Makefile
 clutter-box2d-marshal.h: clutter-box2d-marshal.list Makefile
 	glib-genmarshal --prefix=clutter_box2d_marshal --header $< > $@
 
-clutter_box2dheadersdir = $(includedir)/clutter-0.9/clutter-box2d
+clutter_box2dheadersdir = $(includedir)/clutter-1.0/clutter-box2d
 
 DISTCLEANFILES = $(MARSHALFILES)
 
@@ -45,11 +45,12 @@ ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutte
 	$(QUIET_GEN)$(INTROSPECTION_SCANNER) -v \
 		--namespace ClutterBox2D --nsversion=@CLUTTER_BOX2D_API_VERSION@ \
 		--add-include-path=$(srcdir) --add-include=path=. \
-		--include=Clutter-0.9 \
+		--include=Clutter-1.0 \
 		--library=clutter-box2d-@CLUTTER_BOX2D_API_VERSION@ \
+		--libtool="$(top_builddir)/libtool" \
 		--output $@ \
 		--pkg gobject-2.0 \
-		--pkg clutter-0.9 \
+		--pkg clutter-1.0 \
 		clutter-box2d.h \
 		clutter-box2d-joint.h \
 		clutter-box2d-util.h
