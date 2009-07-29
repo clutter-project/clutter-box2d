@@ -51,9 +51,9 @@ ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutte
 		--output $@ \
 		--pkg gobject-2.0 \
 		--pkg clutter-1.0 \
-		clutter-box2d.h \
-		clutter-box2d-joint.h \
-		clutter-box2d-util.h
+		$(top_srcdir)/clutter-box2d/clutter-box2d.h \
+		$(top_srcdir)/clutter-box2d/clutter-box2d-joint.h \
+		$(top_srcdir)/clutter-box2d/clutter-box2d-util.h
 
 BUILT_GIRSOURCES += ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir
 
