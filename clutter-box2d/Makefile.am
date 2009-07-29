@@ -41,7 +41,7 @@ EXTRA_DIST = \
 
 BUILT_GIRSOURCES =
 
-ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-box2d-0.9.la
+ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
 	$(QUIET_GEN)$(INTROSPECTION_SCANNER) -v \
 		--namespace ClutterBox2D --nsversion=@CLUTTER_BOX2D_API_VERSION@ \
 		--add-include-path=$(srcdir) --add-include=path=. \
