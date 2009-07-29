@@ -1,5 +1,20 @@
 Release log for Clutter-Box2D.
 
+clutter-box2d-0.10.0:
+=====================
+
+Changes:
+
+  - Update to Clutter 1.0
+  - Generate GObject-Introspection data
+
+Contributors:
+
+Johan Euphrosine <proppy@aminche.com>
+Damien Lespiau <damien.lespiau@intel.com>
+Emmanuele Bassi <ebassi@linux.intel.com>
+
+
 clutter-box2d-0.8.2:
 ====================
 
@@ -17,7 +32,7 @@ Changes:
 Contributors:
 
 James Ketreno <jketreno@linux.intel.com>
-Emanuelle Bassi <ebassi@linux.intel.com>
+Emmanuele Bassi <ebassi@linux.intel.com>
 Øyvind Kolås <pippin@linux.intel.com>
 
 
@@ -29,4 +44,4 @@ Initial release
 Contributors:
 
 Øyvind Kolås <pippin@linux.intel.com>
-Emanuelle Bassi <ebassi@linux.intel.com>
+Emmanuele Bassi <ebassi@linux.intel.com>
