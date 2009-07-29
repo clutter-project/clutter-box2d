@@ -4,7 +4,7 @@ AC_PREREQ(2.53)
 # An odd micro number indicates in-progress development, (eg. from CVS)
 # An even micro number indicates a released version.
 m4_define(clutter_box2d_version_major, 0)
-m4_define(clutter_box2d_version_minor, 9)
+m4_define(clutter_box2d_version_minor, 10)
 m4_define(clutter_box2d_version_micro, 0)
 
 m4_define([clutter_box2d_version],
