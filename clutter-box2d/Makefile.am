@@ -39,6 +39,8 @@ DISTCLEANFILES = $(MARSHALFILES)
 EXTRA_DIST = \
 	clutter-box2d-marshal.list
 
+if HAVE_INTROSPECTION
+
 BUILT_GIRSOURCES =
 
 ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
@@ -67,6 +69,8 @@ typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
 
 %.typelib: %.gir $(INTROSPECTION_COMPILER)
 	$(QUIET_GEN)$(DEBUG) $(INTROSPECTION_COMPILER) --includedir=$(srcdir) --includedir=. $(INTROSPECTION_COMPILER_OPTS) $< -o $(builddir)/$(@F)
+
+endif # HAVE_INTROSPECTION
 
 CLEANFILES=
 CLEANFILES += $(BUILT_GIRSOURCES) $(typelibs_DATA)
