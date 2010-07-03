@@ -54,8 +54,7 @@ static gint box2d_actor_signals[LAST_SIGNAL];
 struct _ClutterBox2DActorPrivate {
   gboolean manipulatable;
   guint    press_handler;
-  guint    release_handler;
-  guint    motion_handler;
+  guint    captured_handler;
   gboolean was_reactive;
 
   gint               device_id;
@@ -67,12 +66,9 @@ static void     dispose                     (GObject      *object);
 static gboolean clutter_box2d_actor_press   (ClutterActor *actor,
                                              ClutterEvent *event,
                                              gpointer      data);
-static gboolean clutter_box2d_actor_release (ClutterActor *actor,
-                                             ClutterEvent *event,
-                                             gpointer      data);
-static gboolean clutter_box2d_actor_motion  (ClutterActor *actor,
-                                             ClutterEvent *event,
-                                             gpointer      data);
+static gboolean clutter_box2d_actor_captured_event (ClutterActor *stage,
+                                                    ClutterEvent *event,
+                                                    gpointer      data);
 
 
 ClutterBox2DActor *
@@ -187,22 +183,19 @@ clutter_box2d_actor_set_property (GObject      *gobject,
     case PROP_MANIPULATABLE:
       if (g_value_get_boolean (value))
         {
-          ClutterActor *actor = child_meta->actor;
-          priv->manipulatable = TRUE;
-          priv->was_reactive = clutter_actor_get_reactive (actor);
-          clutter_actor_set_reactive (actor, TRUE);
-          priv->press_handler = 
-          g_signal_connect (actor, "button-press-event",
-                            G_CALLBACK (clutter_box2d_actor_press),
-                            child_meta);
-          priv->motion_handler = 
-          g_signal_connect (actor, "motion-event",
-                            G_CALLBACK (clutter_box2d_actor_motion),
-                            child_meta);
-          priv->release_handler = 
-          g_signal_connect (actor, "button-release-event",
-                            G_CALLBACK (clutter_box2d_actor_release),
-                            child_meta);
+          if (!priv->manipulatable)
+            {
+              ClutterActor *actor = child_meta->actor;
+              priv->manipulatable = TRUE;
+              priv->was_reactive = clutter_actor_get_reactive (actor);
+              clutter_actor_set_reactive (actor, TRUE);
+              priv->press_handler = 
+              g_signal_connect (actor, "button-press-event",
+                                G_CALLBACK (clutter_box2d_actor_press),
+                                child_meta);
+
+              g_object_notify (gobject, "manipulatable");
+            }
         }
       else
         {
@@ -212,10 +205,20 @@ clutter_box2d_actor_set_property (GObject      *gobject,
 
               if (!priv->was_reactive)
                 clutter_actor_set_reactive (actor, FALSE);
+
               g_signal_handler_disconnect (actor, priv->press_handler);
-              g_signal_handler_disconnect (actor, priv->motion_handler);
-              g_signal_handler_disconnect (actor, priv->release_handler);
+              priv->press_handler = 0;
+
+              if (priv->captured_handler)
+                {
+                  g_signal_handler_disconnect (clutter_actor_get_stage (actor),
+                                               priv->captured_handler);
+                  priv->captured_handler = 0;
+                }
+
               priv->manipulatable = FALSE;
+
+              g_object_notify (gobject, "manipulatable");
             }
         }
       break;
@@ -364,6 +367,15 @@ static void
 dispose (GObject *object)
 {
   ClutterBox2DActor *self = CLUTTER_BOX2D_ACTOR (object);
+  ClutterBox2DActorPrivate *priv = self->priv;
+
+  if (priv->captured_handler)
+    {
+      ClutterActor *stage = clutter_actor_get_stage (CLUTTER_ACTOR (self));
+      if (stage)
+        g_signal_handler_disconnect (stage, priv->captured_handler);
+      priv->captured_handler = 0;
+    }
 
   while (self->joints)
     {
@@ -386,7 +398,8 @@ clutter_box2d_actor_press (ClutterActor *actor,
   box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
   priv = box2d_actor->priv;
 
-  if (clutter_box2d_get_simulating (
+  if (event->button.button == 1 &&
+      clutter_box2d_get_simulating (
       CLUTTER_BOX2D (clutter_actor_get_parent (actor))))
     {
 
@@ -398,27 +411,33 @@ clutter_box2d_actor_press (ClutterActor *actor,
         priv->start_x, priv->start_y,
         &priv->start_x, &priv->start_y);
 
-      g_object_ref (actor);
-      clutter_grab_pointer_for_device (actor, 
-          clutter_event_get_device_id (event));
+      priv->captured_handler =
+        g_signal_connect (clutter_actor_get_stage (actor),
+                          "captured-event",
+                          G_CALLBACK (clutter_box2d_actor_captured_event),
+                          child_meta);
       g_print ("grab: %p:%i\n", actor, clutter_event_get_device_id (event));
 
-      if (priv->mouse_joint == 0){
-        ClutterVertex vertex = {priv->start_x, priv->start_y};
-        priv->mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
-                            clutter_actor_get_parent (actor)),
-                            actor, &vertex);
-      }
+      if (priv->mouse_joint == 0)
+        {
+          ClutterVertex vertex = {priv->start_x, priv->start_y};
+          priv->mouse_joint = clutter_box2d_add_mouse_joint (CLUTTER_BOX2D (
+                              clutter_actor_get_parent (actor)),
+                              actor, &vertex);
+        }
 
       priv->device_id = clutter_event_get_device_id (event);
+
+      return TRUE;
     }
+
   return FALSE;
 }
 
 static gboolean
-clutter_box2d_actor_motion (ClutterActor *actor,
-                            ClutterEvent *event,
-                            gpointer      data)
+clutter_box2d_actor_captured_event (ClutterActor *stage,
+                                    ClutterEvent *event,
+                                    gpointer      data)
 {
   ClutterChildMeta  *child_meta;
   ClutterBox2DActor *box2d_actor;
@@ -427,85 +446,63 @@ clutter_box2d_actor_motion (ClutterActor *actor,
   child_meta = CLUTTER_CHILD_META (data);
   box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
   priv = box2d_actor->priv;
+  gint id = clutter_event_get_device_id (event);
 
-  if (priv->mouse_joint)
+  if (id != priv->device_id)
+    return FALSE;
+
+  switch (event->type)
     {
-      gfloat x;
-      gfloat y;
-      gfloat dx;
-      gfloat dy;
-      gint id = clutter_event_get_device_id (event);
+    case CLUTTER_MOTION:
+      if (priv->mouse_joint)
+        {
+          gfloat x;
+          gfloat y;
+          gfloat dx;
+          gfloat dy;
 
-      if (id != priv->device_id)
-          return FALSE;
+          g_print ("motion: %p:%i\n", box2d_actor, id);
 
-      g_print ("motion: %p:%i\n", actor, id);
+          x =  (event->motion.x);
+          y =  (event->motion.y);
 
-      x =  (event->motion.x);
-      y =  (event->motion.y);
+          clutter_actor_transform_stage_point (
+            clutter_actor_get_parent (child_meta->actor),
+            x, y,
+            &x, &y);
 
-      clutter_actor_transform_stage_point (
-        clutter_actor_get_parent (actor),
-        x, y,
-        &x, &y);
+           dx = x - priv->start_x;
+           dy = y - priv->start_y;
 
-       dx = x - priv->start_x;
-       dy = y - priv->start_y;
+           /* priv->mouse_joint may have been deleted while processing
+            * events during clutter_actor_transform_stage_point */
+           if (priv->mouse_joint)
+             {
+               ClutterVertex target = { x, y };
+               clutter_box2d_mouse_joint_update_target (priv->mouse_joint, &target);
+             }
 
-       /* priv->mouse_joint may have been deleted while processing
-        * events during clutter_actor_transform_stage_point */
-       if (priv->mouse_joint)
-         {
-           ClutterVertex target = { x, y };
-           clutter_box2d_mouse_joint_update_target (priv->mouse_joint, &target);
-         }
-    }
-  return FALSE;
-}
+           return TRUE;
+        }
+      break;
 
+    case CLUTTER_BUTTON_RELEASE:
+      if (priv->mouse_joint)
+        {
+          clutter_box2d_joint_destroy (priv->mouse_joint);
+          priv->mouse_joint = NULL;
 
-static gboolean
-clutter_box2d_actor_release (ClutterActor *actor,
-                             ClutterEvent *event,
-                             gpointer      data)
-{
-  ClutterChildMeta  *child_meta;
-  ClutterBox2DActor *box2d_actor;
-  ClutterBox2DActorPrivate *priv;
+          priv->device_id = 111; /* this id should not be in use */
+        }
+      g_signal_handler_disconnect (stage, priv->captured_handler);
+      priv->captured_handler = 0;
 
-  child_meta = CLUTTER_CHILD_META (data);
-  box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
-  priv = box2d_actor->priv;
+      return TRUE;
 
-  if (priv->mouse_joint)
-    {
-      gint id = clutter_event_get_device_id (event);
-      if (id != priv->device_id)
-         return FALSE;
-
-      clutter_box2d_joint_destroy (priv->mouse_joint);
-      priv->mouse_joint = NULL;
-
-      clutter_ungrab_pointer_for_device (id);
-      g_print ("ungrab: %p:%i\n", actor, id);
-
-      g_object_unref (actor);
-
-      /* since the ungrab also was valid for this release we redeliver the
-       * event to maintain the state of the click count.
-       */
-      if(1){ 
-        ClutterEvent *synthetic_release;
-        synthetic_release = clutter_event_new (CLUTTER_BUTTON_RELEASE);
-        memcpy (synthetic_release, event, sizeof (ClutterButtonEvent));
-        synthetic_release->any.source = NULL;
-        clutter_do_event (synthetic_release); /* skip queue */
-        clutter_event_free (synthetic_release);
-      }
-
-      priv->device_id = 111; /* this id should not be in use */
-      return FALSE;
+    default:
+      break;
     }
 
   return FALSE;
 }
+
