@@ -316,23 +316,34 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
 {
   if (box2d_actor->shape == NULL)
     {
-      b2PolygonDef shapeDef;
-      gint         width, height;
-      gdouble      rot;
+      gfloat width, height;
+      ClutterChildMeta *meta = CLUTTER_CHILD_META (box2d_actor);
 
-      width  = clutter_actor_get_width (CLUTTER_CHILD_META (box2d_actor)->actor);
-      height = clutter_actor_get_height (CLUTTER_CHILD_META (box2d_actor)->actor);
-      rot    = clutter_actor_get_rotation (CLUTTER_CHILD_META (box2d_actor)->actor,
-                                           CLUTTER_Z_AXIS, NULL, NULL, NULL);
+      width  = clutter_actor_get_width (meta->actor);
+      height = clutter_actor_get_height (meta->actor);
 
+      if (box2d_actor->is_circle)
+        {
+          b2CircleDef shapeDef;
 
-      shapeDef.SetAsBox (width * 0.5 * SCALE_FACTOR,
-                         height * 0.5 * SCALE_FACTOR,
-                         b2Vec2 (width * 0.5 * SCALE_FACTOR,
-                         height * 0.5 * SCALE_FACTOR), 0);
-      shapeDef.density   = 10.0f;
-      shapeDef.friction = 0.2f;
-      box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
+          shapeDef.radius = MIN (width, height) * 0.5 * SCALE_FACTOR;
+          shapeDef.density   = 10.0f;
+          shapeDef.friction = 0.2f;
+          shapeDef.restitution = 0.1f;
+          box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
+        }
+      else
+        {
+          b2PolygonDef shapeDef;
+
+          shapeDef.SetAsBox (width * 0.5 * SCALE_FACTOR,
+                             height * 0.5 * SCALE_FACTOR,
+                             b2Vec2 (width * 0.5 * SCALE_FACTOR,
+                             height * 0.5 * SCALE_FACTOR), 0);
+          shapeDef.density   = 10.0f;
+          shapeDef.friction = 0.2f;
+          box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
+        }
     }
   else
     {
@@ -365,6 +376,13 @@ _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor)
   x = clutter_actor_get_x (actor);
   y = clutter_actor_get_y (actor);
 
+  if (box2d_actor->is_circle)
+    {
+      gfloat radius = MIN (clutter_actor_get_width (actor),
+                           clutter_actor_get_height (actor)) / 2.f;
+      x += radius;
+      y += radius;
+    }
 
   b2Vec2 position = body->GetPosition ();
 
@@ -388,24 +406,43 @@ _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor)
 static void
 _clutter_box2d_sync_actor (ClutterBox2DActor *box2d_actor)
 {
+  gfloat x, y, centre_x, centre_y;
   ClutterActor *actor = CLUTTER_CHILD_META (box2d_actor)->actor;
   b2Body       *body  = box2d_actor->body;
 
   if (!body)
     return;
 
-  clutter_actor_set_position (actor,
-        (body->GetPosition ().x * INV_SCALE_FACTOR),
-        (body->GetPosition ().y * INV_SCALE_FACTOR));
+  x = body->GetPosition ().x * INV_SCALE_FACTOR;
+  y = body->GetPosition ().y * INV_SCALE_FACTOR;
+
+  if (box2d_actor->is_circle)
+    {
+      gfloat width = clutter_actor_get_width (actor);
+      gfloat height = clutter_actor_get_height (actor);
+      gfloat radius = MIN (width, height) / 2.f;
+
+      x -= radius;
+      y -= radius;
+
+      centre_x = width / 2.f;
+      centre_y = height / 2.f;
+    }
+  else
+    {
+      centre_x = 0;
+      centre_y = 0;
+    }
+
+  clutter_actor_set_position (actor, x, y);
 
   SYNCLOG ("setting actor position: ' %f %f angle: %f\n",
-           body->GetPosition ().x,
-           body->GetPosition ().y,
+           x, y,
            body->GetAngle () * (180 / 3.1415));
 
   clutter_actor_set_rotation (actor, CLUTTER_Z_AXIS,
                               body->GetAngle () * (180 / 3.1415),
-                              0, 0, 0);
+                              centre_x, centre_y, 0);
 }
 
 static void

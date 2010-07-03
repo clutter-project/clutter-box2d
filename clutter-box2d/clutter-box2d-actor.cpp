@@ -37,6 +37,7 @@ enum
 {
   PROP_0,
   PROP_IS_BULLET,
+  PROP_IS_CIRCLE,
   PROP_LINEAR_VELOCITY,
   PROP_ANGULAR_VELOCITY,
   PROP_MODE,
@@ -226,6 +227,10 @@ clutter_box2d_actor_set_property (GObject      *gobject,
     case PROP_IS_BULLET:
       box2d_actor->body->SetBullet (g_value_get_boolean (value));
       break;
+    case PROP_IS_CIRCLE:
+      box2d_actor->shape = NULL;
+      box2d_actor->is_circle = g_value_get_boolean (value);
+      break;
     case PROP_LINEAR_VELOCITY:
       {
         ClutterVertex *vertex = (ClutterVertex*)g_value_get_boxed (value);
@@ -267,6 +272,9 @@ clutter_box2d_actor_get_property (GObject      *gobject,
     {
     case PROP_IS_BULLET:
       g_value_set_boolean (value, box2d_actor->body->IsBullet ());
+      break;
+    case PROP_IS_CIRCLE:
+      g_value_set_boolean (value, box2d_actor->is_circle);
       break;
     case PROP_LINEAR_VELOCITY:
       {
@@ -341,6 +349,14 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
                                      "Whether this object is a bullet (fast moving "
                                      "object that should not be allowed tunneling "
                                      "through other dynamic objects.)",
+                                                         FALSE,
+                                                         (GParamFlags)G_PARAM_READWRITE));
+  g_object_class_install_property (gobject_class,
+                                   PROP_IS_CIRCLE,
+                                   g_param_spec_boolean ("is-circle",
+                                                         "Is circle",
+                                     "Whether this object is a circle instead of "
+                                     "a rectangle.",
                                                          FALSE,
                                                          (GParamFlags)G_PARAM_READWRITE));
 
