@@ -327,7 +327,7 @@ actor_manipulator_press (ClutterActor *stage,
         }
     }
 #endif
-  clutter_grab_pointer (stage);
+  clutter_set_motion_events_enabled (FALSE);
 
   return TRUE;
 }
@@ -396,7 +396,7 @@ actor_manipulator_release (ClutterActor *stage,
 {
   if (manipulated_actor)
     {
-      clutter_ungrab_pointer ();
+      clutter_set_motion_events_enabled (TRUE);
       manipulated_actor = NULL;
 
       switch (mode)
