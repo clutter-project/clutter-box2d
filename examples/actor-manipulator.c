@@ -151,6 +151,40 @@ action_add_rectangle (ClutterActor *action,
   return FALSE;
 }
 
+static void
+paint_circle (ClutterActor *actor)
+{
+  gfloat radius = MIN (clutter_actor_get_width (actor),
+                       clutter_actor_get_height (actor)) / 2.f;
+  cogl_set_source_color4ub (0xff, 0xff, 0xff, 0xff);
+  cogl_path_arc (radius, radius, radius, radius, 0, 360);
+  cogl_path_fill ();
+}
+
+static gboolean
+action_add_circle (ClutterActor *action,
+                   ClutterEvent *event,
+                   gpointer      userdata)
+{
+  const ClutterColor transparent = { 0x00, 0x00, 0x00, 0x01 };
+  ClutterActor *group = CLUTTER_ACTOR (userdata);
+  ClutterActor *box;
+
+  box = clutter_rectangle_new_with_color (&transparent);
+  clutter_actor_set_size (box, 50, 50);
+  clutter_actor_set_position (box, event->button.x, event->button.y);
+  clutter_group_add (CLUTTER_GROUP (group), box);
+
+  clutter_container_child_set (CLUTTER_CONTAINER (group),
+                               box,
+                               "is-circle", TRUE,
+                               NULL);
+  g_signal_connect (box, "paint",
+                    G_CALLBACK (paint_circle), NULL);
+
+  return FALSE;
+}
+
 static
 gboolean
 action_add_text (ClutterActor *action,
@@ -238,6 +272,8 @@ actor_manipulator_press (ClutterActor *stage,
           popup_nuke (stage, event->button.x, event->button.y);
           popup_add ("+rectangle", "bar", G_CALLBACK (
                        action_add_rectangle), scene_get_group ());
+          popup_add ("+circle", "bar", G_CALLBACK (
+                       action_add_circle), scene_get_group ());
           popup_add ("+text", "bar", G_CALLBACK (
                        action_add_text), scene_get_group ());
           popup_add ("+image", "bar", G_CALLBACK (
