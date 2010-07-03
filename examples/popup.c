@@ -28,8 +28,8 @@ popup_nuke (ClutterActor *stage,
 {
   while (actions)
     {
-      g_signal_connect (clutter_actor_animate (actions->data, CLUTTER_LINEAR, 500, "opacity", 0x00, NULL),
-                        "completed", G_CALLBACK (nuke_on_complete), actions->data);
+      g_signal_connect_after (clutter_actor_animate (actions->data, CLUTTER_LINEAR, 500, "opacity", 0x00, NULL),
+                              "completed", G_CALLBACK (nuke_on_complete), actions->data);
       /*clutter_actor_destroy (actions->data);*/
       actions = g_list_remove (actions, actions->data);
     }
