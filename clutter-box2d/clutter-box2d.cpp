@@ -386,12 +386,13 @@ _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor)
 
   b2Vec2 position = body->GetPosition ();
 
+  ensure_shape (box2d_actor);
+
   if (fabs (x * SCALE_FACTOR - (position.x)) > 0.1 ||
       fabs (y * SCALE_FACTOR - (position.y)) > 0.1 ||
       fabs (body->GetAngle()*(180/3.1415) - rot) > 2.0
       )
     {
-      ensure_shape (box2d_actor);
       body->SetXForm (b2Vec2 (x * SCALE_FACTOR, y * SCALE_FACTOR),
                       rot / (180 / 3.1415));
 
