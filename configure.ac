@@ -95,11 +95,11 @@ AC_SUBST(DEPS_LIBS)
 
 dnl = GTK Doc check ========================================================
 
-GTK_DOC_CHECK([1.8])
+GTK_DOC_CHECK([1.13])
 
 dnl ========================================================================
 
-GOBJECT_INTROSPECTION_CHECK([0.6.3])
+GOBJECT_INTROSPECTION_CHECK([0.9.0])
 
 AC_CONFIG_FILES([
     Makefile

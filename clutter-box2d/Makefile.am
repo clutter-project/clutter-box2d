@@ -1,4 +1,8 @@
-INCLUDES = @GCC_FLAGS@ @DEPS_CFLAGS@ -I$(top_srcdir)/box2d/Include
+INCLUDES = -I$(top_srcdir)/box2d/Include -I$(srcdir) -I$(top_srcdir)
+
+AM_CFLAGS = @GCC_FLAGS@
+
+AM_CPPFLAGS = @DEPS_CFLAGS@
 
 lib_LTLIBRARIES = libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
 
@@ -36,41 +40,38 @@ clutter_box2dheadersdir = $(includedir)/clutter-1.0/clutter-box2d
 
 DISTCLEANFILES = $(MARSHALFILES)
 
+CLEANFILES=
+
 EXTRA_DIST = \
 	clutter-box2d-marshal.list
 
+INTROSPECTION_GIRS =
+
+-include $(INTROSPECTION_MAKEFILE)
+
 if HAVE_INTROSPECTION
 
-BUILT_GIRSOURCES =
+introspection_files = \
+	$(top_srcdir)/clutter-box2d/clutter-box2d.h \
+	$(top_srcdir)/clutter-box2d/clutter-box2d-joint.h \
+	$(top_srcdir)/clutter-box2d/clutter-box2d-util.h
 
-ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
-	$(QUIET_GEN)$(INTROSPECTION_SCANNER) -v \
-		--namespace ClutterBox2D --nsversion=@CLUTTER_BOX2D_API_VERSION@ \
-		--add-include-path=$(srcdir) --add-include=path=. \
-		--include=Clutter-1.0 \
-		--library=clutter-box2d-@CLUTTER_BOX2D_API_VERSION@ \
-		--libtool="$(top_builddir)/libtool" \
-		--output $@ \
-		--pkg gobject-2.0 \
-		--pkg clutter-1.0 \
-		$(top_srcdir)/clutter-box2d/clutter-box2d.h \
-		$(top_srcdir)/clutter-box2d/clutter-box2d-joint.h \
-		$(top_srcdir)/clutter-box2d/clutter-box2d-util.h
+ClutterBox2D-0.10.gir: $(INTROSPECTION_SCANNER) Makefile
 
-BUILT_GIRSOURCES += ClutterBox2D-@CLUTTER_BOX2D_API_VERSION@.gir
+ClutterBox2D_0_10_gir_SCANNERFLAGS = --strip-prefix=ClutterBox2D --add-include-path=$(top_builddir)
+ClutterBox2D_0_10_gir_INCLUDES     = Clutter-1.0
+ClutterBox2D_0_10_gir_PACKAGES     = clutter-1.0
+ClutterBox2D_0_10_gir_CFLAGS       = $(INCLUDES) $(AM_CPPFLAGS)
+ClutterBox2D_0_10_gir_LIBS         = libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
+ClutterBox2D_0_10_gir_FILES        = $(introspection_files)
 
-# INTROSPECTION_GIRDIR/INTROSPECTION_TYPELIBDIR aren't the right place to
-# install anything - we need to install inside our prefix.
+INTROSPECTION_GIRS += ClutterBox2D-0.10.gir
+
 girdir = $(datadir)/gir-1.0
-gir_DATA = $(BUILT_GIRSOURCES)
+gir_DATA = $(INTROSPECTION_GIRS)
 
-typelibsdir = $(libdir)/girepository-1.0/
-typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
+typelibsdir = $(libdir)/girepository-1.0
+typelibs_DATA = $(INTROSPECTION_GIRS:.gir=.typelib)
 
-%.typelib: %.gir $(INTROSPECTION_COMPILER)
-	$(QUIET_GEN)$(DEBUG) $(INTROSPECTION_COMPILER) --includedir=$(srcdir) --includedir=. $(INTROSPECTION_COMPILER_OPTS) $< -o $(builddir)/$(@F)
-
-endif # HAVE_INTROSPECTION
-
-CLEANFILES=
-CLEANFILES += $(BUILT_GIRSOURCES) $(typelibs_DATA)
+CLEANFILES += $(gir_DATA) $(typelibs_DATA)
+endif
