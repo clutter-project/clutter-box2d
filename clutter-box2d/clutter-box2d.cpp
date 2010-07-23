@@ -162,26 +162,11 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
 static void
 clutter_box2d_init (ClutterBox2D *self)
 {
-  self->priv = CLUTTER_BOX2D_GET_PRIVATE (self);
-}
-
-ClutterActor *
-clutter_box2d_new (void)
-{
-  return CLUTTER_ACTOR (g_object_new (CLUTTER_TYPE_BOX2D, NULL));
-}
-
-static GObject *
-clutter_box2d_constructor (GType                  type,
-                           guint                  n_params,
-                           GObjectConstructParam *params)
-{
-  GObject              *object;
-  ClutterBox2D         *self;
-  ClutterBox2DPrivate  *priv;
   bool                  doSleep;
 
   b2AABB                worldAABB;
+
+  ClutterBox2DPrivate *priv = self->priv = CLUTTER_BOX2D_GET_PRIVATE (self);
 
   /*  these magic numbers are the extent of the world,
    *  should be set large enough to contain most geometry,
@@ -189,12 +174,6 @@ clutter_box2d_constructor (GType                  type,
    */
   worldAABB.lowerBound.Set (-650.0f, -650.0f);
   worldAABB.upperBound.Set (650.0f, 650.0f);
-
-  object = G_OBJECT_CLASS (clutter_box2d_parent_class)->constructor (
-    type, n_params, params);
-
-  self = CLUTTER_BOX2D (object);
-  priv = CLUTTER_BOX2D_GET_PRIVATE (self);
 
   self->world = new b2World (worldAABB, /*gravity:*/ b2Vec2 (0.0f, 5.0f),
                              doSleep = false);
@@ -211,10 +190,27 @@ clutter_box2d_constructor (GType                  type,
   priv->timeline = clutter_timeline_new (1000);
   g_object_set (priv->timeline, "loop", TRUE, NULL);
   g_signal_connect (priv->timeline, "new-frame",
-                    G_CALLBACK (clutter_box2d_iterate), object);
+                    G_CALLBACK (clutter_box2d_iterate), self);
 
-  CLUTTER_BOX2D (object)->contact_listener = (_ClutterBox2DContactListener *)
-                            new __ClutterBox2DContactListener (CLUTTER_BOX2D (object));
+  self->contact_listener = (_ClutterBox2DContactListener *)
+    new __ClutterBox2DContactListener (self);
+}
+
+ClutterActor *
+clutter_box2d_new (void)
+{
+  return CLUTTER_ACTOR (g_object_new (CLUTTER_TYPE_BOX2D, NULL));
+}
+
+static GObject *
+clutter_box2d_constructor (GType                  type,
+                           guint                  n_params,
+                           GObjectConstructParam *params)
+{
+  GObject              *object;
+
+  object = G_OBJECT_CLASS (clutter_box2d_parent_class)->constructor (
+    type, n_params, params);
 
   return object;
 }
