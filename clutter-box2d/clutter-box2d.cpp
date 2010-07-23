@@ -175,7 +175,7 @@ clutter_box2d_init (ClutterBox2D *self)
   worldAABB.lowerBound.Set (-650.0f, -650.0f);
   worldAABB.upperBound.Set (650.0f, 650.0f);
 
-  self->world = new b2World (worldAABB, /*gravity:*/ b2Vec2 (0.0f, 5.0f),
+  self->world = new b2World (worldAABB, /*gravity:*/ b2Vec2 (0.0f, 30.0f),
                              doSleep = false);
 
   priv->fps        = 25;
@@ -323,9 +323,9 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
           b2CircleDef shapeDef;
 
           shapeDef.radius = MIN (width, height) * 0.5 * SCALE_FACTOR;
-          shapeDef.density   = 10.0f;
-          shapeDef.friction = 0.2f;
-          shapeDef.restitution = 0.1f;
+          shapeDef.density   = 5.0f;
+          shapeDef.friction = 0.6f;
+          shapeDef.restitution = 0.5f;
           box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
         }
       else
@@ -336,8 +336,8 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
                              height * 0.5 * SCALE_FACTOR,
                              b2Vec2 (width * 0.5 * SCALE_FACTOR,
                              height * 0.5 * SCALE_FACTOR), 0);
-          shapeDef.density   = 10.0f;
-          shapeDef.friction = 0.2f;
+          shapeDef.density   = 7.0f;
+          shapeDef.friction = 0.4f;
           box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
         }
     }
