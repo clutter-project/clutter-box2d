@@ -488,17 +488,26 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
     for (iter = box2d->collisions; iter; iter = g_list_next (iter))
       {
         ClutterBox2DCollision  *collision;
-        ClutterBox2DActor      *box2d_actor;
+        ClutterBox2DActor      *box2d_actor1, *box2d_actor2;
         ClutterBox2DActorClass *klass;
 
         collision = CLUTTER_BOX2D_COLLISION (iter->data);
 
-        box2d_actor = clutter_box2d_get_actor (box2d, collision->actor1);
-        klass = CLUTTER_BOX2D_ACTOR_CLASS (G_OBJECT_GET_CLASS (box2d_actor));
-        g_signal_emit_by_name (box2d_actor, "collision", collision);
-        box2d_actor = clutter_box2d_get_actor (box2d, collision->actor2);
-        klass = CLUTTER_BOX2D_ACTOR_CLASS (G_OBJECT_GET_CLASS (box2d_actor));
-        g_signal_emit_by_name (box2d_actor, "collision", collision);
+        box2d_actor1 = clutter_box2d_get_actor (box2d, collision->actor1);
+
+        if (box2d_actor1)
+          {
+            klass = CLUTTER_BOX2D_ACTOR_CLASS (G_OBJECT_GET_CLASS (box2d_actor1));
+            g_signal_emit_by_name (box2d_actor1, "collision", collision);
+          }
+
+        box2d_actor2 = clutter_box2d_get_actor (box2d, collision->actor2);
+
+        if (box2d_actor2)
+          {
+            klass = CLUTTER_BOX2D_ACTOR_CLASS (G_OBJECT_GET_CLASS (box2d_actor2));
+            g_signal_emit_by_name (box2d_actor2, "collision", collision);
+          }
 
         g_object_unref (collision);
       }
