@@ -529,10 +529,15 @@ clutter_box2d_set_simulating (ClutterBox2D  *box2d,
                               gboolean       simulating)
 {
   ClutterBox2DPrivate *priv;
+  gboolean currently_simulating;
 
   g_return_if_fail (CLUTTER_IS_BOX2D (box2d));
 
   priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
+
+  currently_simulating = clutter_timeline_is_playing (priv->timeline);
+  if (simulating == currently_simulating)
+    return;
 
   if (simulating)
     {
@@ -543,6 +548,8 @@ clutter_box2d_set_simulating (ClutterBox2D  *box2d,
     {
       clutter_timeline_stop (priv->timeline);
     }
+
+  g_object_notify (G_OBJECT (box2d), "simulating");
 }
 
 gboolean
