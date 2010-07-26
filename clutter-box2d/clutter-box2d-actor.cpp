@@ -281,11 +281,14 @@ clutter_box2d_actor_get_property (GObject      *gobject,
       break;
     case PROP_LINEAR_VELOCITY:
       {
-        /* FIXME: this is setting it, not getting it! */
-        ClutterVertex *vertex = (ClutterVertex*)g_value_get_boxed (value);
-        b2Vec2 b2velocity ( (vertex->x) * SCALE_FACTOR,
-                            (vertex->y) * SCALE_FACTOR);
-        box2d_actor->body->SetLinearVelocity (b2velocity);
+        ClutterVertex vertex;
+
+        b2Vec2 velocity = box2d_actor->body->GetLinearVelocity();
+        vertex.x = velocity.x / SCALE_FACTOR;
+        vertex.y = velocity.y / SCALE_FACTOR;
+        vertex.z = 0;
+
+        g_value_set_boxed (value, &vertex);
       }
       break;
     case PROP_ANGULAR_VELOCITY:
@@ -327,7 +330,7 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
                                                        "Linear velocity",
                                                        "Linear velocity",
                                                        CLUTTER_TYPE_VERTEX,
-                                                       G_PARAM_WRITABLE));
+                                                       (GParamFlags)G_PARAM_READWRITE));
 
 
   g_object_class_install_property (gobject_class,
