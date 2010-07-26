@@ -45,6 +45,7 @@ struct _ClutterBox2DPrivate
   gdouble          fps;         /* The framerate simulation is running at        */
   gint             iterations;  /* number of engine iterations per processing */
   ClutterTimeline *timeline;    /* The timeline driving the simulation        */
+  gboolean         first_iteration;
 };
 
 typedef enum 
@@ -450,10 +451,17 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
   ClutterBox2D *box2d = CLUTTER_BOX2D (data);
   guint         msecs;
 
-  msecs = clutter_timeline_get_delta (timeline);
   ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
   gint                 steps = priv->iterations;
   b2World             *world = (b2World*)(box2d->world);
+
+  if (priv->first_iteration)
+    {
+      msecs = 0;
+      priv->first_iteration = FALSE;
+    }
+  else
+    msecs = clutter_timeline_get_delta (timeline);
 
   {
     GList *actors = g_hash_table_get_values (box2d->actors);
@@ -528,6 +536,7 @@ clutter_box2d_set_simulating (ClutterBox2D  *box2d,
 
   if (simulating)
     {
+      priv->first_iteration = TRUE;
       clutter_timeline_start (priv->timeline);
     }
   else
