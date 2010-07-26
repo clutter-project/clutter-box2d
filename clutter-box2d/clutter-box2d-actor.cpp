@@ -230,6 +230,9 @@ clutter_box2d_actor_set_property (GObject      *gobject,
     case PROP_IS_CIRCLE:
       box2d_actor->shape = NULL;
       box2d_actor->is_circle = g_value_get_boolean (value);
+      _clutter_box2d_sync_body (box2d_actor);
+      if (box2d_actor->type == CLUTTER_BOX2D_DYNAMIC)
+        box2d_actor->body->SetMassFromShapes ();
       break;
     case PROP_LINEAR_VELOCITY:
       {
