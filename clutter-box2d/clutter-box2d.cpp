@@ -28,6 +28,7 @@ G_DEFINE_TYPE_WITH_CODE (ClutterBox2D, clutter_box2d, CLUTTER_TYPE_GROUP,
                              clutter_container_iface_init));
 
 void _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor);
+static void clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs);
 
 
 #define CLUTTER_BOX2D_GET_PRIVATE(obj)                 \
@@ -138,6 +139,7 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
   gobject_class->set_property = clutter_box2d_set_property;
   gobject_class->get_property = clutter_box2d_get_property;
   actor_class->paint          = clutter_box2d_paint;
+  klass->iterate              = clutter_box2d_real_iterate;
 
   g_type_class_add_private (gobject_class, sizeof (ClutterBox2DPrivate));
 
@@ -444,24 +446,11 @@ _clutter_box2d_sync_actor (ClutterBox2DActor *box2d_actor)
 }
 
 static void
-clutter_box2d_iterate (ClutterTimeline *timeline,
-                       gint             frame_num,
-                       gpointer         data)
+clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
 {
-  ClutterBox2D *box2d = CLUTTER_BOX2D (data);
-  guint         msecs;
-
   ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
   gint                 steps = priv->iterations;
   b2World             *world = (b2World*)(box2d->world);
-
-  if (priv->first_iteration)
-    {
-      msecs = 0;
-      priv->first_iteration = FALSE;
-    }
-  else
-    msecs = clutter_timeline_get_delta (timeline);
 
   {
     GList *actors = g_hash_table_get_values (box2d->actors);
@@ -522,6 +511,26 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
     g_list_free (box2d->collisions);
     box2d->collisions = NULL;
   }
+}
+
+static void
+clutter_box2d_iterate (ClutterTimeline *timeline,
+                       gint             frame_num,
+                       gpointer         data)
+{
+  ClutterBox2D        *box2d = CLUTTER_BOX2D (data);
+  ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);
+  guint                msecs;
+
+  if (priv->first_iteration)
+    {
+      msecs = 0;
+      priv->first_iteration = FALSE;
+    }
+  else
+    msecs = clutter_timeline_get_delta (timeline);
+
+  CLUTTER_BOX2D_GET_CLASS (box2d)->iterate (box2d, msecs);
 }
 
 void
