@@ -64,6 +64,7 @@ struct _ClutterBox2DActorPrivate {
 };
 
 static void     dispose                     (GObject      *object);
+static void     clutter_box2d_actor_constructed (GObject *object);
 static gboolean clutter_box2d_actor_press   (ClutterActor *actor,
                                              ClutterEvent *event,
                                              gpointer      data);
@@ -314,6 +315,7 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
   gobject_class->dispose      = dispose;
   gobject_class->set_property = clutter_box2d_actor_set_property;
   gobject_class->get_property = clutter_box2d_actor_get_property;
+  gobject_class->constructed  = clutter_box2d_actor_constructed;
 
   box2d_actor_signals[COLLISION] = g_signal_new ("collision",
                                  G_TYPE_FROM_CLASS (gobject_class),
@@ -379,6 +381,28 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
 }
 
 static void
+clutter_box2d_actor_size_notify_cb (ClutterBox2DActor *box2d_actor)
+{
+  box2d_actor->shape = NULL;
+  _clutter_box2d_sync_body (box2d_actor);
+  if (box2d_actor->type == CLUTTER_BOX2D_DYNAMIC)
+    box2d_actor->body->SetMassFromShapes ();
+}
+
+static void
+clutter_box2d_actor_constructed (GObject *object)
+{
+  ClutterActor *actor = CLUTTER_CHILD_META (object)->actor;
+
+  g_signal_connect_swapped (actor, "notify::natural-width",
+                            G_CALLBACK (clutter_box2d_actor_size_notify_cb),
+                            object);
+  g_signal_connect_swapped (actor, "notify::natural-height",
+                            G_CALLBACK (clutter_box2d_actor_size_notify_cb),
+                            object);
+}
+
+static void
 clutter_box2d_actor_init (ClutterBox2DActor *self)
 {
   self->priv = CLUTTER_BOX2D_ACTOR_GET_PRIVATE (self);
@@ -388,8 +412,14 @@ clutter_box2d_actor_init (ClutterBox2DActor *self)
 static void
 dispose (GObject *object)
 {
+  ClutterChildMeta *child_meta = CLUTTER_CHILD_META (object);
   ClutterBox2DActor *self = CLUTTER_BOX2D_ACTOR (object);
   ClutterBox2DActorPrivate *priv = self->priv;
+
+  if (child_meta->actor)
+    g_signal_handlers_disconnect_by_func (child_meta->actor,
+                                          (gpointer)clutter_box2d_actor_size_notify_cb,
+                                          object);
 
   if (priv->captured_handler)
     {

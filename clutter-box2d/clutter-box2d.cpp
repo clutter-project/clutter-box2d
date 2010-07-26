@@ -258,10 +258,11 @@ clutter_box2d_create_child_meta (ClutterContainer *container,
   ClutterChildMeta  *child_meta;
   ClutterBox2DActor *box2d_actor;
 
-  child_meta = CLUTTER_CHILD_META (g_object_new (CLUTTER_TYPE_BOX2D_ACTOR, NULL));
-
-  child_meta->container = container;
-  child_meta->actor = actor;
+  child_meta = CLUTTER_CHILD_META (
+    g_object_new (CLUTTER_TYPE_BOX2D_ACTOR,
+                  "container", container,
+                  "actor", actor,
+                  NULL));
 
   box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
   box2d_actor->world = (b2World*)(CLUTTER_BOX2D (container)->world);
