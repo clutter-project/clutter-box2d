@@ -45,6 +45,7 @@ struct _ClutterBox2DPrivate
 {
   gdouble          fps;         /* The framerate simulation is running at        */
   gint             iterations;  /* number of engine iterations per processing */
+  gfloat           max_delta;   /* Largest time delta to simulate             */
   ClutterTimeline *timeline;    /* The timeline driving the simulation        */
   gboolean         first_iteration;
 };
@@ -183,6 +184,7 @@ clutter_box2d_init (ClutterBox2D *self)
 
   priv->fps        = 25;
   priv->iterations = 50;
+  priv->max_delta  = 16;
 
   self->actors = g_hash_table_new (g_direct_hash, g_direct_equal);
   self->bodies = g_hash_table_new (g_direct_hash, g_direct_equal);
@@ -470,6 +472,17 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
       return;
 
     /* Iterate Box2D simulation of bodies */
+
+    /* Scale the amount of iteration steps with the time delta to maintain
+     * a stable system. Put a cap on this value though, so we don't end up
+     * with a possibly infinitely-increasing lag as the scale tries to
+     * compensate.
+     *
+     * TODO: Perhaps some heuristic to decrease the accuracy of the
+     *       simulation if the CPU can't keep up?
+     */
+    steps = MIN (MAX (1, (gint)(steps * msecs / priv->max_delta)),
+                 priv->iterations * 10);
     world->Step (msecs / 1000.0, steps, steps);
 
 
