@@ -77,6 +77,9 @@ struct _ClutterBox2DClass
 {
   /*< private >*/
   ClutterGroupClass parent_class;
+
+  /*< public >*/
+  void (* iterate) (ClutterBox2D *box2d, guint msecs);
 };
 
 GType            clutter_box2d_get_type         (void) G_GNUC_CONST;

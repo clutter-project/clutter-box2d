@@ -55,6 +55,7 @@ struct _ClutterBox2DActor
   ClutterBox2DType  type; /* The type Static: the body affects collisions but
                              is not itself affected. Dynamic: the body is
                              affected by collisions.*/ 
+  gboolean          is_circle;
 
   b2Body           *body;   /* Box2D body, if any */
   b2Shape          *shape;  /* shape attached to this body, if any */
