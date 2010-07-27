@@ -275,7 +275,8 @@ clutter_box2d_actor_get_property (GObject      *gobject,
   switch (prop_id)
     {
     case PROP_IS_BULLET:
-      g_value_set_boolean (value, box2d_actor->body->IsBullet ());
+        g_value_set_boolean (value, box2d_actor->body?
+                                    box2d_actor->body->IsBullet ():FALSE);
       break;
     case PROP_IS_CIRCLE:
       g_value_set_boolean (value, box2d_actor->is_circle);
@@ -293,7 +294,8 @@ clutter_box2d_actor_get_property (GObject      *gobject,
       }
       break;
     case PROP_ANGULAR_VELOCITY:
-      g_value_set_double (value, box2d_actor->body->GetAngularVelocity());
+      g_value_set_double (value, box2d_actor->body?
+                          box2d_actor->body->GetAngularVelocity():0.0);
       break;
     case PROP_MODE:
       g_value_set_int (value, box2d_actor->type);
