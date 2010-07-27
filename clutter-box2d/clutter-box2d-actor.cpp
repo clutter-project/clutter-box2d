@@ -105,7 +105,6 @@ clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
 
   if (box2d_actor->type == type)
     return;
-  g_assert (!(type == 0 && box2d_actor->type != 0));
 
   if (box2d_actor->type != CLUTTER_BOX2D_NONE)
     {
@@ -148,8 +147,9 @@ clutter_box2d_actor_set_type2 (ClutterBox2DActor *box2d_actor,
         {
           box2d_actor->body->SetMassFromShapes ();
         }
+
+      g_hash_table_insert (box2d->bodies, box2d_actor->body, box2d_actor);
     }
-  g_hash_table_insert (box2d->bodies, box2d_actor->body, box2d_actor);
 }
 
 /* Set the type of physical object an actor in a Box2D group is of.
