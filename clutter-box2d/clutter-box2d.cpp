@@ -319,50 +319,46 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
   if (box2d_actor->shape == NULL)
     {
       gfloat width, height;
+      b2ShapeDef *shapeDef;
+      b2CircleDef circleDef;
+      b2PolygonDef polygonDef;
       ClutterChildMeta *meta = CLUTTER_CHILD_META (box2d_actor);
 
-      width  = clutter_actor_get_width (meta->actor);
-      height = clutter_actor_get_height (meta->actor);
+      clutter_actor_get_size (meta->actor, &width, &height);
 
       if (box2d_actor->is_circle)
         {
-          b2CircleDef shapeDef;
 
-          shapeDef.radius = MIN (width, height) * 0.5 * SCALE_FACTOR;
-          shapeDef.density   = 5.0f;
-          shapeDef.friction = 0.6f;
-          shapeDef.restitution = 0.5f;
-          box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
+          circleDef.radius = MIN (width, height) * 0.5 * SCALE_FACTOR;
+          shapeDef = &circleDef;
         }
       else if (box2d_actor->outline)
         {
           gint i;
-          b2PolygonDef shapeDef;
           ClutterVertex *vertices = box2d_actor->outline;
 
           for (i = 0;
                (i == 0) ||
                (!clutter_vertex_equal (&vertices[i], &vertices[0]));
                i++)
-            shapeDef.vertices[i].Set(vertices[i].x * width * SCALE_FACTOR,
-                                     vertices[i].y * height * SCALE_FACTOR);
-          shapeDef.vertexCount = i;
-          shapeDef.density = 7.0f;
-          shapeDef.friction = 0.4f;
-          box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
+            polygonDef.vertices[i].Set(vertices[i].x * width * SCALE_FACTOR,
+                                       vertices[i].y * height * SCALE_FACTOR);
+          polygonDef.vertexCount = i;
+          shapeDef = &polygonDef;
         }
       else
         {
-          b2PolygonDef shapeDef;
-
-          shapeDef.SetAsBox (width * 0.5 * SCALE_FACTOR,
-                             height * 0.5 * SCALE_FACTOR,
-                             b2Vec2 (width * 0.5 * SCALE_FACTOR,
-                             height * 0.5 * SCALE_FACTOR), 0);
-          shapeDef.density   = 7.0f;
-          shapeDef.friction = 0.4f;
-          box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
+          polygonDef.SetAsBox (width * 0.5 * SCALE_FACTOR,
+                               height * 0.5 * SCALE_FACTOR,
+                               b2Vec2 (width * 0.5 * SCALE_FACTOR,
+                               height * 0.5 * SCALE_FACTOR), 0);
+          shapeDef = &polygonDef;
         }
+
+      shapeDef->density = box2d_actor->density;
+      shapeDef->friction = box2d_actor->friction;
+      shapeDef->restitution = box2d_actor->restitution;
+      box2d_actor->shape = box2d_actor->body->CreateShape (shapeDef);
     }
   else
     {

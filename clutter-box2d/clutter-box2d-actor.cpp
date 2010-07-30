@@ -39,6 +39,9 @@ enum
   PROP_IS_BULLET,
   PROP_IS_CIRCLE,
   PROP_OUTLINE,
+  PROP_DENSITY,
+  PROP_FRICTION,
+  PROP_RESTITUTION,
   PROP_LINEAR_VELOCITY,
   PROP_ANGULAR_VELOCITY,
   PROP_MODE,
@@ -167,6 +170,19 @@ clutter_box2d_actor_set_type (ClutterBox2D      *box2d,
   clutter_box2d_actor_set_type2 (box2d_actor, type);
 }
 
+static inline void
+clutter_box2d_actor_refresh_shape (ClutterBox2DActor *box2d_actor)
+{
+  if (box2d_actor->shape)
+    {
+      box2d_actor->body->DestroyShape (box2d_actor->shape);
+      box2d_actor->shape = NULL;
+      _clutter_box2d_sync_body (box2d_actor);
+      if (box2d_actor->type == CLUTTER_BOX2D_DYNAMIC)
+        box2d_actor->body->SetMassFromShapes ();
+    }
+}
+
 static void
 clutter_box2d_actor_set_property (GObject      *gobject,
                                   guint         prop_id,
@@ -230,11 +246,20 @@ clutter_box2d_actor_set_property (GObject      *gobject,
       box2d_actor->body->SetBullet (g_value_get_boolean (value));
       break;
     case PROP_IS_CIRCLE:
-      box2d_actor->shape = NULL;
       box2d_actor->is_circle = g_value_get_boolean (value);
-      _clutter_box2d_sync_body (box2d_actor);
-      if (box2d_actor->type == CLUTTER_BOX2D_DYNAMIC)
-        box2d_actor->body->SetMassFromShapes ();
+      clutter_box2d_actor_refresh_shape (box2d_actor);
+      break;
+    case PROP_DENSITY:
+      box2d_actor->density = g_value_get_float (value);
+      clutter_box2d_actor_refresh_shape (box2d_actor);
+      break;
+    case PROP_FRICTION:
+      box2d_actor->friction = g_value_get_float (value);
+      clutter_box2d_actor_refresh_shape (box2d_actor);
+      break;
+    case PROP_RESTITUTION:
+      box2d_actor->restitution = g_value_get_float (value);
+      clutter_box2d_actor_refresh_shape (box2d_actor);
       break;
     case PROP_LINEAR_VELOCITY:
       {
@@ -287,9 +312,7 @@ clutter_box2d_actor_set_property (GObject      *gobject,
         g_object_notify (gobject, "outline");
 
         /* Synchronise box2d state */
-        _clutter_box2d_sync_body (box2d_actor);
-        if (box2d_actor->type == CLUTTER_BOX2D_DYNAMIC)
-          box2d_actor->body->SetMassFromShapes ();
+        clutter_box2d_actor_refresh_shape (box2d_actor);
 
         g_object_thaw_notify (gobject);
       }
@@ -325,6 +348,15 @@ clutter_box2d_actor_get_property (GObject      *gobject,
       break;
     case PROP_IS_CIRCLE:
       g_value_set_boolean (value, box2d_actor->is_circle);
+      break;
+    case PROP_DENSITY:
+      g_value_set_float (value, box2d_actor->density);
+      break;
+    case PROP_FRICTION:
+      g_value_set_float (value, box2d_actor->friction);
+      break;
+    case PROP_RESTITUTION:
+      g_value_set_float (value, box2d_actor->restitution);
       break;
     case PROP_LINEAR_VELOCITY:
       {
@@ -372,6 +404,30 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
                                  clutter_box2d_marshal_VOID__OBJECT,
                                  G_TYPE_NONE, 1, 
                                  CLUTTER_TYPE_BOX2D_COLLISION);
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_DENSITY,
+                                   g_param_spec_float ("density",
+                                                       "Density",
+                                                       "Density",
+                                                       0.f, G_MAXFLOAT, 7.f,
+                                                       (GParamFlags)G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_FRICTION,
+                                   g_param_spec_float ("friction",
+                                                       "Friction",
+                                                       "Friction",
+                                                       0.f, 1.f, 0.4f,
+                                                       (GParamFlags)G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_RESTITUTION,
+                                   g_param_spec_float ("restitution",
+                                                       "Restitution",
+                                                       "Restitution",
+                                                       0.f, 1.f, 0.0f,
+                                                       (GParamFlags)G_PARAM_READWRITE));
 
   g_object_class_install_property (gobject_class,
                                    PROP_LINEAR_VELOCITY,
@@ -440,24 +496,15 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
 }
 
 static void
-clutter_box2d_actor_size_notify_cb (ClutterBox2DActor *box2d_actor)
-{
-  box2d_actor->shape = NULL;
-  _clutter_box2d_sync_body (box2d_actor);
-  if (box2d_actor->type == CLUTTER_BOX2D_DYNAMIC)
-    box2d_actor->body->SetMassFromShapes ();
-}
-
-static void
 clutter_box2d_actor_constructed (GObject *object)
 {
   ClutterActor *actor = CLUTTER_CHILD_META (object)->actor;
 
   g_signal_connect_swapped (actor, "notify::natural-width",
-                            G_CALLBACK (clutter_box2d_actor_size_notify_cb),
+                            G_CALLBACK (clutter_box2d_actor_refresh_shape),
                             object);
   g_signal_connect_swapped (actor, "notify::natural-height",
-                            G_CALLBACK (clutter_box2d_actor_size_notify_cb),
+                            G_CALLBACK (clutter_box2d_actor_refresh_shape),
                             object);
 }
 
@@ -466,6 +513,9 @@ clutter_box2d_actor_init (ClutterBox2DActor *self)
 {
   self->priv = CLUTTER_BOX2D_ACTOR_GET_PRIVATE (self);
   self->priv->manipulatable = FALSE;
+  self->density = 7.0f;
+  self->friction = 0.4f;
+  self->restitution = 0.f;
 }
 
 static void
@@ -477,7 +527,7 @@ dispose (GObject *object)
 
   if (child_meta->actor)
     g_signal_handlers_disconnect_by_func (child_meta->actor,
-                                          (gpointer)clutter_box2d_actor_size_notify_cb,
+                                          (gpointer)clutter_box2d_actor_refresh_shape,
                                           object);
 
   if (priv->captured_handler)

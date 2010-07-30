@@ -62,6 +62,10 @@ struct _ClutterBox2DActor
   b2Shape          *shape;  /* shape attached to this body, if any */
   GList            *joints; /* list of joints this body participates in */
   b2World          *world;  /*the Box2D world (could be looked up through box2d)*/
+
+  gfloat            density;
+  gfloat            friction;
+  gfloat            restitution;
 };
 
 struct _ClutterBox2DActorClass
