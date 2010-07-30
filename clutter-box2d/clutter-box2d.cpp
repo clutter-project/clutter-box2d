@@ -43,9 +43,10 @@ enum
 
 struct _ClutterBox2DPrivate
 {
-  gdouble          fps;         /* The framerate simulation is running at        */
   gint             iterations;  /* number of engine iterations per processing */
-  gfloat           max_delta;   /* Largest time delta to simulate             */
+  gfloat           time_step;   /* Time step to simulate */
+  gfloat           max_step;    /* Largest time step to simulate before lagging */
+  gfloat           time_delta;  /* The amount of accumulated time to simulate */
   ClutterTimeline *timeline;    /* The timeline driving the simulation        */
   gboolean         first_iteration;
 };
@@ -182,9 +183,13 @@ clutter_box2d_init (ClutterBox2D *self)
   self->world = new b2World (worldAABB, /*gravity:*/ b2Vec2 (0.0f, 30.0f),
                              doSleep = false);
 
-  priv->fps        = 25;
-  priv->iterations = 50;
-  priv->max_delta  = 16;
+  /* The Box2D manual recommends 10 iterations, but this isn't really
+   * high enough to maintain a stable simulation with many stacked
+   * actors.
+   */
+  priv->iterations = 25;
+  priv->time_step  = 1000 / 60.f;
+  priv->max_step   = 1000 / 15.f;
 
   self->actors = g_hash_table_new (g_direct_hash, g_direct_equal);
   self->bodies = g_hash_table_new (g_direct_hash, g_direct_equal);
@@ -486,17 +491,17 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
 
     /* Iterate Box2D simulation of bodies */
 
-    /* Scale the amount of iteration steps with the time delta to maintain
-     * a stable system. Put a cap on this value though, so we don't end up
-     * with a possibly infinitely-increasing lag as the scale tries to
-     * compensate.
-     *
-     * TODO: Perhaps some heuristic to decrease the accuracy of the
-     *       simulation if the CPU can't keep up?
+    /* We do multiple iterations trying to keep up with
+     * priv->time_step (60fps by default). We start
+     * slowing the simulation when the framerate drops
+     * below priv->max_step (15fps by default).
      */
-    steps = MIN (MAX (1, (gint)(steps * msecs / priv->max_delta)),
-                 priv->iterations * 10);
-    world->Step (msecs / 1000.0, steps, steps);
+    priv->time_delta = MIN (priv->time_delta + msecs, priv->max_step);
+    while (priv->time_delta > priv->time_step)
+      {
+        world->Step (priv->time_step / 1000.f, steps, steps);
+        priv->time_delta -= priv->time_step;
+      }
 
 
     /* syncronize actor to have geometrical sync with bodies */
@@ -552,6 +557,7 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
   if (priv->first_iteration)
     {
       msecs = 0;
+      priv->time_delta = 0;
       priv->first_iteration = FALSE;
     }
   else
