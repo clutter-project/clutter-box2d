@@ -185,6 +185,65 @@ action_add_circle (ClutterActor *action,
   return FALSE;
 }
 
+static void
+paint_triangle (ClutterActor *actor)
+{
+  gfloat width, height;
+
+  clutter_actor_get_size (actor, &width, &height);
+  cogl_set_source_color4ub (0xff, 0xff, 0xff, 0xff);
+
+  cogl_path_move_to (width/2, 0);
+  cogl_path_line_to (width, height);
+  cogl_path_line_to (0, height);
+  cogl_path_close ();
+  cogl_path_fill ();
+}
+
+static gboolean
+action_add_triangle (ClutterActor *action,
+                     ClutterEvent *event,
+                     gpointer      userdata)
+{
+  const ClutterColor transparent = { 0x00, 0x00, 0x00, 0x01 };
+  ClutterActor *group = CLUTTER_ACTOR (userdata);
+  GValueArray *array = g_value_array_new (3);
+  ClutterVertex vertex = { 0, };
+  GValue vertex_value = { 0 };
+  ClutterActor *box;
+
+  box = clutter_rectangle_new_with_color (&transparent);
+  clutter_actor_set_size (box, 50, 50);
+  clutter_actor_set_position (box, event->button.x, event->button.y);
+  clutter_group_add (CLUTTER_GROUP (group), box);
+
+  /* Create a triangle vertex array */
+  g_value_init (&vertex_value, CLUTTER_TYPE_VERTEX);
+
+  vertex = (ClutterVertex){ 0.5, 0, 0 };
+  g_value_set_boxed (&vertex_value, &vertex);
+  g_value_array_insert (array, 0, &vertex_value);
+  vertex = (ClutterVertex){ 1.0, 1.0, 0 };
+  g_value_set_boxed (&vertex_value, &vertex);
+  g_value_array_insert (array, 1, &vertex_value);
+  vertex = (ClutterVertex){ 0.0, 1.0, 0 };
+  g_value_set_boxed (&vertex_value, &vertex);
+  g_value_array_insert (array, 2, &vertex_value);
+
+  g_value_unset (&vertex_value);
+
+  clutter_container_child_set (CLUTTER_CONTAINER (group),
+                               box,
+                               "outline", array,
+                               NULL);
+  g_signal_connect (box, "paint",
+                    G_CALLBACK (paint_triangle), NULL);
+
+  g_value_array_free (array);
+
+  return FALSE;
+}
+
 static
 gboolean
 action_add_text (ClutterActor *action,
@@ -274,6 +333,8 @@ actor_manipulator_press (ClutterActor *stage,
                        action_add_rectangle), scene_get_group ());
           popup_add ("+circle", "bar", G_CALLBACK (
                        action_add_circle), scene_get_group ());
+          popup_add ("+triangle", "bar", G_CALLBACK (
+                       action_add_triangle), scene_get_group ());
           popup_add ("+text", "bar", G_CALLBACK (
                        action_add_text), scene_get_group ());
           popup_add ("+image", "bar", G_CALLBACK (

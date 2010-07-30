@@ -56,6 +56,7 @@ struct _ClutterBox2DActor
                              is not itself affected. Dynamic: the body is
                              affected by collisions.*/ 
   gboolean          is_circle;
+  ClutterVertex    *outline;
 
   b2Body           *body;   /* Box2D body, if any */
   b2Shape          *shape;  /* shape attached to this body, if any */

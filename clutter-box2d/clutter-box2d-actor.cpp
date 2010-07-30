@@ -38,6 +38,7 @@ enum
   PROP_0,
   PROP_IS_BULLET,
   PROP_IS_CIRCLE,
+  PROP_OUTLINE,
   PROP_LINEAR_VELOCITY,
   PROP_ANGULAR_VELOCITY,
   PROP_MODE,
@@ -250,6 +251,50 @@ clutter_box2d_actor_set_property (GObject      *gobject,
       clutter_box2d_actor_set_type2 (box2d_actor, (ClutterBox2DType)g_value_get_int (value));
 
       break;
+
+    case PROP_OUTLINE:
+      {
+        GValueArray *array;
+
+        g_object_freeze_notify (gobject);
+
+        box2d_actor->shape = NULL;
+
+        if (box2d_actor->is_circle)
+          {
+            box2d_actor->is_circle = FALSE;
+            g_object_notify (gobject, "is-circle");
+          }
+
+        g_free (box2d_actor->outline);
+        box2d_actor->outline = NULL;
+
+        array = (GValueArray *)g_value_get_boxed (value);
+        if (array && (array->n_values > 2))
+          {
+            gint i;
+
+            box2d_actor->outline = g_new0 (ClutterVertex, array->n_values + 1);
+            for (i = 0; i < array->n_values; i++)
+              box2d_actor->outline[i] = *((ClutterVertex *)
+                                          g_value_get_boxed (
+                                            g_value_array_get_nth (array, i)));
+
+            /* Close the path */
+            box2d_actor->outline[i] = box2d_actor->outline[0];
+          }
+
+        g_object_notify (gobject, "outline");
+
+        /* Synchronise box2d state */
+        _clutter_box2d_sync_body (box2d_actor);
+        if (box2d_actor->type == CLUTTER_BOX2D_DYNAMIC)
+          box2d_actor->body->SetMassFromShapes ();
+
+        g_object_thaw_notify (gobject);
+      }
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -378,6 +423,18 @@ clutter_box2d_actor_class_init (ClutterBox2DActorClass *klass)
                                      "Whether the user is able to interact (using a pointer device) with this actor or not.)",
                                                          FALSE,
                                                          (GParamFlags)G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_OUTLINE,
+                                   g_param_spec_value_array ("outline",
+                                                             "Outline",
+                                                             "ClutterVertex array describing the outline of the shape.",
+                                                             g_param_spec_boxed ("vertex",
+                                                                                 "Vertex",
+                                                                                 "A ClutterVertex.",
+                                                                                 CLUTTER_TYPE_VERTEX,
+                                                                                 (GParamFlags)G_PARAM_READWRITE),
+                                                             (GParamFlags)G_PARAM_READWRITE));
 
   g_type_class_add_private (gobject_class, sizeof (ClutterBox2DActorPrivate));
 }

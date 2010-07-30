@@ -334,6 +334,23 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
           shapeDef.restitution = 0.5f;
           box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
         }
+      else if (box2d_actor->outline)
+        {
+          gint i;
+          b2PolygonDef shapeDef;
+          ClutterVertex *vertices = box2d_actor->outline;
+
+          for (i = 0;
+               (i == 0) ||
+               (!clutter_vertex_equal (&vertices[i], &vertices[0]));
+               i++)
+            shapeDef.vertices[i].Set(vertices[i].x * width * SCALE_FACTOR,
+                                     vertices[i].y * height * SCALE_FACTOR);
+          shapeDef.vertexCount = i;
+          shapeDef.density = 7.0f;
+          shapeDef.friction = 0.4f;
+          box2d_actor->shape = box2d_actor->body->CreateShape (&shapeDef);
+        }
       else
         {
           b2PolygonDef shapeDef;
