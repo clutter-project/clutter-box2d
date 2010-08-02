@@ -356,10 +356,7 @@ ensure_shape (ClutterBox2DChild *box2d_child)
           gint i;
           ClutterVertex *vertices = box2d_child->outline;
 
-          for (i = 0;
-               (i == 0) ||
-               (!clutter_vertex_equal (&vertices[i], &vertices[0]));
-               i++)
+          for (i = 0; i < box2d_child->n_vertices; i++)
             polygonDef.vertices[i].Set(vertices[i].x * width * SCALE_FACTOR,
                                        vertices[i].y * height * SCALE_FACTOR);
           polygonDef.vertexCount = i;

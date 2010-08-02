@@ -63,6 +63,7 @@ struct _ClutterBox2DChild
                              affected by collisions.*/ 
   gboolean          is_circle;
   ClutterVertex    *outline;
+  guint             n_vertices;
 
   b2Body           *body;   /* Box2D body, if any */
   b2Shape          *shape;  /* shape attached to this body, if any */
@@ -81,6 +82,69 @@ struct _ClutterBox2DChildClass
 };
 
 GType   clutter_box2d_child_get_type  (void) G_GNUC_CONST;
+
+void clutter_box2d_child_set_is_bullet (ClutterBox2D *box2d,
+                                        ClutterActor *child,
+                                        gboolean      is_bullet);
+gboolean clutter_box2d_child_get_is_bullet (ClutterBox2D *box2d,
+                                            ClutterActor *child);
+
+void clutter_box2d_child_set_is_circle (ClutterBox2D *box2d,
+                                        ClutterActor *child,
+                                        gboolean      is_circle);
+gboolean clutter_box2d_child_get_is_circle (ClutterBox2D *box2d,
+                                            ClutterActor *child);
+
+void clutter_box2d_child_set_outline (ClutterBox2D        *box2d,
+                                      ClutterActor        *child,
+                                      const ClutterVertex *outline,
+                                      guint                n_vertices);
+const ClutterVertex *clutter_box2d_child_get_outline (ClutterBox2D *box2d,
+                                                      ClutterActor *child,
+                                                      guint        *n_vertices);
+
+void clutter_box2d_child_set_density (ClutterBox2D *box2d,
+                                      ClutterActor *child,
+                                      gfloat        density);
+gfloat clutter_box2d_child_get_density (ClutterBox2D *box2d,
+                                        ClutterActor *child);
+
+void clutter_box2d_child_set_friction (ClutterBox2D *box2d,
+                                       ClutterActor *child,
+                                       gfloat        friction);
+gfloat clutter_box2d_child_get_friction (ClutterBox2D *box2d,
+                                         ClutterActor *child);
+
+void clutter_box2d_child_set_restitution (ClutterBox2D *box2d,
+                                          ClutterActor *child,
+                                          gfloat        restitution);
+gfloat clutter_box2d_child_get_restitution (ClutterBox2D *box2d,
+                                            ClutterActor *child);
+
+void clutter_box2d_child_set_linear_velocity (ClutterBox2D        *box2d,
+                                              ClutterActor        *child,
+                                              const ClutterVertex *velocity);
+void clutter_box2d_child_get_linear_velocity (ClutterBox2D  *box2d,
+                                              ClutterActor  *child,
+                                              ClutterVertex *velocity);
+
+void clutter_box2d_child_set_angular_velocity (ClutterBox2D  *box2d,
+                                               ClutterActor  *child,
+                                               gfloat        velocity);
+gfloat clutter_box2d_child_get_angular_velocity (ClutterBox2D   *box2d,
+                                                 ClutterActor   *child);
+
+void clutter_box2d_child_set_mode (ClutterBox2D     *box2d,
+                                   ClutterActor     *child,
+                                   ClutterBox2DType  mode);
+ClutterBox2DType clutter_box2d_child_get_mode (ClutterBox2D *box2d,
+                                               ClutterActor *child);
+
+void clutter_box2d_child_set_manipulatable (ClutterBox2D *box2d,
+                                            ClutterActor *child,
+                                            gboolean      manipulatable);
+gboolean clutter_box2d_child_get_manipulatable (ClutterBox2D *box2d,
+                                                ClutterActor *child);
 
 G_END_DECLS
 
