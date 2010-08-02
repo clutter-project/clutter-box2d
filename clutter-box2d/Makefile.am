@@ -14,9 +14,9 @@ libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_LIBADD  = @DEPS_LIBS@ $(top_buil
 libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_LDFLAGS = @CLUTTER_BOX2D_LT_LDFLAGS@
 libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_SOURCES = \
     clutter-box2d.cpp           \
-    clutter-box2d-actor.cpp     \
+    clutter-box2d-child.cpp     \
     clutter-box2d-joint.cpp     \
-    clutter-box2d-actor.h       \
+    clutter-box2d-child.h       \
     clutter-box2d-util.c        \
     clutter-box2d-collision.cpp \
     clutter-box2d-contact.cpp   \

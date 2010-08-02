@@ -22,25 +22,25 @@ clutter_box2d_get_type
 </SECTION>
 
 <SECTION>
-<FILE>clutter-box2d-actor</FILE>
-<TITLE>ClutterBox2D Actor</TITLE>
-ClutterBox2DActor
-ClutterBox2DActorClass
+<FILE>clutter-box2d-child</FILE>
+<TITLE>ClutterBox2D Child</TITLE>
+ClutterBox2DChild
+ClutterBox2DChildClass
 ClutterBox2DTrackFlags
 clutter_box2d_actor_track
-clutter_box2d_get_actor
+clutter_box2d_get_child
 
 <SUBSECTION Standard>
-CLUTTER_BOX2D_ACTOR
-CLUTTER_BOX2D_ACTOR_CLASS
-CLUTTER_BOX2D_ACTOR_GET_CLASS
-CLUTTER_IS_BOX2D_ACTOR
-CLUTTER_IS_BOX2D_ACTOR_CLASS
-CLUTTER_TYPE_BOX2D_ACTOR
+CLUTTER_BOX2D_CHILD
+CLUTTER_BOX2D_CHILD_CLASS
+CLUTTER_BOX2D_CHILD_GET_CLASS
+CLUTTER_IS_BOX2D_CHILD
+CLUTTER_IS_BOX2D_CHILD_CLASS
+CLUTTER_TYPE_BOX2D_CHILD
 
 <SUBSECTION Private>
-ClutterBox2DActorPrivate
-clutter_box2d_actor_get_type
+ClutterBox2DChildPrivate
+clutter_box2d_child_get_type
 </SECTION>
 
 <SECTION>

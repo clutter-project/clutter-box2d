@@ -7,7 +7,7 @@ G_BEGIN_DECLS
 #include "clutter-box2d.h"
 
 /*#include "Box2D.h"*/
-/*#include "clutter-box2d-actor.h"*/
+/*#include "clutter-box2d-child.h"*/
 
 /**
  * SECTION:clutter-box2d-joint

@@ -10,7 +10,6 @@
  */
 #include "Box2D.h"
 #include <clutter/clutter.h>
-#include "clutter-box2d-actor.h"
 #include "clutter-box2d.h"
 #include "math.h"
 #include <stdlib.h>

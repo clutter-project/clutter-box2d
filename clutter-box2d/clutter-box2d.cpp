@@ -17,7 +17,7 @@
 #include "Box2D.h"
 #include <clutter/clutter.h>
 #include "clutter-box2d.h"
-#include "clutter-box2d-actor.h"
+#include "clutter-box2d-child.h"
 #include "clutter-box2d-contact.h"
 #include "math.h"
 
@@ -27,7 +27,7 @@ G_DEFINE_TYPE_WITH_CODE (ClutterBox2D, clutter_box2d, CLUTTER_TYPE_GROUP,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
                              clutter_container_iface_init));
 
-void _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor);
+void _clutter_box2d_sync_body (ClutterBox2DChild *box2d_child);
 static void clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs);
 
 
@@ -263,16 +263,16 @@ clutter_box2d_create_child_meta (ClutterContainer *container,
 
 {
   ClutterChildMeta  *child_meta;
-  ClutterBox2DActor *box2d_actor;
+  ClutterBox2DChild *box2d_child;
 
   child_meta = CLUTTER_CHILD_META (
-    g_object_new (CLUTTER_TYPE_BOX2D_ACTOR,
+    g_object_new (CLUTTER_TYPE_BOX2D_CHILD,
                   "container", container,
                   "actor", actor,
                   NULL));
 
-  box2d_actor = CLUTTER_BOX2D_ACTOR (child_meta);
-  box2d_actor->world = (b2World*)(CLUTTER_BOX2D (container)->world);
+  box2d_child = CLUTTER_BOX2D_CHILD (child_meta);
+  box2d_child->world = (b2World*)(CLUTTER_BOX2D (container)->world);
 
   g_hash_table_insert (CLUTTER_BOX2D (container)->actors, actor, child_meta);
 }
@@ -282,20 +282,20 @@ clutter_box2d_destroy_child_meta (ClutterContainer *box2d,
                                   ClutterActor     *actor)
 {
   gboolean manipulatable;
-  ClutterBox2DActor *box2d_actor =
-     CLUTTER_BOX2D_ACTOR (clutter_container_get_child_meta ( box2d, actor));
+  ClutterBox2DChild *box2d_child =
+     CLUTTER_BOX2D_CHILD (clutter_container_get_child_meta ( box2d, actor));
 
-  g_assert (box2d_actor->world);
+  g_assert (box2d_child->world);
 
-  g_object_get (box2d_actor, "manipulatable", &manipulatable, NULL);
+  g_object_get (box2d_child, "manipulatable", &manipulatable, NULL);
   if (manipulatable)
-    g_object_set (box2d_actor, "manipulatable", FALSE, NULL);
+    g_object_set (box2d_child, "manipulatable", FALSE, NULL);
 
-  if (box2d_actor->body)
-    box2d_actor->world->DestroyBody (box2d_actor->body);
+  if (box2d_child->body)
+    box2d_child->world->DestroyBody (box2d_child->body);
 
   g_hash_table_remove (CLUTTER_BOX2D (box2d)->actors, actor);
-  g_hash_table_remove (CLUTTER_BOX2D (box2d)->bodies, box2d_actor->body);
+  g_hash_table_remove (CLUTTER_BOX2D (box2d)->bodies, box2d_child->body);
 }
 
 static ClutterChildMeta *
@@ -309,7 +309,7 @@ clutter_box2d_get_child_meta (ClutterContainer *container,
 
 static void clutter_container_iface_init (ClutterContainerIface *iface)
 {
-  iface->child_meta_type = CLUTTER_TYPE_BOX2D_ACTOR;
+  iface->child_meta_type = CLUTTER_TYPE_BOX2D_CHILD;
   iface->create_child_meta = clutter_box2d_create_child_meta;
   iface->destroy_child_meta = clutter_box2d_destroy_child_meta;   
   iface->get_child_meta = clutter_box2d_get_child_meta;
@@ -319,28 +319,28 @@ static void clutter_container_iface_init (ClutterContainerIface *iface)
  * idea of the shape.
  */
 static inline void
-ensure_shape (ClutterBox2DActor *box2d_actor)
+ensure_shape (ClutterBox2DChild *box2d_child)
 {
-  if (box2d_actor->shape == NULL)
+  if (box2d_child->shape == NULL)
     {
       gfloat width, height;
       b2ShapeDef *shapeDef;
       b2CircleDef circleDef;
       b2PolygonDef polygonDef;
-      ClutterChildMeta *meta = CLUTTER_CHILD_META (box2d_actor);
+      ClutterChildMeta *meta = CLUTTER_CHILD_META (box2d_child);
 
       clutter_actor_get_size (meta->actor, &width, &height);
 
-      if (box2d_actor->is_circle)
+      if (box2d_child->is_circle)
         {
 
           circleDef.radius = MIN (width, height) * 0.5 * SCALE_FACTOR;
           shapeDef = &circleDef;
         }
-      else if (box2d_actor->outline)
+      else if (box2d_child->outline)
         {
           gint i;
-          ClutterVertex *vertices = box2d_actor->outline;
+          ClutterVertex *vertices = box2d_child->outline;
 
           for (i = 0;
                (i == 0) ||
@@ -360,10 +360,10 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
           shapeDef = &polygonDef;
         }
 
-      shapeDef->density = box2d_actor->density;
-      shapeDef->friction = box2d_actor->friction;
-      shapeDef->restitution = box2d_actor->restitution;
-      box2d_actor->shape = box2d_actor->body->CreateShape (shapeDef);
+      shapeDef->density = box2d_child->density;
+      shapeDef->friction = box2d_child->friction;
+      shapeDef->restitution = box2d_child->restitution;
+      box2d_child->shape = box2d_child->body->CreateShape (shapeDef);
     }
   else
     {
@@ -378,25 +378,25 @@ ensure_shape (ClutterBox2DActor *box2d_actor)
  * the physics computation
  */
 void
-_clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor)
+_clutter_box2d_sync_body (ClutterBox2DChild *box2d_child)
 {
   gint x, y;
   gdouble rot;
 
-  ClutterActor *actor = CLUTTER_CHILD_META (box2d_actor)->actor;
-  b2Body       *body  = box2d_actor->body;
+  ClutterActor *actor = CLUTTER_CHILD_META (box2d_child)->actor;
+  b2Body       *body  = box2d_child->body;
 
   if (!body)
     return;
 
-  rot = clutter_actor_get_rotation (CLUTTER_CHILD_META (box2d_actor)->actor,
+  rot = clutter_actor_get_rotation (CLUTTER_CHILD_META (box2d_child)->actor,
                                     CLUTTER_Z_AXIS, NULL, NULL, NULL);
 
 
   x = clutter_actor_get_x (actor);
   y = clutter_actor_get_y (actor);
 
-  if (box2d_actor->is_circle)
+  if (box2d_child->is_circle)
     {
       gfloat radius = MIN (clutter_actor_get_width (actor),
                            clutter_actor_get_height (actor)) / 2.f;
@@ -406,7 +406,7 @@ _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor)
 
   b2Vec2 position = body->GetPosition ();
 
-  ensure_shape (box2d_actor);
+  ensure_shape (box2d_child);
 
   if (fabs (x * SCALE_FACTOR - (position.x)) > 0.1 ||
       fabs (y * SCALE_FACTOR - (position.y)) > 0.1 ||
@@ -425,11 +425,11 @@ _clutter_box2d_sync_body (ClutterBox2DActor *box2d_actor)
  * introducing errors.
  */
 static void
-_clutter_box2d_sync_actor (ClutterBox2DActor *box2d_actor)
+_clutter_box2d_sync_actor (ClutterBox2DChild *box2d_child)
 {
   gfloat x, y, centre_x, centre_y;
-  ClutterActor *actor = CLUTTER_CHILD_META (box2d_actor)->actor;
-  b2Body       *body  = box2d_actor->body;
+  ClutterActor *actor = CLUTTER_CHILD_META (box2d_child)->actor;
+  b2Body       *body  = box2d_child->body;
 
   if (!body)
     return;
@@ -437,7 +437,7 @@ _clutter_box2d_sync_actor (ClutterBox2DActor *box2d_actor)
   x = body->GetPosition ().x * INV_SCALE_FACTOR;
   y = body->GetPosition ().y * INV_SCALE_FACTOR;
 
-  if (box2d_actor->is_circle)
+  if (box2d_child->is_circle)
     {
       gfloat width = clutter_actor_get_width (actor);
       gfloat height = clutter_actor_get_height (actor);
@@ -482,8 +482,8 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
      */
     for (iter = actors; iter; iter = g_list_next (iter))
       {
-        ClutterBox2DActor *box2d_actor = (ClutterBox2DActor*) iter->data;
-        _clutter_box2d_sync_body (box2d_actor);
+        ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
+        _clutter_box2d_sync_body (box2d_child);
       }
 
     if (msecs == 0)
@@ -507,8 +507,8 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
     /* syncronize actor to have geometrical sync with bodies */
     for (iter = actors; iter; iter = g_list_next (iter))
       {
-        ClutterBox2DActor *box2d_actor = (ClutterBox2DActor*) iter->data;
-        _clutter_box2d_sync_actor (box2d_actor);
+        ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
+        _clutter_box2d_sync_actor (box2d_child);
       }
     g_list_free (actors);
 
@@ -517,25 +517,25 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
     for (iter = box2d->collisions; iter; iter = g_list_next (iter))
       {
         ClutterBox2DCollision  *collision;
-        ClutterBox2DActor      *box2d_actor1, *box2d_actor2;
-        ClutterBox2DActorClass *klass;
+        ClutterBox2DChild      *box2d_child1, *box2d_child2;
+        ClutterBox2DChildClass *klass;
 
         collision = CLUTTER_BOX2D_COLLISION (iter->data);
 
-        box2d_actor1 = clutter_box2d_get_actor (box2d, collision->actor1);
+        box2d_child1 = clutter_box2d_get_child (box2d, collision->actor1);
 
-        if (box2d_actor1)
+        if (box2d_child1)
           {
-            klass = CLUTTER_BOX2D_ACTOR_CLASS (G_OBJECT_GET_CLASS (box2d_actor1));
-            g_signal_emit_by_name (box2d_actor1, "collision", collision);
+            klass = CLUTTER_BOX2D_CHILD_CLASS (G_OBJECT_GET_CLASS (box2d_child1));
+            g_signal_emit_by_name (box2d_child1, "collision", collision);
           }
 
-        box2d_actor2 = clutter_box2d_get_actor (box2d, collision->actor2);
+        box2d_child2 = clutter_box2d_get_child (box2d, collision->actor2);
 
-        if (box2d_actor2)
+        if (box2d_child2)
           {
-            klass = CLUTTER_BOX2D_ACTOR_CLASS (G_OBJECT_GET_CLASS (box2d_actor2));
-            g_signal_emit_by_name (box2d_actor2, "collision", collision);
+            klass = CLUTTER_BOX2D_CHILD_CLASS (G_OBJECT_GET_CLASS (box2d_child2));
+            g_signal_emit_by_name (box2d_child2, "collision", collision);
           }
 
         g_object_unref (collision);
