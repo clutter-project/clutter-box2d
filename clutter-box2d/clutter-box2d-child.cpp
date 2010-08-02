@@ -79,22 +79,6 @@ static gboolean clutter_box2d_child_captured_event (ClutterActor *stage,
                                                     gpointer      data);
 
 
-ClutterBox2DChild *
-clutter_box2d_get_child (ClutterBox2D *box2d,
-                         ClutterActor *actor)
-{
-  ClutterChildMeta *meta;
-
-  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
-
-  meta = clutter_container_get_child_meta (CLUTTER_CONTAINER (box2d), actor);
-  if (!meta)
-    return NULL;
-
-  return CLUTTER_BOX2D_CHILD (meta);
-}
-
 
 static gboolean
 clutter_box2d_child_is_bullet (ClutterBox2DChild *box2d_child)

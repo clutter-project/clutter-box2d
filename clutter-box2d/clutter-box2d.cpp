@@ -19,6 +19,7 @@
 #include "clutter-box2d.h"
 #include "clutter-box2d-child.h"
 #include "clutter-box2d-contact.h"
+#include "clutter-box2d-private.h"
 #include "math.h"
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
@@ -69,6 +70,19 @@ static void      clutter_box2d_dispose     (GObject               *object);
 static void      clutter_box2d_iterate       (ClutterTimeline       *timeline,
                                               gint                   frame_num,
                                               gpointer               data);
+
+ClutterBox2DChild *
+clutter_box2d_get_child (ClutterBox2D *box2d,
+                         ClutterActor *actor)
+{
+  ClutterChildMeta *meta;
+
+  meta = clutter_container_get_child_meta (CLUTTER_CONTAINER (box2d), actor);
+  if (!meta)
+    return NULL;
+
+  return CLUTTER_BOX2D_CHILD (meta);
+}
 
 static void
 clutter_box2d_paint (ClutterActor *actor)

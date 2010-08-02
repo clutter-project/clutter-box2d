@@ -46,6 +46,12 @@ typedef struct _ClutterBox2DChild        ClutterBox2DChild;
 typedef struct _ClutterBox2DChildPrivate ClutterBox2DChildPrivate;
 typedef struct _ClutterBox2DChildClass   ClutterBox2DChildClass;
 
+/**
+ * ClutterBox2DChild:
+ *
+ * The contents of this structure are private and should only be accessed
+ * through the public API.
+ */
 struct _ClutterBox2DChild
 {
   /*< private >*/
@@ -73,9 +79,6 @@ struct _ClutterBox2DChildClass
   /*< private >*/
   ClutterChildMetaClass parent_class;
 };
-
-ClutterBox2DChild * clutter_box2d_get_child (ClutterBox2D   *box2d,
-                                             ClutterActor   *actor);
 
 GType   clutter_box2d_child_get_type  (void) G_GNUC_CONST;
 

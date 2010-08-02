@@ -20,10 +20,12 @@ libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_SOURCES = \
     clutter-box2d-util.c        \
     clutter-box2d-collision.cpp \
     clutter-box2d-contact.cpp   \
-    clutter-box2d-marshal.c
+    $(BUILT_SOURCES)            \
+    clutter-box2d-private.h
 
 clutter_box2dheaders_HEADERS =  \
     clutter-box2d.h             \
+    clutter-box2d-child.h       \
     clutter-box2d-joint.h       \
     clutter-box2d-util.h        \
     clutter-box2d-collision.h   \

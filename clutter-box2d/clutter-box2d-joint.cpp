@@ -14,6 +14,7 @@
 #include <clutter/clutter.h>
 #include "clutter-box2d.h"
 #include "clutter-box2d-child.h"
+#include "clutter-box2d-private.h"
 #include "math.h"
 
 typedef enum 
