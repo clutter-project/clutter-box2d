@@ -14,8 +14,7 @@
 #define _CLUTTER_BOX2D_CHILD_H
 
 #include <clutter/clutter.h>
-#include "clutter-box2d.h"
-#include "math.h"
+#include <clutter-box2d/clutter-box2d.h>
 
 G_BEGIN_DECLS
 

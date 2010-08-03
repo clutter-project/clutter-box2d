@@ -4,10 +4,7 @@
 G_BEGIN_DECLS
 
 #include <clutter/clutter.h>
-#include "clutter-box2d.h"
-
-/*#include "Box2D.h"*/
-/*#include "clutter-box2d-child.h"*/
+#include <clutter-box2d/clutter-box2d.h>
 
 /**
  * SECTION:clutter-box2d-joint

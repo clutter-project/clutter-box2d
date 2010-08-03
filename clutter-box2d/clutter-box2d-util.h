@@ -13,6 +13,8 @@
 #ifndef __CLUTTER_BOX2D_UTIL_H_
 #define __CLUTTER_BOX2D_UTIL_H_
 
+#include <clutter/clutter.h>
+
 typedef enum { 
   CLUTTER_BOX2D_TRACK_POSITION = 1 << 0,
   CLUTTER_BOX2D_TRACK_ROTATION = 1 << 1,

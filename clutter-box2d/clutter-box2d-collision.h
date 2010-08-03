@@ -11,6 +11,8 @@
 #ifndef __clutter_box2d_collision_h__
 #define __clutter_box2d_collision_h__
 
+#include <clutter/clutter.h>
+
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_BOX2D_COLLISION      (clutter_box2d_collision_get_type ())

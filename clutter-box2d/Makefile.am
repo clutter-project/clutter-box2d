@@ -20,8 +20,9 @@ libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_SOURCES = \
     clutter-box2d-util.c        \
     clutter-box2d-collision.cpp \
     clutter-box2d-contact.cpp   \
-    $(BUILT_SOURCES)            \
-    clutter-box2d-private.h
+    clutter-box2d-contact.h     \
+    clutter-box2d-private.h     \
+    $(BUILT_SOURCES)
 
 clutter_box2dheaders_HEADERS =  \
     clutter-box2d.h             \
@@ -29,7 +30,6 @@ clutter_box2dheaders_HEADERS =  \
     clutter-box2d-joint.h       \
     clutter-box2d-util.h        \
     clutter-box2d-collision.h   \
-    clutter-box2d-contact.h     \
     clutter-box2d-marshal.h
 
 clutter-box2d-marshal.c: clutter-box2d-marshal.list Makefile

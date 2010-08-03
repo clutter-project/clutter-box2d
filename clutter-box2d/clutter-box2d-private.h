@@ -10,6 +10,11 @@
 #ifndef _CLUTTER_BOX2D_PRIVATE
 #define _CLUTTER_BOX2D_PRIVATE
 
+#include <glib.h>
+#include <clutter/clutter.h>
+#include <clutter-box2d/clutter-box2d.h>
+#include "Box2D.h"
+
 G_BEGIN_DECLS
 
 struct _ClutterBox2DChildPrivate {

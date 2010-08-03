@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <clutter/clutter.h>
-#include "clutter-box2d.h"
-#include "clutter-box2d-child.h"
+#include <clutter-box2d/clutter-box2d.h>
 #include "blockbox.h"
 
 #define BOX2D_MANIPULATION
