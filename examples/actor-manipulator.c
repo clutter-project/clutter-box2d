@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <clutter/clutter.h>
 #include "clutter-box2d.h"
+#include "clutter-box2d-child.h"
 #include "blockbox.h"
 
 #define BOX2D_MANIPULATION
@@ -207,9 +208,10 @@ action_add_triangle (ClutterActor *action,
 {
   const ClutterColor transparent = { 0x00, 0x00, 0x00, 0x01 };
   ClutterActor *group = CLUTTER_ACTOR (userdata);
-  GValueArray *array = g_value_array_new (3);
-  ClutterVertex vertex = { 0, };
-  GValue vertex_value = { 0 };
+  ClutterVertex vertices[] =
+    { { 0.5, 0.0, 0.0 },
+      { 1.0, 1.0, 0.0 },
+      { 0.0, 1.0, 0.0 } };
   ClutterActor *box;
 
   box = clutter_rectangle_new_with_color (&transparent);
@@ -218,28 +220,9 @@ action_add_triangle (ClutterActor *action,
   clutter_group_add (CLUTTER_GROUP (group), box);
 
   /* Create a triangle vertex array */
-  g_value_init (&vertex_value, CLUTTER_TYPE_VERTEX);
-
-  vertex = (ClutterVertex){ 0.5, 0, 0 };
-  g_value_set_boxed (&vertex_value, &vertex);
-  g_value_array_insert (array, 0, &vertex_value);
-  vertex = (ClutterVertex){ 1.0, 1.0, 0 };
-  g_value_set_boxed (&vertex_value, &vertex);
-  g_value_array_insert (array, 1, &vertex_value);
-  vertex = (ClutterVertex){ 0.0, 1.0, 0 };
-  g_value_set_boxed (&vertex_value, &vertex);
-  g_value_array_insert (array, 2, &vertex_value);
-
-  g_value_unset (&vertex_value);
-
-  clutter_container_child_set (CLUTTER_CONTAINER (group),
-                               box,
-                               "outline", array,
-                               NULL);
+  clutter_box2d_child_set_outline (CLUTTER_BOX2D (group), box, vertices, 3);
   g_signal_connect (box, "paint",
                     G_CALLBACK (paint_triangle), NULL);
-
-  g_value_array_free (array);
 
   return FALSE;
 }
