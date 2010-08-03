@@ -13,7 +13,6 @@
 #ifndef _CLUTTER_BOX2D_CHILD_H
 #define _CLUTTER_BOX2D_CHILD_H
 
-#include "Box2D.h"
 #include <clutter/clutter.h>
 #include "clutter-box2d.h"
 #include "math.h"
@@ -57,22 +56,6 @@ struct _ClutterBox2DChild
   /*< private >*/
   ClutterChildMeta          parent_instance;
   ClutterBox2DChildPrivate *priv; /* not used anymore */
-
-  ClutterBox2DType  type; /* The type Static: the body affects collisions but
-                             is not itself affected. Dynamic: the body is
-                             affected by collisions.*/ 
-  gboolean          is_circle;
-  ClutterVertex    *outline;
-  guint             n_vertices;
-
-  b2Body           *body;   /* Box2D body, if any */
-  b2Shape          *shape;  /* shape attached to this body, if any */
-  GList            *joints; /* list of joints this body participates in */
-  b2World          *world;  /*the Box2D world (could be looked up through box2d)*/
-
-  gfloat            density;
-  gfloat            friction;
-  gfloat            restitution;
 };
 
 struct _ClutterBox2DChildClass

@@ -75,8 +75,8 @@ clutter_box2d_add_joint (ClutterBox2D     *box2d,
   jd.upperTranslation = max_len;*/
   /*jd.enableLimit = true;*/
   jd.collideConnected = false;
-  jd.Initialize(clutter_box2d_get_child (box2d, actor_a)->body,
-                clutter_box2d_get_child (box2d, actor_b)->body,
+  jd.Initialize(clutter_box2d_get_child (box2d, actor_a)->priv->body,
+                clutter_box2d_get_child (box2d, actor_b)->priv->body,
                 anchor);
   ((b2World*)(box2d->world))->CreateJoint (&jd);
 
@@ -96,13 +96,15 @@ joint_new (ClutterBox2D *box2d,
         g_hash_table_lookup (box2d->bodies, joint->GetBody1());
    if (self->actor1)
      {
-        self->actor1->joints = g_list_append (self->actor1->joints, self);
+        self->actor1->priv->joints =
+          g_list_append (self->actor1->priv->joints, self);
      }
    self->actor2 = (ClutterBox2DChild*)
         g_hash_table_lookup (box2d->bodies, joint->GetBody2());
    if (self->actor2)
      {
-        self->actor2->joints = g_list_append (self->actor2->joints, self);
+        self->actor2->priv->joints =
+          g_list_append (self->actor2->priv->joints, self);
      }
 
    return self;
@@ -118,11 +120,13 @@ clutter_box2d_joint_destroy (ClutterBox2DJoint *joint)
 
    if (joint->actor1)
      {
-        joint->actor1->joints = g_list_remove (joint->actor1->joints, joint);
+        joint->actor1->priv->joints =
+          g_list_remove (joint->actor1->priv->joints, joint);
      }
    if (joint->actor2)
      {
-        joint->actor2->joints = g_list_remove (joint->actor2->joints, joint);
+        joint->actor2->priv->joints =
+          g_list_remove (joint->actor2->priv->joints, joint);
      }
 
   g_free (joint);
@@ -149,8 +153,8 @@ clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
   g_return_val_if_fail (anchor2 != NULL, NULL);
 
   jd.collideConnected = false;
-  jd.body1 = clutter_box2d_get_child (box2d, actor1)->body;
-  jd.body2 = clutter_box2d_get_child (box2d, actor2)->body;
+  jd.body1 = clutter_box2d_get_child (box2d, actor1)->priv->body;
+  jd.body2 = clutter_box2d_get_child (box2d, actor2)->priv->body;
   jd.localAnchor1 = b2Vec2( (anchor1->x) * SCALE_FACTOR,
                             (anchor1->y) * SCALE_FACTOR);
   jd.localAnchor2 = b2Vec2( (anchor2->x) * SCALE_FACTOR,
@@ -198,8 +202,8 @@ clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
   g_return_val_if_fail (anchor2 != NULL, NULL);
 
   jd.collideConnected = false;
-  jd.body1 = clutter_box2d_get_child (box2d, actor1)->body;
-  jd.body2 = clutter_box2d_get_child (box2d, actor2)->body;
+  jd.body1 = clutter_box2d_get_child (box2d, actor1)->priv->body;
+  jd.body2 = clutter_box2d_get_child (box2d, actor2)->priv->body;
   jd.localAnchor1 = b2Vec2( (anchor1->x) * SCALE_FACTOR,
                             (anchor1->y) * SCALE_FACTOR);
   jd.localAnchor2 = b2Vec2( (anchor2->x) * SCALE_FACTOR,
@@ -227,8 +231,8 @@ clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
                   (anchor->y) * SCALE_FACTOR);
 
   jd.collideConnected = false;
-  jd.Initialize(clutter_box2d_get_child (box2d, actor1)->body,
-                clutter_box2d_get_child (box2d, actor2)->body,
+  jd.Initialize(clutter_box2d_get_child (box2d, actor1)->priv->body,
+                clutter_box2d_get_child (box2d, actor2)->priv->body,
                 ancho);
   return joint_new (box2d, ((b2World*)box2d->world)->CreateJoint (&jd));
 }
@@ -253,8 +257,8 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   g_return_val_if_fail (anchor2 != NULL, NULL);
 
   jd.collideConnected = false;
-  jd.body1 = clutter_box2d_get_child (box2d, actor1)->body;
-  jd.body2 = clutter_box2d_get_child (box2d, actor2)->body;
+  jd.body1 = clutter_box2d_get_child (box2d, actor1)->priv->body;
+  jd.body2 = clutter_box2d_get_child (box2d, actor2)->priv->body;
   jd.localAnchor1 = b2Vec2( (anchor1->x) * SCALE_FACTOR,
                             (anchor1->y) * SCALE_FACTOR);
   jd.localAnchor2 = b2Vec2( (anchor2->x) * SCALE_FACTOR,
@@ -282,7 +286,7 @@ clutter_box2d_add_mouse_joint (ClutterBox2D        *box2d,
   g_return_val_if_fail (target != NULL, NULL);
 
   md.body1 = ((b2World*)box2d->world)->GetGroundBody();
-  md.body2 = clutter_box2d_get_child (box2d, actor)->body;
+  md.body2 = clutter_box2d_get_child (box2d, actor)->priv->body;
   md.target = b2Vec2( (target->x) * SCALE_FACTOR,
                       (target->y) * SCALE_FACTOR);
   md.body1->WakeUp ();

@@ -59,17 +59,6 @@ enum
 
 static gint box2d_child_signals[LAST_SIGNAL];
 
-struct _ClutterBox2DChildPrivate {
-  gboolean manipulatable;
-  guint    press_handler;
-  guint    captured_handler;
-  gboolean was_reactive;
-
-  gint               device_id;
-  ClutterBox2DJoint *mouse_joint;
-  gfloat        start_x, start_y;
-};
-
 static void     dispose                     (GObject      *object);
 static void     clutter_box2d_child_constructed (GObject *object);
 static gboolean clutter_box2d_child_press   (ClutterActor *actor,
@@ -84,7 +73,7 @@ static gboolean clutter_box2d_child_captured_event (ClutterActor *stage,
 static gboolean
 clutter_box2d_child_is_bullet (ClutterBox2DChild *box2d_child)
 {
-  return box2d_child->body->IsBullet ();
+  return box2d_child->priv->body->IsBullet ();
 }
 
 static void
@@ -94,18 +83,18 @@ clutter_box2d_child_set_type2 (ClutterBox2DChild *box2d_child,
   ClutterBox2D *box2d = CLUTTER_BOX2D(clutter_child_meta_get_container (CLUTTER_CHILD_META(box2d_child)));
   b2World *world = ((b2World*)(box2d->world));
 
-  if (box2d_child->type == type)
+  if (box2d_child->priv->type == type)
     return;
 
-  if (box2d_child->type != CLUTTER_BOX2D_NONE)
+  if (box2d_child->priv->type != CLUTTER_BOX2D_NONE)
     {
-      g_assert (box2d_child->body);
+      g_assert (box2d_child->priv->body);
 
-      g_hash_table_remove (box2d->bodies, box2d_child->body);
-      world->DestroyBody (box2d_child->body);
-      box2d_child->body = NULL;
-      box2d_child->shape = NULL;
-      box2d_child->type = CLUTTER_BOX2D_NONE;
+      g_hash_table_remove (box2d->bodies, box2d_child->priv->body);
+      world->DestroyBody (box2d_child->priv->body);
+      box2d_child->priv->body = NULL;
+      box2d_child->priv->shape = NULL;
+      box2d_child->priv->type = CLUTTER_BOX2D_NONE;
     }
 
   if (type == CLUTTER_BOX2D_DYNAMIC ||
@@ -120,26 +109,26 @@ clutter_box2d_child_set_type2 (ClutterBox2DChild *box2d_child,
       SYNCLOG ("making an actor to be %s\n",
                type == CLUTTER_BOX2D_STATIC ? "static" : "dynamic");
 
-      box2d_child->type = type;
+      box2d_child->priv->type = type;
 
       if (type == CLUTTER_BOX2D_DYNAMIC)
         {
-          box2d_child->body = world->CreateBody (&bodyDef);
+          box2d_child->priv->body = world->CreateBody (&bodyDef);
         }
       else if (type == CLUTTER_BOX2D_STATIC)
         {
 
-          box2d_child->body = world->CreateBody (&bodyDef);
+          box2d_child->priv->body = world->CreateBody (&bodyDef);
         }
       _clutter_box2d_sync_body (box2d_child);
 
 
       if (type == CLUTTER_BOX2D_DYNAMIC)
         {
-          box2d_child->body->SetMassFromShapes ();
+          box2d_child->priv->body->SetMassFromShapes ();
         }
 
-      g_hash_table_insert (box2d->bodies, box2d_child->body, box2d_child);
+      g_hash_table_insert (box2d->bodies, box2d_child->priv->body, box2d_child);
     }
 }
 
@@ -160,13 +149,13 @@ clutter_box2d_child_set_type (ClutterBox2D      *box2d,
 static inline void
 clutter_box2d_child_refresh_shape (ClutterBox2DChild *box2d_child)
 {
-  if (box2d_child->shape)
+  if (box2d_child->priv->shape)
     {
-      box2d_child->body->DestroyShape (box2d_child->shape);
-      box2d_child->shape = NULL;
+      box2d_child->priv->body->DestroyShape (box2d_child->priv->shape);
+      box2d_child->priv->shape = NULL;
       _clutter_box2d_sync_body (box2d_child);
-      if (box2d_child->type == CLUTTER_BOX2D_DYNAMIC)
-        box2d_child->body->SetMassFromShapes ();
+      if (box2d_child->priv->type == CLUTTER_BOX2D_DYNAMIC)
+        box2d_child->priv->body->SetMassFromShapes ();
     }
 }
 
@@ -215,10 +204,11 @@ clutter_box2d_child_set_is_bullet_internal (ClutterBox2DChild *box2d_child,
 {
   _clutter_box2d_sync_body (box2d_child);
 
-  if (!box2d_child->body || box2d_child->body->IsBullet () == is_bullet)
+  if (!box2d_child->priv->body ||
+      box2d_child->priv->body->IsBullet () == is_bullet)
     return;
 
-  box2d_child->body->SetBullet (is_bullet);
+  box2d_child->priv->body->SetBullet (is_bullet);
   g_object_notify (G_OBJECT (box2d_child), "is-bullet");
 }
 
@@ -226,9 +216,9 @@ static void
 clutter_box2d_child_set_is_circle_internal (ClutterBox2DChild *box2d_child,
                                             gboolean           is_circle)
 {
-  if (box2d_child->is_circle != is_circle)
+  if (box2d_child->priv->is_circle != is_circle)
     {
-      box2d_child->is_circle = is_circle;
+      box2d_child->priv->is_circle = is_circle;
       clutter_box2d_child_refresh_shape (box2d_child);
       g_object_notify (G_OBJECT (box2d_child), "is-circle");
     }
@@ -238,9 +228,9 @@ static void
 clutter_box2d_child_set_density_internal (ClutterBox2DChild *box2d_child,
                                           gfloat             density)
 {
-  if (box2d_child->density != density)
+  if (box2d_child->priv->density != density)
     {
-      box2d_child->density = density;
+      box2d_child->priv->density = density;
       clutter_box2d_child_refresh_shape (box2d_child);
       g_object_notify (G_OBJECT (box2d_child), "density");
     }
@@ -250,9 +240,9 @@ static void
 clutter_box2d_child_set_friction_internal (ClutterBox2DChild *box2d_child,
                                            gfloat             friction)
 {
-  if (box2d_child->friction != friction)
+  if (box2d_child->priv->friction != friction)
     {
-      box2d_child->friction = friction;
+      box2d_child->priv->friction = friction;
       clutter_box2d_child_refresh_shape (box2d_child);
       g_object_notify (G_OBJECT (box2d_child), "friction");
     }
@@ -262,9 +252,9 @@ static void
 clutter_box2d_child_set_restitution_internal (ClutterBox2DChild *box2d_child,
                                               gfloat             restitution)
 {
-  if (box2d_child->restitution != restitution)
+  if (box2d_child->priv->restitution != restitution)
     {
-      box2d_child->restitution = restitution;
+      box2d_child->priv->restitution = restitution;
       clutter_box2d_child_refresh_shape (box2d_child);
       g_object_notify (G_OBJECT (box2d_child), "restitution");
     }
@@ -275,14 +265,14 @@ clutter_box2d_child_set_linear_velocity_internal (ClutterBox2DChild   *box2d_chi
                                                   const ClutterVertex *velocity)
 {
   b2Vec2 b2velocity (velocity->x * SCALE_FACTOR, velocity->y * SCALE_FACTOR);
-  box2d_child->body->SetLinearVelocity (b2velocity);
+  box2d_child->priv->body->SetLinearVelocity (b2velocity);
 }
 
 static void
 clutter_box2d_child_set_angular_velocity_internal (ClutterBox2DChild *box2d_child,
                                                    gfloat             velocity)
 {
-  box2d_child->body->SetAngularVelocity (velocity);
+  box2d_child->priv->body->SetAngularVelocity (velocity);
 }
 
 static void
@@ -354,26 +344,26 @@ clutter_box2d_child_set_property (GObject      *gobject,
 
         g_object_freeze_notify (gobject);
 
-        if (box2d_child->is_circle)
+        if (box2d_child->priv->is_circle)
           {
-            box2d_child->is_circle = FALSE;
+            box2d_child->priv->is_circle = FALSE;
             g_object_notify (gobject, "is-circle");
           }
 
-        g_free (box2d_child->outline);
-        box2d_child->outline = NULL;
+        g_free (box2d_child->priv->outline);
+        box2d_child->priv->outline = NULL;
 
         array = (GValueArray *)g_value_get_boxed (value);
         if (array && (array->n_values > 2))
           {
             gint i;
 
-            box2d_child->outline = g_new0 (ClutterVertex, array->n_values);
+            box2d_child->priv->outline = g_new0 (ClutterVertex, array->n_values);
             for (i = 0; i < array->n_values; i++)
-              box2d_child->outline[i] = *((ClutterVertex *)
+              box2d_child->priv->outline[i] = *((ClutterVertex *)
                                           g_value_get_boxed (
                                             g_value_array_get_nth (array, i)));
-            box2d_child->n_vertices = array->n_values;
+            box2d_child->priv->n_vertices = array->n_values;
           }
 
         g_object_notify (gobject, "outline");
@@ -410,28 +400,28 @@ clutter_box2d_child_get_property (GObject      *gobject,
   switch (prop_id)
     {
     case PROP_IS_BULLET:
-        g_value_set_boolean (value, box2d_child->body?
-                                    box2d_child->body->IsBullet ():FALSE);
+        g_value_set_boolean (value, box2d_child->priv->body?
+                                    box2d_child->priv->body->IsBullet ():FALSE);
       break;
     case PROP_IS_CIRCLE:
-      g_value_set_boolean (value, box2d_child->is_circle);
+      g_value_set_boolean (value, box2d_child->priv->is_circle);
       break;
     case PROP_DENSITY:
-      g_value_set_float (value, box2d_child->density);
+      g_value_set_float (value, box2d_child->priv->density);
       break;
     case PROP_FRICTION:
-      g_value_set_float (value, box2d_child->friction);
+      g_value_set_float (value, box2d_child->priv->friction);
       break;
     case PROP_RESTITUTION:
-      g_value_set_float (value, box2d_child->restitution);
+      g_value_set_float (value, box2d_child->priv->restitution);
       break;
     case PROP_LINEAR_VELOCITY:
       {
         ClutterVertex vertex = { 0, };
 
-        if (box2d_child->body)
+        if (box2d_child->priv->body)
           {
-            b2Vec2 velocity = box2d_child->body->GetLinearVelocity();
+            b2Vec2 velocity = box2d_child->priv->body->GetLinearVelocity();
             vertex.x = velocity.x / SCALE_FACTOR;
             vertex.y = velocity.y / SCALE_FACTOR;
             vertex.z = 0;
@@ -441,11 +431,11 @@ clutter_box2d_child_get_property (GObject      *gobject,
       }
       break;
     case PROP_ANGULAR_VELOCITY:
-      g_value_set_float (value, box2d_child->body?
-                         box2d_child->body->GetAngularVelocity():0.f);
+      g_value_set_float (value, box2d_child->priv->body?
+                         box2d_child->priv->body->GetAngularVelocity():0.f);
       break;
     case PROP_MODE:
-      g_value_set_int (value, box2d_child->type);
+      g_value_set_int (value, box2d_child->priv->type);
       break;
     case PROP_MANIPULATABLE:
       g_value_set_boolean (value, priv->manipulatable);
@@ -581,11 +571,12 @@ clutter_box2d_child_constructed (GObject *object)
 static void
 clutter_box2d_child_init (ClutterBox2DChild *self)
 {
-  self->priv = CLUTTER_BOX2D_CHILD_GET_PRIVATE (self);
-  self->priv->manipulatable = FALSE;
-  self->density = 7.0f;
-  self->friction = 0.4f;
-  self->restitution = 0.f;
+  ClutterBox2DChildPrivate *priv = self->priv =
+    CLUTTER_BOX2D_CHILD_GET_PRIVATE (self);
+  priv->manipulatable = FALSE;
+  priv->density = 7.0f;
+  priv->friction = 0.4f;
+  priv->restitution = 0.f;
 }
 
 static void
@@ -608,9 +599,9 @@ dispose (GObject *object)
       priv->captured_handler = 0;
     }
 
-  while (self->joints)
+  while (priv->joints)
     {
-      clutter_box2d_joint_destroy ((ClutterBox2DJoint*)self->joints->data);
+      clutter_box2d_joint_destroy ((ClutterBox2DJoint*)priv->joints->data);
     }
 
   G_OBJECT_CLASS (clutter_box2d_child_parent_class)->dispose (object);
@@ -761,7 +752,7 @@ clutter_box2d_child_get_is_bullet (ClutterBox2D *box2d,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (child), FALSE);
 
   if ((self = clutter_box2d_get_child (box2d, child)))
-    return (self->body ? self->body->IsBullet () : FALSE);
+    return (self->priv->body ? self->priv->body->IsBullet () : FALSE);
 }
 
 void
@@ -788,7 +779,7 @@ clutter_box2d_child_get_is_circle (ClutterBox2D *box2d,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (child), FALSE);
 
   if ((self = clutter_box2d_get_child (box2d, child)))
-    return self->is_circle;
+    return self->priv->is_circle;
 }
 
 void
@@ -799,6 +790,7 @@ clutter_box2d_child_set_outline (ClutterBox2D        *box2d,
 {
   GObject *gobject;
   ClutterBox2DChild *self;
+  ClutterBox2DChildPrivate *priv;
 
   g_return_if_fail (CLUTTER_IS_BOX2D (box2d));
   g_return_if_fail (CLUTTER_IS_ACTOR (child));
@@ -807,24 +799,25 @@ clutter_box2d_child_set_outline (ClutterBox2D        *box2d,
   if (!self)
     return;
 
+  priv = self->priv;
   gobject = G_OBJECT (self);
 
   g_object_freeze_notify (gobject);
 
-  if (self->is_circle)
+  if (priv->is_circle)
     {
-      self->is_circle = FALSE;
+      priv->is_circle = FALSE;
       g_object_notify (gobject, "is-circle");
     }
 
-  g_free (self->outline);
-  self->outline = NULL;
-  self->n_vertices = 0;
+  g_free (priv->outline);
+  priv->outline = NULL;
+  priv->n_vertices = 0;
 
   if (outline && (n_vertices > 3))
     {
-      self->n_vertices = n_vertices;
-      self->outline = (ClutterVertex *)
+      priv->n_vertices = n_vertices;
+      priv->outline = (ClutterVertex *)
         g_memdup (outline, sizeof (ClutterVertex) * n_vertices);
     }
 
@@ -850,9 +843,9 @@ clutter_box2d_child_get_outline (ClutterBox2D *box2d,
     return NULL;
 
   if (n_vertices)
-    *n_vertices = self->n_vertices;
+    *n_vertices = self->priv->n_vertices;
 
-  return self->outline;
+  return self->priv->outline;
 }
 
 void
@@ -879,7 +872,7 @@ clutter_box2d_child_get_density (ClutterBox2D *box2d,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (child), 0.f);
 
   if ((self = clutter_box2d_get_child (box2d, child)))
-    return self->density;
+    return self->priv->density;
 }
 
 void
@@ -906,7 +899,7 @@ clutter_box2d_child_get_friction (ClutterBox2D *box2d,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (child), 0.f);
 
   if ((self = clutter_box2d_get_child (box2d, child)))
-    return self->friction;
+    return self->priv->friction;
 }
 
 void
@@ -933,7 +926,7 @@ clutter_box2d_child_get_restitution (ClutterBox2D *box2d,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (child), 0.f);
 
   if ((self = clutter_box2d_get_child (box2d, child)))
-    return self->restitution;
+    return self->priv->restitution;
 }
 
 void
@@ -963,9 +956,9 @@ clutter_box2d_child_get_linear_velocity (ClutterBox2D  *box2d,
   if (!velocity)
     return;
 
-  if ((self = clutter_box2d_get_child (box2d, child)) && self->body)
+  if ((self = clutter_box2d_get_child (box2d, child)) && self->priv->body)
     {
-      b2Vec2 b2velocity = self->body->GetLinearVelocity ();
+      b2Vec2 b2velocity = self->priv->body->GetLinearVelocity ();
       velocity->x = b2velocity.x / SCALE_FACTOR;
       velocity->y = b2velocity.y / SCALE_FACTOR;
       velocity->z = 0;
@@ -997,8 +990,8 @@ clutter_box2d_child_get_angular_velocity (ClutterBox2D   *box2d,
   g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), 0.f);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (child), 0.f);
 
-  if ((self = clutter_box2d_get_child (box2d, child)) && self->body)
-    return self->body->GetAngularVelocity ();
+  if ((self = clutter_box2d_get_child (box2d, child)) && self->priv->body)
+    return self->priv->body->GetAngularVelocity ();
   else
     return 0.f;
 }
@@ -1027,7 +1020,7 @@ clutter_box2d_child_get_mode (ClutterBox2D *box2d,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (child), CLUTTER_BOX2D_NONE);
 
   if ((self = clutter_box2d_get_child (box2d, child)))
-    return self->type;
+    return self->priv->type;
   else
     return CLUTTER_BOX2D_NONE;
 }
