@@ -1,6 +1,6 @@
 INCLUDES = -I$(top_srcdir)/box2d/Include -I$(srcdir) -I$(top_srcdir)
 
-AM_CFLAGS = @GCC_FLAGS@
+AM_CFLAGS = @MAINTAINER_CFLAGS@
 
 AM_CPPFLAGS = @DEPS_CFLAGS@
 
@@ -32,20 +32,15 @@ clutter_box2dheaders_HEADERS =  \
     clutter-box2d-collision.h   \
     clutter-box2d-marshal.h
 
-clutter-box2d-marshal.c: clutter-box2d-marshal.list Makefile
-	glib-genmarshal --prefix=clutter_box2d_marshal --body $< > $@
-
-clutter-box2d-marshal.h: clutter-box2d-marshal.list Makefile
-	glib-genmarshal --prefix=clutter_box2d_marshal --header $< > $@
-
 clutter_box2dheadersdir = $(includedir)/clutter-1.0/clutter-box2d
 
 DISTCLEANFILES = $(MARSHALFILES)
-
 CLEANFILES=
+EXTRA_DIST = 
 
-EXTRA_DIST = \
-	clutter-box2d-marshal.list
+glib_marshal_list = clutter-box2d-marshal.list
+glib_marshal_prefix = clutter_box2d_marshal
+include $(top_srcdir)/build/autotools/Makefile.am.marshal
 
 INTROSPECTION_GIRS =
 

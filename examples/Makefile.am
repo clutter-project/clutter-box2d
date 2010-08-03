@@ -1,9 +1,12 @@
 noinst_PROGRAMS = blockbox
 
-INCLUDES = -I$(top_srcdir)/clutter-box2d @GCC_FLAGS@ @DEPS_CFLAGS@
-AM_LDFLAGS = @DEPS_LIBS@ $(top_builddir)/clutter-box2d/libclutter-box2d-@CLUTTER_BOX2D_MAJORMINOR@.la 
+INCLUDES = -I$(top_srcdir)/clutter-box2d
+AM_CPPFLAGS = @MAINTAINER_CFLAGS@ @DEPS_CFLAGS@
+LDADD   = \
+	$(top_builddir)/clutter-box2d/libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la \
+	@DEPS_LIBS@
 
-EXTRA_DIST=redhand.png
+EXTRA_DIST = redhand.png
 
 blockbox_SOURCES = \
 	blockbox.c		\
@@ -30,6 +33,3 @@ blockbox_SOURCES = \
 	scene-distance-joint.c 	\
 	scene-prismatic-joint.c \
 	scene-about.c
-
-test: blockbox
-	./blockbox

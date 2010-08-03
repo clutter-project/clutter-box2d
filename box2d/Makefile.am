@@ -1,6 +1,6 @@
 noinst_LTLIBRARIES = libbox2d.la
 
-INCLUDES = @GCC_FLAGS@ -ISource -I. -IInclude
+INCLUDES = -ISource -I. -IInclude
 
 EXTRA_DIST = Readme.txt License.txt
 

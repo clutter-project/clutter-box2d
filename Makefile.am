@@ -5,12 +5,10 @@ SUBDIRS = build box2d clutter-box2d examples doc
 DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc
 
 clutter-box2d-@CLUTTER_BOX2D_API_VERSION@.pc: clutter-box2d.pc
-	@cp -f clutter-box2d.pc clutter-box2d-@CLUTTER_BOX2D_API_VERSION@.pc
+	$(AM_V_GEN)cp -f clutter-box2d.pc clutter-box2d-@CLUTTER_BOX2D_API_VERSION@.pc
 
 pkgconfig_DATA = clutter-box2d-@CLUTTER_BOX2D_API_VERSION@.pc
 pkgconfigdir   = $(libdir)/pkgconfig
-
-INCLUDES = @GCC_FLAGS@ @DEPS_CFLAGS@ 
 
 EXTRA_DIST = clutter-box2d.pc.in
 
