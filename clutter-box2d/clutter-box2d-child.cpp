@@ -11,8 +11,6 @@
  * Licensed under the LGPL v2 or greater.
  */
 
-#define SCALE_FACTOR        0.05
-#define INV_SCALE_FACTOR    (1.0/SCALE_FACTOR)
 #define SYNCLOG(argv...)    if (0) g_print (argv)
 
 #include "Box2D.h"
@@ -27,7 +25,7 @@
 #include "clutter-box2d-marshal.h"
 
 /* defined in clutter-box2d.cpp */
-void _clutter_box2d_sync_body (ClutterBox2DChild *box2d_child);
+void _clutter_box2d_sync_body (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child);
 
 G_DEFINE_TYPE (ClutterBox2DChild, clutter_box2d_child, CLUTTER_TYPE_CHILD_META);
 
@@ -122,7 +120,7 @@ clutter_box2d_child_set_type2 (ClutterBox2DChild *box2d_child,
           bodyDef.type = b2_staticBody;
           box2d_child->priv->body = world->CreateBody (&bodyDef);
         }
-      _clutter_box2d_sync_body (box2d_child);
+      _clutter_box2d_sync_body (box2d, box2d_child);
 
       g_hash_table_insert (box2d->priv->bodies, box2d_child->priv->body, box2d_child);
     }
@@ -147,9 +145,11 @@ clutter_box2d_child_refresh_shape (ClutterBox2DChild *box2d_child)
 {
   if (box2d_child->priv->fixture)
     {
+      ClutterBox2D *box2d = CLUTTER_BOX2D (clutter_child_meta_get_container (
+                                           CLUTTER_CHILD_META (box2d_child)));
       box2d_child->priv->body->DestroyFixture (box2d_child->priv->fixture);
       box2d_child->priv->fixture = NULL;
-      _clutter_box2d_sync_body (box2d_child);
+      _clutter_box2d_sync_body (box2d, box2d_child);
     }
 }
 
@@ -196,7 +196,9 @@ static void
 clutter_box2d_child_set_is_bullet_internal (ClutterBox2DChild *box2d_child,
                                             gboolean           is_bullet)
 {
-  _clutter_box2d_sync_body (box2d_child);
+  ClutterBox2D *box2d = CLUTTER_BOX2D (clutter_child_meta_get_container (
+                                       CLUTTER_CHILD_META (box2d_child)));
+  _clutter_box2d_sync_body (box2d, box2d_child);
 
   if (!box2d_child->priv->body ||
       box2d_child->priv->body->IsBullet () == is_bullet)
@@ -258,7 +260,10 @@ static void
 clutter_box2d_child_set_linear_velocity_internal (ClutterBox2DChild   *box2d_child,
                                                   const ClutterVertex *velocity)
 {
-  b2Vec2 b2velocity (velocity->x * SCALE_FACTOR, velocity->y * SCALE_FACTOR);
+  ClutterBox2D *box2d = CLUTTER_BOX2D (clutter_child_meta_get_container (
+                                       CLUTTER_CHILD_META (box2d_child)));
+  b2Vec2 b2velocity (velocity->x * box2d->priv->scale_factor,
+                     velocity->y * box2d->priv->scale_factor);
   box2d_child->priv->body->SetLinearVelocity (b2velocity);
 }
 
@@ -415,9 +420,11 @@ clutter_box2d_child_get_property (GObject      *gobject,
 
         if (box2d_child->priv->body)
           {
+            ClutterBox2D *box2d = CLUTTER_BOX2D (clutter_child_meta_get_container (
+                                                 CLUTTER_CHILD_META (box2d_child)));
             b2Vec2 velocity = box2d_child->priv->body->GetLinearVelocity();
-            vertex.x = velocity.x / SCALE_FACTOR;
-            vertex.y = velocity.y / SCALE_FACTOR;
+            vertex.x = velocity.x / box2d->priv->scale_factor;
+            vertex.y = velocity.y / box2d->priv->scale_factor;
             vertex.z = 0;
           }
 
@@ -953,8 +960,8 @@ clutter_box2d_child_get_linear_velocity (ClutterBox2D  *box2d,
   if ((self = clutter_box2d_get_child (box2d, child)) && self->priv->body)
     {
       b2Vec2 b2velocity = self->priv->body->GetLinearVelocity ();
-      velocity->x = b2velocity.x / SCALE_FACTOR;
-      velocity->y = b2velocity.y / SCALE_FACTOR;
+      velocity->x = b2velocity.x * box2d->priv->inv_scale_factor;
+      velocity->y = b2velocity.y * box2d->priv->inv_scale_factor;
       velocity->z = 0;
     }
   else

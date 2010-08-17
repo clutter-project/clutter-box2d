@@ -5,9 +5,6 @@
  * Licensed under the LGPL v2 or greater.
  */
 
-#define SCALE_FACTOR        0.05
-#define INV_SCALE_FACTOR    (1.0/SCALE_FACTOR)
-
 #define SYNCLOG(argv...)    if (0) g_print (argv)
 
 #include "Box2D.h"
@@ -154,11 +151,11 @@ clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
   jd.collideConnected = false;
   jd.bodyA = clutter_box2d_get_child (box2d, actor1)->priv->body;
   jd.bodyB = clutter_box2d_get_child (box2d, actor2)->priv->body;
-  jd.localAnchorA = b2Vec2( (anchor1->x) * SCALE_FACTOR,
-                            (anchor1->y) * SCALE_FACTOR);
-  jd.localAnchorB = b2Vec2( (anchor2->x) * SCALE_FACTOR,
-                            (anchor2->y) * SCALE_FACTOR);
-  jd.length = length * SCALE_FACTOR;
+  jd.localAnchorA = b2Vec2( (anchor1->x) * priv->scale_factor,
+                            (anchor1->y) * priv->scale_factor);
+  jd.localAnchorB = b2Vec2( (anchor2->x) * priv->scale_factor,
+                            (anchor2->y) * priv->scale_factor);
+  jd.length = length * priv->scale_factor;
   jd.frequencyHz = frequency;
   jd.dampingRatio = damping_ratio;
 
@@ -203,10 +200,10 @@ clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
   jd.collideConnected = false;
   jd.bodyA = clutter_box2d_get_child (box2d, actor1)->priv->body;
   jd.bodyB = clutter_box2d_get_child (box2d, actor2)->priv->body;
-  jd.localAnchorA = b2Vec2( (anchor1->x) * SCALE_FACTOR,
-                            (anchor1->y) * SCALE_FACTOR);
-  jd.localAnchorB = b2Vec2( (anchor2->x) * SCALE_FACTOR,
-                            (anchor2->y) * SCALE_FACTOR);
+  jd.localAnchorA = b2Vec2( (anchor1->x) * priv->scale_factor,
+                            (anchor1->y) * priv->scale_factor);
+  jd.localAnchorB = b2Vec2( (anchor2->x) * priv->scale_factor,
+                            (anchor2->y) * priv->scale_factor);
   jd.referenceAngle = reference_angle;
 
   return joint_new (box2d, priv->world->CreateJoint (&jd));
@@ -226,8 +223,8 @@ clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
   g_return_val_if_fail (anchor != NULL, NULL);
 
-  b2Vec2 ancho  ( (anchor->x) * SCALE_FACTOR,
-                  (anchor->y) * SCALE_FACTOR);
+  b2Vec2 ancho  ( (anchor->x) * priv->scale_factor,
+                  (anchor->y) * priv->scale_factor);
 
   jd.collideConnected = false;
   jd.Initialize(clutter_box2d_get_child (box2d, actor1)->priv->body,
@@ -258,12 +255,12 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   jd.collideConnected = false;
   jd.bodyA = clutter_box2d_get_child (box2d, actor1)->priv->body;
   jd.bodyB = clutter_box2d_get_child (box2d, actor2)->priv->body;
-  jd.localAnchorA = b2Vec2( (anchor1->x) * SCALE_FACTOR,
-                            (anchor1->y) * SCALE_FACTOR);
-  jd.localAnchorB = b2Vec2( (anchor2->x) * SCALE_FACTOR,
-                            (anchor2->y) * SCALE_FACTOR);
-  jd.lowerTranslation = min_length * SCALE_FACTOR;
-  jd.upperTranslation = max_length * SCALE_FACTOR;
+  jd.localAnchorA = b2Vec2( (anchor1->x) * priv->scale_factor,
+                            (anchor1->y) * priv->scale_factor);
+  jd.localAnchorB = b2Vec2( (anchor2->x) * priv->scale_factor,
+                            (anchor2->y) * priv->scale_factor);
+  jd.lowerTranslation = min_length * priv->scale_factor;
+  jd.upperTranslation = max_length * priv->scale_factor;
   jd.enableLimit = true;
   jd.localAxis1 = b2Vec2( (axis->x),
                           (axis->y));
@@ -286,8 +283,8 @@ clutter_box2d_add_mouse_joint (ClutterBox2D        *box2d,
 
   md.bodyA = priv->ground_body;
   md.bodyB = clutter_box2d_get_child (box2d, actor)->priv->body;
-  md.target = b2Vec2( (target->x) * SCALE_FACTOR,
-                      (target->y) * SCALE_FACTOR);
+  md.target = b2Vec2( (target->x) * priv->scale_factor,
+                      (target->y) * priv->scale_factor);
   md.bodyA->SetAwake (false);
   md.maxForce = 5100.0f * md.bodyB->GetMass ();
 
@@ -299,12 +296,13 @@ clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *joint,
                                          const ClutterVertex *target)
 {
   b2Vec2 b2target;
+  ClutterBox2DPrivate *priv = joint->box2d->priv;
 
   g_return_if_fail (joint != NULL);
   g_return_if_fail (target != NULL);
  
-  b2target = b2Vec2( (target->x) * SCALE_FACTOR,
-                     (target->y) * SCALE_FACTOR);
+  b2target = b2Vec2( (target->x) * priv->scale_factor,
+                     (target->y) * priv->scale_factor);
 
   static_cast<b2MouseJoint*>(joint->joint)->SetTarget(b2target);
 }

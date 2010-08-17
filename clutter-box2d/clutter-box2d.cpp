@@ -9,9 +9,6 @@
  * Licensed under the LGPL v2 or greater.
  */
 
-#define SCALE_FACTOR        0.05
-#define INV_SCALE_FACTOR    (1.0/SCALE_FACTOR)
-
 #define SYNCLOG(argv...)    if (0) g_print (argv)
 
 #include "Box2D.h"
@@ -28,7 +25,7 @@ G_DEFINE_TYPE_WITH_CODE (ClutterBox2D, clutter_box2d, CLUTTER_TYPE_GROUP,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
                              clutter_container_iface_init));
 
-void _clutter_box2d_sync_body (ClutterBox2DChild *box2d_child);
+void _clutter_box2d_sync_body (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child);
 static void clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs);
 
 
@@ -39,7 +36,8 @@ enum
 {
   PROP_0,
   PROP_GRAVITY,
-  PROP_SIMULATING
+  PROP_SIMULATING,
+  PROP_SCALE_FACTOR
 };
 
 typedef enum 
@@ -107,6 +105,11 @@ clutter_box2d_set_property (GObject      *gobject,
         clutter_box2d_set_simulating (box2d, (gboolean)g_value_get_boolean (value));
       }
       break;
+    case PROP_SCALE_FACTOR:
+      {
+        clutter_box2d_set_scale_factor (box2d, g_value_get_float (value));
+      }
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -124,9 +127,13 @@ clutter_box2d_get_property (GObject    *gobject,
   switch (prop_id)
     {
     case PROP_SIMULATING:
-        g_value_set_boolean (value,
-                             clutter_box2d_get_simulating (box2d));
+      g_value_set_boolean (value, clutter_box2d_get_simulating (box2d));
       break;
+
+    case PROP_SCALE_FACTOR:
+      g_value_set_float (value, clutter_box2d_get_scale_factor (box2d));
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -166,6 +173,13 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
                                                          TRUE,
                                                          static_cast<GParamFlags>(G_PARAM_READWRITE)));
 
+  g_object_class_install_property (gobject_class,
+                                   PROP_SCALE_FACTOR,
+                                   g_param_spec_float ("scale-factor",
+                                                       "Scale factor",
+                                                       "The scaling factor of pixels to world units",
+                                                       G_MINFLOAT, G_MAXFLOAT, 0.05f,
+                                                       static_cast<GParamFlags>(G_PARAM_READWRITE)));
 }
 
 static void
@@ -186,6 +200,9 @@ clutter_box2d_init (ClutterBox2D *self)
   priv->iterations = 25;
   priv->time_step  = 1000 / 60.f;
   priv->max_step   = 1000 / 15.f;
+
+  priv->scale_factor     = 0.05f;
+  priv->inv_scale_factor = 1.f / 0.05f;
 
   priv->actors = g_hash_table_new (g_direct_hash, g_direct_equal);
   priv->bodies = g_hash_table_new (g_direct_hash, g_direct_equal);
@@ -319,8 +336,10 @@ static void clutter_container_iface_init (ClutterContainerIface *iface)
  * idea of the shape.
  */
 static inline void
-ensure_shape (ClutterBox2DChild *box2d_child)
+ensure_shape (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
 {
+  ClutterBox2DPrivate *priv = box2d->priv;
+
   if (box2d_child->priv->fixture == NULL)
     {
       gfloat width, height;
@@ -335,7 +354,7 @@ ensure_shape (ClutterBox2DChild *box2d_child)
       if (box2d_child->priv->is_circle)
         {
 
-          circle.m_radius = MIN (width, height) * 0.5 * SCALE_FACTOR;
+          circle.m_radius = MIN (width, height) * 0.5 * priv->scale_factor;
           shape = &circle;
         }
       else if (box2d_child->priv->outline)
@@ -344,17 +363,17 @@ ensure_shape (ClutterBox2DChild *box2d_child)
           ClutterVertex *vertices = box2d_child->priv->outline;
 
           for (i = 0; i < box2d_child->priv->n_vertices; i++)
-            polygon.m_vertices[i].Set(vertices[i].x * width * SCALE_FACTOR,
-                                      vertices[i].y * height * SCALE_FACTOR);
+            polygon.m_vertices[i].Set(vertices[i].x * width * priv->scale_factor,
+                                      vertices[i].y * height * priv->scale_factor);
           polygon.m_vertexCount = i;
           shape = &polygon;
         }
       else
         {
-          polygon.SetAsBox (width * 0.5 * SCALE_FACTOR,
-                            height * 0.5 * SCALE_FACTOR,
-                            b2Vec2 (width * 0.5 * SCALE_FACTOR,
-                            height * 0.5 * SCALE_FACTOR), 0);
+          polygon.SetAsBox (width * 0.5 * priv->scale_factor,
+                            height * 0.5 * priv->scale_factor,
+                            b2Vec2 (width * 0.5 * priv->scale_factor,
+                            height * 0.5 * priv->scale_factor), 0);
           shape = &polygon;
         }
 
@@ -379,11 +398,12 @@ ensure_shape (ClutterBox2DChild *box2d_child)
  * the physics computation
  */
 void
-_clutter_box2d_sync_body (ClutterBox2DChild *box2d_child)
+_clutter_box2d_sync_body (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
 {
   gint x, y;
   gdouble rot;
 
+  ClutterBox2DPrivate *priv = box2d->priv;
   ClutterActor *actor = CLUTTER_CHILD_META (box2d_child)->actor;
   b2Body       *body  = box2d_child->priv->body;
 
@@ -407,14 +427,14 @@ _clutter_box2d_sync_body (ClutterBox2DChild *box2d_child)
 
   b2Vec2 position = body->GetPosition ();
 
-  ensure_shape (box2d_child);
+  ensure_shape (box2d, box2d_child);
 
-  if (fabs (x * SCALE_FACTOR - (position.x)) > 0.1 ||
-      fabs (y * SCALE_FACTOR - (position.y)) > 0.1 ||
+  if (fabs (x * priv->scale_factor - (position.x)) > 0.1 ||
+      fabs (y * priv->scale_factor - (position.y)) > 0.1 ||
       fabs (body->GetAngle()*(180/3.1415) - rot) > 2.0
       )
     {
-      body->SetTransform (b2Vec2 (x * SCALE_FACTOR, y * SCALE_FACTOR),
+      body->SetTransform (b2Vec2 (x * priv->scale_factor, y * priv->scale_factor),
                           rot / (180 / 3.1415));
 
       SYNCLOG ("\t setxform: %d, %d, %f\n", x, y, rot);
@@ -426,17 +446,18 @@ _clutter_box2d_sync_body (ClutterBox2DChild *box2d_child)
  * introducing errors.
  */
 static void
-_clutter_box2d_sync_actor (ClutterBox2DChild *box2d_child)
+_clutter_box2d_sync_actor (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
 {
   gfloat x, y, centre_x, centre_y;
+  ClutterBox2DPrivate *priv = box2d->priv;
   ClutterActor *actor = CLUTTER_CHILD_META (box2d_child)->actor;
   b2Body       *body  = box2d_child->priv->body;
 
   if (!body)
     return;
 
-  x = body->GetPosition ().x * INV_SCALE_FACTOR;
-  y = body->GetPosition ().y * INV_SCALE_FACTOR;
+  x = body->GetPosition ().x * priv->inv_scale_factor;
+  y = body->GetPosition ().y * priv->inv_scale_factor;
 
   if (box2d_child->priv->is_circle)
     {
@@ -484,7 +505,7 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
     for (iter = actors; iter; iter = g_list_next (iter))
       {
         ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
-        _clutter_box2d_sync_body (box2d_child);
+        _clutter_box2d_sync_body (box2d, box2d_child);
       }
 
     if (msecs == 0)
@@ -509,7 +530,7 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
     for (iter = actors; iter; iter = g_list_next (iter))
       {
         ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
-        _clutter_box2d_sync_actor (box2d_child);
+        _clutter_box2d_sync_actor (box2d, box2d_child);
       }
     g_list_free (actors);
 
@@ -605,4 +626,28 @@ clutter_box2d_get_simulating (ClutterBox2D *box2d)
   priv = box2d->priv;
 
   return clutter_timeline_is_playing (priv->timeline);
+}
+
+void
+clutter_box2d_set_scale_factor (ClutterBox2D *box2d,
+                                gfloat        scale_factor)
+{
+  ClutterBox2DPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_BOX2D (box2d));
+
+  priv = box2d->priv;
+  if (priv->scale_factor != scale_factor)
+    {
+      priv->scale_factor = scale_factor;
+      priv->inv_scale_factor = 1.f/scale_factor;
+      g_object_notify (G_OBJECT (box2d), "scale-factor");
+    }
+}
+
+gfloat
+clutter_box2d_get_scale_factor (ClutterBox2D *box2d)
+{
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), 0.f);
+  return box2d->priv->scale_factor;
 }

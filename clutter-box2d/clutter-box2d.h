@@ -121,7 +121,25 @@ void  clutter_box2d_set_simulating (ClutterBox2D *box2d,
  */
 gboolean  clutter_box2d_get_simulating (ClutterBox2D *box2d);
 
+/**
+ * clutter_box2d_set_scale_factor:
+ * @box2d: a #ClutterBox2D
+ * @scale_factor: The scaling factor
+ *
+ * Sets the scale factor of pixels to world units.
+ */
+void  clutter_box2d_set_scale_factor (ClutterBox2D *box2d,
+                                      gfloat        scale_factor);
 
+/**
+ * clutter_box2d_get_scale_factor:
+ * @box2d: a #ClutterBox2D
+ *
+ * Gets the scale factor of pixels to world units.
+ *
+ * Returns: The scale factor of pixels to world units.
+ */
+gfloat  clutter_box2d_get_scale_factor (ClutterBox2D *box2d);
 
 /**
  * SECTION:clutter-box2d-actor

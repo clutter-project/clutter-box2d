@@ -7,6 +7,8 @@ ClutterBox2DClass
 clutter_box2d_new
 clutter_box2d_set_simulating
 clutter_box2d_get_simulating
+clutter_box2d_set_scale_factor
+clutter_box2d_get_scale_factor
 
 <SUBSECTION Standard>
 CLUTTER_BOX2D

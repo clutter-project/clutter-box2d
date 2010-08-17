@@ -12,9 +12,6 @@
 #include "clutter-box2d-contact.h"
 #include "clutter-box2d-private.h"
 
-#define SCALE_FACTOR        0.05
-#define INV_SCALE_FACTOR    (1.0/SCALE_FACTOR)
-
 __ClutterBox2DContactListener::
 __ClutterBox2DContactListener (ClutterBox2D *box2d)
 {
@@ -42,6 +39,7 @@ __ClutterBox2DContactListener::PreSolve(b2Contact *contact, const b2Manifold *ol
   ClutterActor *actor1, *actor2;
   b2WorldManifold world_manifold;
   ClutterChildMeta *child_meta;
+  ClutterBox2DPrivate *priv;
   b2Manifold *manifold;
   void *tmp;
   gint i;
@@ -67,6 +65,7 @@ __ClutterBox2DContactListener::PreSolve(b2Contact *contact, const b2Manifold *ol
     return;
 
   contact->GetWorldManifold (&world_manifold);
+  priv = this->m_box2d->priv;
 
   for (i = 0; i < manifold->pointCount; i++)
     {
@@ -78,10 +77,9 @@ __ClutterBox2DContactListener::PreSolve(b2Contact *contact, const b2Manifold *ol
       collision->normal_force = manifold->points[i].normalImpulse;
       collision->tangent_force = manifold->points[i].tangentImpulse;
       collision->id = manifold->points[i].id.key;
-      collision->position.x = world_manifold.points[i].x * INV_SCALE_FACTOR;
-      collision->position.y = world_manifold.points[i].y * INV_SCALE_FACTOR;
+      collision->position.x = world_manifold.points[i].x * priv->inv_scale_factor;
+      collision->position.y = world_manifold.points[i].y * priv->inv_scale_factor;
 
-      this->m_box2d->priv->collisions = g_list_prepend(this->m_box2d->priv->collisions,
-                                                       collision);
+      priv->collisions = g_list_prepend(priv->collisions, collision);
     }
 }

@@ -12,6 +12,7 @@ scene_bridge (Scene *scene)
   stage = clutter_stage_get_default ();
 
   group = clutter_box2d_new ();
+  clutter_box2d_set_scale_factor (CLUTTER_BOX2D (group), 0.1f);
   clutter_group_add (CLUTTER_GROUP (stage), group);
   scene->group = group;
 
