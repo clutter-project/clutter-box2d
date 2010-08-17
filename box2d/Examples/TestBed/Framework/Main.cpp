@@ -16,12 +16,11 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <stdio.h>
-
-#include "glui/GL/glui.h"
-
 #include "Render.h"
 #include "Test.h"
+#include "glui/GL/glui.h"
+
+#include <cstdio>
 
 namespace
 {
@@ -42,7 +41,6 @@ namespace
 	int tx, ty, tw, th;
 	bool rMouseDown;
 	b2Vec2 lastp;
-
 }
 
 void Resize(int32 w, int32 h)
@@ -146,7 +144,6 @@ void Keyboard(unsigned char key, int x, int y)
 		// Press 'r' to reset.
 	case 'r':
 		delete test;
-		b2Assert(b2_byteCount == 0);
 		test = entry->createFcn();
 		break;
 
@@ -158,6 +155,9 @@ void Keyboard(unsigned char key, int x, int y)
 		}
 		break;
  
+	case 'p':
+		settings.pause = !settings.pause;
+		break;
 
 		// Press [ to prev test.
 	case '[':
@@ -373,16 +373,14 @@ int main(int argc, char** argv)
 	hertzSpinner->set_float_limits(5.0f, 200.0f);
 
 	glui->add_checkbox("Warm Starting", &settings.enableWarmStarting);
-	glui->add_checkbox("Time of Impact", &settings.enableTOI);
+	glui->add_checkbox("Time of Impact", &settings.enableContinuous);
 
-	glui->add_separator();
+	//glui->add_separator();
 
 	GLUI_Panel* drawPanel =	glui->add_panel("Draw");
 	glui->add_checkbox_to_panel(drawPanel, "Shapes", &settings.drawShapes);
 	glui->add_checkbox_to_panel(drawPanel, "Joints", &settings.drawJoints);
-	glui->add_checkbox_to_panel(drawPanel, "Core Shapes", &settings.drawCoreShapes);
 	glui->add_checkbox_to_panel(drawPanel, "AABBs", &settings.drawAABBs);
-	glui->add_checkbox_to_panel(drawPanel, "OBBs", &settings.drawOBBs);
 	glui->add_checkbox_to_panel(drawPanel, "Pairs", &settings.drawPairs);
 	glui->add_checkbox_to_panel(drawPanel, "Contact Points", &settings.drawContactPoints);
 	glui->add_checkbox_to_panel(drawPanel, "Contact Normals", &settings.drawContactNormals);

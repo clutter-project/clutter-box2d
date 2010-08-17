@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -24,41 +24,17 @@ class PolyCollision : public Test
 public:
 	PolyCollision()
 	{
-		m_localPoints[0].state = e_contactRemoved;
-		m_localPoints[1].state = e_contactRemoved;
-
 		{
-			b2PolygonDef sd;
-			sd.vertices[0].Set(-9.0f, -1.1f);
-			sd.vertices[1].Set(7.0f, -1.1f);
-			sd.vertices[2].Set(5.0f, -0.9f);
-			sd.vertices[3].Set(-11.0f, -0.9f);
-			sd.vertexCount = 4;
-			sd.density = 0.0f;
-
-			b2BodyDef bd;
-			bd.position.Set(0.0f, 10.0f);
-			m_body1 = m_world->CreateBody(&bd);
-			m_body1->CreateShape(&sd);
+			m_polygonA.SetAsEdge(b2Vec2(20.0f, 0.0f), b2Vec2(20.0f, 20.0f));
+			m_transformA.Set(b2Vec2(0.0f, 0.0f), 0.0f);
 		}
 
 		{
-			b2PolygonDef sd;
-			sd.SetAsBox(0.5f, 0.5f);
-			sd.density = 1.0f;
-
-			b2BodyDef bd;
-			bd.position.Set(0.0f, 10.0f);
-			m_body2 = m_world->CreateBody(&bd);
-			m_body2->CreateShape(&sd);
-			m_body2->SetMassFromShapes();
+			m_polygonB.SetAsBox(0.5f, 0.5f);
+			m_positionB.Set(19.345284f, 1.5632932f);
+			m_angleB = 1.9160721f;
+			m_transformB.Set(m_positionB, m_angleB);
 		}
-
-		m_world->SetGravity(b2Vec2_zero);
-	}
-
-	~PolyCollision()
-	{
 	}
 
 	static Test* Create()
@@ -68,53 +44,79 @@ public:
 
 	void Step(Settings* settings)
 	{
-		int32 positionIterations = settings->positionIterations;
-		settings->positionIterations = 0;
-		settings->pause = 1;
-		Test::Step(settings);
-		settings->positionIterations = positionIterations;
-		settings->pause = 0;
+		B2_NOT_USED(settings);
+
+		b2Manifold manifold;
+		b2CollidePolygons(&manifold, &m_polygonA, m_transformA, &m_polygonB, m_transformB);
+
+		b2WorldManifold worldManifold;
+		worldManifold.Initialize(&manifold, m_transformA, m_polygonA.m_radius, m_transformB, m_polygonB.m_radius);
+
+		m_debugDraw.DrawString(5, m_textLine, "point count = %d", manifold.pointCount);
+		m_textLine += 15;
+
+		{
+			b2Color color(0.9f, 0.9f, 0.9f);
+			b2Vec2 v[b2_maxPolygonVertices];
+			for (int32 i = 0; i < m_polygonA.m_vertexCount; ++i)
+			{
+				v[i] = b2Mul(m_transformA, m_polygonA.m_vertices[i]);
+			}
+			m_debugDraw.DrawPolygon(v, m_polygonA.m_vertexCount, color);
+
+			for (int32 i = 0; i < m_polygonB.m_vertexCount; ++i)
+			{
+				v[i] = b2Mul(m_transformB, m_polygonB.m_vertices[i]);
+			}
+			m_debugDraw.DrawPolygon(v, m_polygonB.m_vertexCount, color);
+		}
+
+		for (int32 i = 0; i < manifold.pointCount; ++i)
+		{
+			m_debugDraw.DrawPoint(worldManifold.points[i], 4.0f, b2Color(0.9f, 0.3f, 0.3f));
+		}
 	}
 
 	void Keyboard(unsigned char key)
 	{
-		b2Vec2 p = m_body2->GetPosition();
-		float32 a = m_body2->GetAngle();
-
 		switch (key)
 		{
 		case 'a':
-			p.x -= 0.1f;
+			m_positionB.x -= 0.1f;
 			break;
 
 		case 'd':
-			p.x += 0.1f;
+			m_positionB.x += 0.1f;
 			break;
 
 		case 's':
-			p.y -= 0.1f;
+			m_positionB.y -= 0.1f;
 			break;
 
 		case 'w':
-			p.y += 0.1f;
+			m_positionB.y += 0.1f;
 			break;
 
 		case 'q':
-			a += 0.1f * b2_pi;
+			m_angleB += 0.1f * b2_pi;
 			break;
 
 		case 'e':
-			a -= 0.1f * b2_pi;
+			m_angleB -= 0.1f * b2_pi;
 			break;
 		}
 
-		m_body2->SetXForm(p, a);
+		m_transformB.Set(m_positionB, m_angleB);
 	}
 
-	ContactPoint m_localPoints[2];
+	b2PolygonShape m_polygonA;
+	b2PolygonShape m_polygonB;
 
-	b2Body* m_body1;
-	b2Body* m_body2;
+	b2Transform m_transformA;
+	b2Transform m_transformB;
+
+	b2Vec2 m_positionB;
+	float32 m_angleB;
 };
 
 #endif

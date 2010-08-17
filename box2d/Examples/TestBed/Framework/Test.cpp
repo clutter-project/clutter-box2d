@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -19,12 +19,7 @@
 #include "Test.h"
 #include "Render.h"
 
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#define APIENTRY
-#else
 #include "freeglut/GL/glut.h"
-#endif
 
 #include <cstdio>
 
@@ -40,90 +35,28 @@ void DestructionListener::SayGoodbye(b2Joint* joint)
 	}
 }
 
-void BoundaryListener::Violation(b2Body* body)
-{
-	if (test->m_bomb != body)
-	{
-		test->BoundaryViolated(body);
-	}
-}
-
-void ContactListener::Add(const b2ContactPoint* point)
-{
-	if (test->m_pointCount == k_maxContactPoints)
-	{
-		return;
-	}
-
-	ContactPoint* cp = test->m_points + test->m_pointCount;
-	cp->shape1 = point->shape1;
-	cp->shape2 = point->shape2;
-	cp->position = point->position;
-	cp->normal = point->normal;
-	cp->id = point->id;
-	cp->state = e_contactAdded;
-
-	++test->m_pointCount;
-}
-
-void ContactListener::Persist(const b2ContactPoint* point)
-{
-	if (test->m_pointCount == k_maxContactPoints)
-	{
-		return;
-	}
-
-	ContactPoint* cp = test->m_points + test->m_pointCount;
-	cp->shape1 = point->shape1;
-	cp->shape2 = point->shape2;
-	cp->position = point->position;
-	cp->normal = point->normal;
-	cp->id = point->id;
-	cp->state = e_contactPersisted;
-
-	++test->m_pointCount;
-}
-
-void ContactListener::Remove(const b2ContactPoint* point)
-{
-	if (test->m_pointCount == k_maxContactPoints)
-	{
-		return;
-	}
-
-	ContactPoint* cp = test->m_points + test->m_pointCount;
-	cp->shape1 = point->shape1;
-	cp->shape2 = point->shape2;
-	cp->position = point->position;
-	cp->normal = point->normal;
-	cp->id = point->id;
-	cp->state = e_contactRemoved;
-
-	++test->m_pointCount;
-}
-
 Test::Test()
 {
-	m_worldAABB.lowerBound.Set(-200.0f, -100.0f);
-	m_worldAABB.upperBound.Set(200.0f, 200.0f);
 	b2Vec2 gravity;
 	gravity.Set(0.0f, -10.0f);
 	bool doSleep = true;
-	m_world = new b2World(m_worldAABB, gravity, doSleep);
+	m_world = new b2World(gravity, doSleep);
 	m_bomb = NULL;
 	m_textLine = 30;
 	m_mouseJoint = NULL;
 	m_pointCount = 0;
 
 	m_destructionListener.test = this;
-	m_boundaryListener.test = this;
-	m_contactListener.test = this;
 	m_world->SetDestructionListener(&m_destructionListener);
-	m_world->SetBoundaryListener(&m_boundaryListener);
-	m_world->SetContactListener(&m_contactListener);
+	m_world->SetContactListener(this);
 	m_world->SetDebugDraw(&m_debugDraw);
 	
 	m_bombSpawning = false;
+
+	m_stepCount = 0;
+
+	b2BodyDef bodyDef;
+	m_groundBody = m_world->CreateBody(&bodyDef);
 }
 
 Test::~Test()
@@ -133,10 +66,72 @@ Test::~Test()
 	m_world = NULL;
 }
 
+void Test::PreSolve(b2Contact* contact, const b2Manifold* oldManifold)
+{
+	const b2Manifold* manifold = contact->GetManifold();
+
+	if (manifold->pointCount == 0)
+	{
+		return;
+	}
+
+	b2Fixture* fixtureA = contact->GetFixtureA();
+	b2Fixture* fixtureB = contact->GetFixtureB();
+
+	b2PointState state1[b2_maxManifoldPoints], state2[b2_maxManifoldPoints];
+	b2GetPointStates(state1, state2, oldManifold, manifold);
+
+	b2WorldManifold worldManifold;
+	contact->GetWorldManifold(&worldManifold);
+
+	for (int32 i = 0; i < manifold->pointCount && m_pointCount < k_maxContactPoints; ++i)
+	{
+		ContactPoint* cp = m_points + m_pointCount;
+		cp->fixtureA = fixtureA;
+		cp->fixtureB = fixtureB;
+		cp->position = worldManifold.points[i];
+		cp->normal = worldManifold.normal;
+		cp->state = state2[i];
+		++m_pointCount;
+	}
+}
+
 void Test::DrawTitle(int x, int y, const char *string)
 {
     m_debugDraw.DrawString(x, y, string);
 }
+
+class QueryCallback : public b2QueryCallback
+{
+public:
+	QueryCallback(const b2Vec2& point)
+	{
+		m_point = point;
+		m_fixture = NULL;
+	}
+
+	bool ReportFixture(b2Fixture* fixture)
+	{
+		b2Body* body = fixture->GetBody();
+		if (body->GetType() == b2_dynamicBody)
+		{
+			bool inside = fixture->TestPoint(m_point);
+			if (inside)
+			{
+				m_fixture = fixture;
+
+				// We are done, terminate the query.
+				return false;
+			}
+		}
+
+		// Continue the query.
+		return true;
+	}
+
+	b2Vec2 m_point;
+	b2Fixture* m_fixture;
+};
 
 void Test::MouseDown(const b2Vec2& p)
 {
@@ -155,38 +150,19 @@ void Test::MouseDown(const b2Vec2& p)
 	aabb.upperBound = p + d;
 
 	// Query the world for overlapping shapes.
-	const int32 k_maxCount = 10;
-	b2Shape* shapes[k_maxCount];
-	int32 count = m_world->Query(aabb, shapes, k_maxCount);
-	b2Body* body = NULL;
-	for (int32 i = 0; i < count; ++i)
-	{
-		b2Body* shapeBody = shapes[i]->GetBody();
-		if (shapeBody->IsStatic() == false && shapeBody->GetMass() > 0.0f)
-		{
-			bool inside = shapes[i]->TestPoint(shapeBody->GetXForm(), p);
-			if (inside)
-			{
-				body = shapes[i]->GetBody();
-				break;
-			}
-		}
-	}
+	QueryCallback callback(p);
+	m_world->QueryAABB(&callback, aabb);
 
-	if (body)
+	if (callback.m_fixture)
 	{
+		b2Body* body = callback.m_fixture->GetBody();
 		b2MouseJointDef md;
-		md.body1 = m_world->GetGroundBody();
-		md.body2 = body;
+		md.bodyA = m_groundBody;
+		md.bodyB = body;
 		md.target = p;
-#ifdef TARGET_FLOAT32_IS_FIXED
-		md.maxForce = (body->GetMass() < 16.0)? 
-			(1000.0f * body->GetMass()) : float32(16000.0);
-#else
 		md.maxForce = 1000.0f * body->GetMass();
-#endif
 		m_mouseJoint = (b2MouseJoint*)m_world->CreateJoint(&md);
-		body->WakeUp();
+		body->SetAwake(true);
 	}
 }
 
@@ -198,7 +174,11 @@ void Test::SpawnBomb(const b2Vec2& worldPt)
     
 void Test::CompleteBombSpawn(const b2Vec2& p)
 {
-	if (!m_bombSpawning) return;
+	if (m_bombSpawning == false)
+	{
+		return;
+	}
+
 	const float multiplier = 30.0f;
 	b2Vec2 vel = m_bombSpawnPoint - p;
 	vel *= multiplier;
@@ -244,7 +224,7 @@ void Test::MouseMove(const b2Vec2& p)
 
 void Test::LaunchBomb()
 {
-	b2Vec2 p(b2Random(-15.0f, 15.0f), 30.0f);
+	b2Vec2 p(RandomFloat(-15.0f, 15.0f), 30.0f);
 	b2Vec2 v = -5.0f * p;
 	LaunchBomb(p, v);
 }
@@ -258,17 +238,19 @@ void Test::LaunchBomb(const b2Vec2& position, const b2Vec2& velocity)
 	}
 
 	b2BodyDef bd;
-	bd.allowSleep = true;
+	bd.type = b2_dynamicBody;
 	bd.position = position;
-	
-	bd.isBullet = true;
+	bd.bullet = true;
 	m_bomb = m_world->CreateBody(&bd);
 	m_bomb->SetLinearVelocity(velocity);
 	
-	b2CircleDef sd;
-	sd.radius = 0.3f;
-	sd.density = 20.0f;
-	sd.restitution = 0.1f;
+	b2CircleShape circle;
+	circle.m_radius = 0.3f;
+
+	b2FixtureDef fd;
+	fd.shape = &circle;
+	fd.density = 20.0f;
+	fd.restitution = 0.0f;
 	
 	b2Vec2 minV = position - b2Vec2(0.3f,0.3f);
 	b2Vec2 maxV = position + b2Vec2(0.3f,0.3f);
@@ -276,14 +258,8 @@ void Test::LaunchBomb(const b2Vec2& position, const b2Vec2& velocity)
 	b2AABB aabb;
 	aabb.lowerBound = minV;
 	aabb.upperBound = maxV;
-	
-	bool inRange = m_world->InRange(aabb);
 
-	if (inRange)
-	{
-		m_bomb->CreateShape(&sd);
-		m_bomb->SetMassFromShapes();
-	}
+	m_bomb->CreateFixture(&fd);
 }
 
 void Test::Step(Settings* settings)
@@ -308,48 +284,36 @@ void Test::Step(Settings* settings)
 	uint32 flags = 0;
 	flags += settings->drawShapes			* b2DebugDraw::e_shapeBit;
 	flags += settings->drawJoints			* b2DebugDraw::e_jointBit;
-	flags += settings->drawCoreShapes		* b2DebugDraw::e_coreShapeBit;
 	flags += settings->drawAABBs			* b2DebugDraw::e_aabbBit;
-	flags += settings->drawOBBs				* b2DebugDraw::e_obbBit;
 	flags += settings->drawPairs			* b2DebugDraw::e_pairBit;
 	flags += settings->drawCOMs				* b2DebugDraw::e_centerOfMassBit;
 	m_debugDraw.SetFlags(flags);
 
 	m_world->SetWarmStarting(settings->enableWarmStarting > 0);
-	m_world->SetContinuousPhysics(settings->enableTOI > 0);
+	m_world->SetContinuousPhysics(settings->enableContinuous > 0);
 
 	m_pointCount = 0;
 
 	m_world->Step(timeStep, settings->velocityIterations, settings->positionIterations);
 
-	m_world->Validate();
+	m_world->DrawDebugData();
 
-	if (m_bomb != NULL && m_bomb->IsFrozen())
+	if (timeStep > 0.0f)
 	{
-		m_world->DestroyBody(m_bomb);
-		m_bomb = NULL;
+		++m_stepCount;
 	}
 
 	if (settings->drawStats)
 	{
-		m_debugDraw.DrawString(5, m_textLine, "proxies(max) = %d(%d), pairs(max) = %d(%d)",
-			m_world->GetProxyCount(), b2_maxProxies,
-			m_world->GetPairCount(), b2_maxPairs);
-		m_textLine += 15;
-
-		m_debugDraw.DrawString(5, m_textLine, "bodies/contacts/joints = %d/%d/%d",
-			m_world->GetBodyCount(), m_world->GetContactCount(), m_world->GetJointCount());
-		m_textLine += 15;
-
-		m_debugDraw.DrawString(5, m_textLine, "heap bytes = %d", b2_byteCount);
+		m_debugDraw.DrawString(5, m_textLine, "bodies/contacts/joints/proxies = %d/%d/%d",
+			m_world->GetBodyCount(), m_world->GetContactCount(), m_world->GetJointCount(), m_world->GetProxyCount());
 		m_textLine += 15;
 	}
 
 	if (m_mouseJoint)
 	{
-		b2Body* body = m_mouseJoint->GetBody2();
-		b2Vec2 p1 = body->GetWorldPoint(m_mouseJoint->m_localAnchor);
-		b2Vec2 p2 = m_mouseJoint->m_target;
+		b2Vec2 p1 = m_mouseJoint->GetAnchorB();
+		b2Vec2 p2 = m_mouseJoint->GetTarget();
 
 		glPointSize(4.0f);
 		glColor3f(0.0f, 1.0f, 0.0f);
@@ -366,7 +330,8 @@ void Test::Step(Settings* settings)
 		glEnd();
 	}
 	
-	if (m_bombSpawning){
+	if (m_bombSpawning)
+	{
 		glPointSize(4.0f);
 		glColor3f(0.0f, 0.0f, 1.0f);
 		glBegin(GL_POINTS);
@@ -390,27 +355,22 @@ void Test::Step(Settings* settings)
 		{
 			ContactPoint* point = m_points + i;
 
-			if (point->state == 0)
+			if (point->state == b2_addState)
 			{
 				// Add
 				m_debugDraw.DrawPoint(point->position, 10.0f, b2Color(0.3f, 0.95f, 0.3f));
 			}
-			else if (point->state == 1)
+			else if (point->state == b2_persistState)
 			{
 				// Persist
 				m_debugDraw.DrawPoint(point->position, 5.0f, b2Color(0.3f, 0.3f, 0.95f));
-			}
-			else
-			{
-				// Remove
-				m_debugDraw.DrawPoint(point->position, 10.0f, b2Color(0.95f, 0.3f, 0.3f));
 			}
 
 			if (settings->drawContactNormals == 1)
 			{
 				b2Vec2 p1 = point->position;
 				b2Vec2 p2 = p1 + k_axisScale * point->normal;
-				m_debugDraw.DrawSegment(p1, p2, b2Color(0.4f, 0.9f, 0.4f));
+				m_debugDraw.DrawSegment(p1, p2, b2Color(0.9f, 0.9f, 0.9f));
 			}
 			else if (settings->drawContactForces == 1)
 			{

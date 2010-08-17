@@ -21,7 +21,7 @@ private:
 public:
   __ClutterBox2DContactListener(ClutterBox2D *box2d);
   ~__ClutterBox2DContactListener();
-  void Result(const b2ContactResult* point);
+  void PreSolve(b2Contact* contact, const b2Manifold *old_manifold);
 };
 
 #endif

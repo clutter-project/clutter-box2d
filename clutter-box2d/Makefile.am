@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)/box2d/Include -I$(srcdir) -I$(top_srcdir)
+INCLUDES = -I$(top_srcdir)/box2d -I$(top_srcdir)/box2d/Box2D -I$(srcdir) -I$(top_srcdir)
 
 AM_CFLAGS = @MAINTAINER_CFLAGS@
 

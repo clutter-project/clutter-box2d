@@ -56,7 +56,7 @@ clutter_box2d_add_joint (ClutterBox2D     *box2d,
                          gdouble           min_len,
                          gdouble           max_len)
 {
-  /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
+  ClutterBox2DPrivate *priv = box2d->priv;
   b2RevoluteJointDef jd;
   /*b2DistanceJointDef jd;*/
   /*b2PrismaticJointDef jd;*/
@@ -66,10 +66,10 @@ clutter_box2d_add_joint (ClutterBox2D     *box2d,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor_a), NULL);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor_b), NULL);
 
-  /*jd.body1 = clutter_box2d_get_child (box2d, actor_a)->body;
-  jd.body2 = clutter_box2d_get_child (box2d, actor_b)->body;*/
-  /*jd.localAnchor1.Set(x_a, y_a);
-  jd.localAnchor2.Set(x_b, y_b);*/
+  /*jd.bodyA = clutter_box2d_get_child (box2d, actor_a)->body;
+  jd.bodyB = clutter_box2d_get_child (box2d, actor_b)->body;*/
+  /*jd.localAnchorA.Set(x_a, y_a);
+  jd.localAnchorB.Set(x_b, y_b);*/
   /*jd.length = min_len;
   jd.lowerTranslation = min_len;
   jd.upperTranslation = max_len;*/
@@ -78,7 +78,7 @@ clutter_box2d_add_joint (ClutterBox2D     *box2d,
   jd.Initialize(clutter_box2d_get_child (box2d, actor_a)->priv->body,
                 clutter_box2d_get_child (box2d, actor_b)->priv->body,
                 anchor);
-  ((b2World*)(box2d->world))->CreateJoint (&jd);
+  priv->world->CreateJoint (&jd);
 
   return NULL;
 }
@@ -87,27 +87,27 @@ static ClutterBox2DJoint *
 joint_new (ClutterBox2D *box2d,
            b2Joint      *joint)
 {
-   /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
-   ClutterBox2DJoint *self = g_new0 (ClutterBox2DJoint, 1);
-   self->box2d = box2d;
-   self->joint = joint;
+  ClutterBox2DPrivate *priv = box2d->priv;
+  ClutterBox2DJoint *self = g_new0 (ClutterBox2DJoint, 1);
+  self->box2d = box2d;
+  self->joint = joint;
 
-   self->actor1 = (ClutterBox2DChild*)
-        g_hash_table_lookup (box2d->bodies, joint->GetBody1());
-   if (self->actor1)
-     {
-        self->actor1->priv->joints =
-          g_list_append (self->actor1->priv->joints, self);
-     }
-   self->actor2 = (ClutterBox2DChild*)
-        g_hash_table_lookup (box2d->bodies, joint->GetBody2());
-   if (self->actor2)
-     {
-        self->actor2->priv->joints =
-          g_list_append (self->actor2->priv->joints, self);
-     }
+  self->actor1 = (ClutterBox2DChild*)
+      g_hash_table_lookup (priv->bodies, joint->GetBodyA());
+  if (self->actor1)
+    {
+      self->actor1->priv->joints =
+        g_list_append (self->actor1->priv->joints, self);
+    }
+  self->actor2 = (ClutterBox2DChild*)
+      g_hash_table_lookup (priv->bodies, joint->GetBodyB());
+  if (self->actor2)
+    {
+      self->actor2->priv->joints =
+        g_list_append (self->actor2->priv->joints, self);
+    }
 
-   return self;
+  return self;
 }
 
 void
@@ -115,19 +115,18 @@ clutter_box2d_joint_destroy (ClutterBox2DJoint *joint)
 {
   g_return_if_fail (joint);
 
+  joint->box2d->priv->world->DestroyJoint (joint->joint);
 
-  ((b2World*)joint->box2d->world)->DestroyJoint (joint->joint);
-
-   if (joint->actor1)
-     {
-        joint->actor1->priv->joints =
-          g_list_remove (joint->actor1->priv->joints, joint);
-     }
-   if (joint->actor2)
-     {
-        joint->actor2->priv->joints =
-          g_list_remove (joint->actor2->priv->joints, joint);
-     }
+  if (joint->actor1)
+    {
+      joint->actor1->priv->joints =
+        g_list_remove (joint->actor1->priv->joints, joint);
+    }
+  if (joint->actor2)
+    {
+      joint->actor2->priv->joints =
+        g_list_remove (joint->actor2->priv->joints, joint);
+    }
 
   g_free (joint);
 }
@@ -143,7 +142,7 @@ clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
                                   gdouble              frequency,
                                   gdouble              damping_ratio)
 {
-  /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
+  ClutterBox2DPrivate *priv = box2d->priv;
   b2DistanceJointDef jd;
 
   g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
@@ -153,17 +152,17 @@ clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
   g_return_val_if_fail (anchor2 != NULL, NULL);
 
   jd.collideConnected = false;
-  jd.body1 = clutter_box2d_get_child (box2d, actor1)->priv->body;
-  jd.body2 = clutter_box2d_get_child (box2d, actor2)->priv->body;
-  jd.localAnchor1 = b2Vec2( (anchor1->x) * SCALE_FACTOR,
+  jd.bodyA = clutter_box2d_get_child (box2d, actor1)->priv->body;
+  jd.bodyB = clutter_box2d_get_child (box2d, actor2)->priv->body;
+  jd.localAnchorA = b2Vec2( (anchor1->x) * SCALE_FACTOR,
                             (anchor1->y) * SCALE_FACTOR);
-  jd.localAnchor2 = b2Vec2( (anchor2->x) * SCALE_FACTOR,
+  jd.localAnchorB = b2Vec2( (anchor2->x) * SCALE_FACTOR,
                             (anchor2->y) * SCALE_FACTOR);
   jd.length = length * SCALE_FACTOR;
   jd.frequencyHz = frequency;
   jd.dampingRatio = damping_ratio;
 
-  return joint_new (box2d, ((b2World*)box2d->world)->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
 
 
@@ -192,7 +191,7 @@ clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
                                   const ClutterVertex *anchor2,
                                   gdouble              reference_angle)
 {
-  /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
+  ClutterBox2DPrivate *priv = box2d->priv;
   b2RevoluteJointDef jd;
 
   g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
@@ -202,15 +201,15 @@ clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
   g_return_val_if_fail (anchor2 != NULL, NULL);
 
   jd.collideConnected = false;
-  jd.body1 = clutter_box2d_get_child (box2d, actor1)->priv->body;
-  jd.body2 = clutter_box2d_get_child (box2d, actor2)->priv->body;
-  jd.localAnchor1 = b2Vec2( (anchor1->x) * SCALE_FACTOR,
+  jd.bodyA = clutter_box2d_get_child (box2d, actor1)->priv->body;
+  jd.bodyB = clutter_box2d_get_child (box2d, actor2)->priv->body;
+  jd.localAnchorA = b2Vec2( (anchor1->x) * SCALE_FACTOR,
                             (anchor1->y) * SCALE_FACTOR);
-  jd.localAnchor2 = b2Vec2( (anchor2->x) * SCALE_FACTOR,
+  jd.localAnchorB = b2Vec2( (anchor2->x) * SCALE_FACTOR,
                             (anchor2->y) * SCALE_FACTOR);
   jd.referenceAngle = reference_angle;
 
-  return joint_new (box2d, ((b2World*)box2d->world)->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
 
 ClutterBox2DJoint *
@@ -219,7 +218,7 @@ clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
                                    ClutterActor        *actor2,
                                    const ClutterVertex *anchor)
 {
-  /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
+  ClutterBox2DPrivate *priv = box2d->priv;
   b2RevoluteJointDef jd;
 
   g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
@@ -234,7 +233,7 @@ clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
   jd.Initialize(clutter_box2d_get_child (box2d, actor1)->priv->body,
                 clutter_box2d_get_child (box2d, actor2)->priv->body,
                 ancho);
-  return joint_new (box2d, ((b2World*)box2d->world)->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
 
 ClutterBox2DJoint *
@@ -247,7 +246,7 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
                                    gdouble              max_length,
                                    const ClutterVertex *axis)
 {
-  /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
+  ClutterBox2DPrivate *priv = box2d->priv;
   b2PrismaticJointDef jd;
 
   g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
@@ -257,11 +256,11 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   g_return_val_if_fail (anchor2 != NULL, NULL);
 
   jd.collideConnected = false;
-  jd.body1 = clutter_box2d_get_child (box2d, actor1)->priv->body;
-  jd.body2 = clutter_box2d_get_child (box2d, actor2)->priv->body;
-  jd.localAnchor1 = b2Vec2( (anchor1->x) * SCALE_FACTOR,
+  jd.bodyA = clutter_box2d_get_child (box2d, actor1)->priv->body;
+  jd.bodyB = clutter_box2d_get_child (box2d, actor2)->priv->body;
+  jd.localAnchorA = b2Vec2( (anchor1->x) * SCALE_FACTOR,
                             (anchor1->y) * SCALE_FACTOR);
-  jd.localAnchor2 = b2Vec2( (anchor2->x) * SCALE_FACTOR,
+  jd.localAnchorB = b2Vec2( (anchor2->x) * SCALE_FACTOR,
                             (anchor2->y) * SCALE_FACTOR);
   jd.lowerTranslation = min_length * SCALE_FACTOR;
   jd.upperTranslation = max_length * SCALE_FACTOR;
@@ -269,7 +268,7 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   jd.localAxis1 = b2Vec2( (axis->x),
                           (axis->y));
 
-  return joint_new (box2d, ((b2World*)box2d->world)->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
 
 
@@ -278,21 +277,21 @@ clutter_box2d_add_mouse_joint (ClutterBox2D        *box2d,
                                ClutterActor        *actor,
                                const ClutterVertex *target)
 {
-  /*ClutterBox2DPrivate *priv = CLUTTER_BOX2D_GET_PRIVATE (box2d);*/
+  ClutterBox2DPrivate *priv = box2d->priv;
   b2MouseJointDef md;
 
   g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), NULL);
   g_return_val_if_fail (target != NULL, NULL);
 
-  md.body1 = ((b2World*)box2d->world)->GetGroundBody();
-  md.body2 = clutter_box2d_get_child (box2d, actor)->priv->body;
+  md.bodyA = priv->ground_body;
+  md.bodyB = clutter_box2d_get_child (box2d, actor)->priv->body;
   md.target = b2Vec2( (target->x) * SCALE_FACTOR,
                       (target->y) * SCALE_FACTOR);
-  md.body1->WakeUp ();
-  md.maxForce = 5100.0f * md.body2->GetMass ();
+  md.bodyA->SetAwake (false);
+  md.maxForce = 5100.0f * md.bodyB->GetMass ();
 
-  return joint_new (box2d, ((b2World*)box2d->world)->CreateJoint(&md));
+  return joint_new (box2d, priv->world->CreateJoint(&md));
 }
 
 void

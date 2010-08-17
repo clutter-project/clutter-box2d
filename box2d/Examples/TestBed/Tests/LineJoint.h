@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -27,26 +27,23 @@ public:
 	{
 		b2Body* ground = NULL;
 		{
-			b2PolygonDef sd;
-			sd.SetAsBox(50.0f, 10.0f);
+			b2PolygonShape shape;
+			shape.SetAsEdge(b2Vec2(-40.0f, 0.0f), b2Vec2(40.0f, 0.0f));
 
 			b2BodyDef bd;
-			bd.position.Set(0.0f, -10.0f);
 			ground = m_world->CreateBody(&bd);
-			ground->CreateShape(&sd);
+			ground->CreateFixture(&shape, 0.0f);
 		}
 
 		{
-			b2PolygonDef sd;
-			sd.SetAsBox(0.5f, 2.0f);
-			sd.density = 1.0f;
-
+			b2PolygonShape shape;
+			shape.SetAsBox(0.5f, 2.0f);
 
 			b2BodyDef bd;
+			bd.type = b2_dynamicBody;
 			bd.position.Set(0.0f, 7.0f);
 			b2Body* body = m_world->CreateBody(&bd);
-			body->CreateShape(&sd);
-			body->SetMassFromShapes();
+			body->CreateFixture(&shape, 1.0f);
 
 			b2LineJointDef jd;
 			b2Vec2 axis(2.0f, 1.0f);

@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -27,19 +27,21 @@ public:
 		b2Body* ground = NULL;
 		{
 			b2BodyDef bd;
-			bd.position.Set(0.0f, -10.0f);
 			ground = m_world->CreateBody(&bd);
 
-			b2PolygonDef sd;
-			sd.SetAsBox(50.0f, 10.0f);
-			ground->CreateShape(&sd);
+			b2PolygonShape shape;
+			shape.SetAsEdge(b2Vec2(-40.0f, 0.0f), b2Vec2(40.0f, 0.0f));
+			ground->CreateFixture(&shape, 0.0f);
 		}
 
 		{
-			b2PolygonDef sd;
-			sd.SetAsBox(0.6f, 0.125f);
-			sd.density = 20.0f;
-			sd.friction = 0.2f;
+			b2PolygonShape shape;
+			shape.SetAsBox(0.6f, 0.125f);
+
+			b2FixtureDef fd;
+			fd.shape = &shape;
+			fd.density = 20.0f;
+			fd.friction = 0.2f;
 
 			b2RevoluteJointDef jd;
 			jd.collideConnected = false;
@@ -49,10 +51,10 @@ public:
 			for (int32 i = 0; i < 30; ++i)
 			{
 				b2BodyDef bd;
+				bd.type = b2_dynamicBody;
 				bd.position.Set(0.5f + i, y);
 				b2Body* body = m_world->CreateBody(&bd);
-				body->CreateShape(&sd);
-				body->SetMassFromShapes();
+				body->CreateFixture(&fd);
 
 				b2Vec2 anchor(float32(i), y);
 				jd.Initialize(prevBody, body, anchor);

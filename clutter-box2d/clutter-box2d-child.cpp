@@ -81,7 +81,7 @@ clutter_box2d_child_set_type2 (ClutterBox2DChild *box2d_child,
                                ClutterBox2DType   type)
 {
   ClutterBox2D *box2d = CLUTTER_BOX2D(clutter_child_meta_get_container (CLUTTER_CHILD_META(box2d_child)));
-  b2World *world = ((b2World*)(box2d->world));
+  b2World *world = box2d->priv->world;
 
   if (box2d_child->priv->type == type)
     return;
@@ -90,10 +90,10 @@ clutter_box2d_child_set_type2 (ClutterBox2DChild *box2d_child,
     {
       g_assert (box2d_child->priv->body);
 
-      g_hash_table_remove (box2d->bodies, box2d_child->priv->body);
+      g_hash_table_remove (box2d->priv->bodies, box2d_child->priv->body);
       world->DestroyBody (box2d_child->priv->body);
       box2d_child->priv->body = NULL;
-      box2d_child->priv->shape = NULL;
+      box2d_child->priv->fixture = NULL;
       box2d_child->priv->type = CLUTTER_BOX2D_NONE;
     }
 
@@ -113,22 +113,18 @@ clutter_box2d_child_set_type2 (ClutterBox2DChild *box2d_child,
 
       if (type == CLUTTER_BOX2D_DYNAMIC)
         {
+          bodyDef.type = b2_dynamicBody;
           box2d_child->priv->body = world->CreateBody (&bodyDef);
         }
       else if (type == CLUTTER_BOX2D_STATIC)
         {
 
+          bodyDef.type = b2_staticBody;
           box2d_child->priv->body = world->CreateBody (&bodyDef);
         }
       _clutter_box2d_sync_body (box2d_child);
 
-
-      if (type == CLUTTER_BOX2D_DYNAMIC)
-        {
-          box2d_child->priv->body->SetMassFromShapes ();
-        }
-
-      g_hash_table_insert (box2d->bodies, box2d_child->priv->body, box2d_child);
+      g_hash_table_insert (box2d->priv->bodies, box2d_child->priv->body, box2d_child);
     }
 }
 
@@ -149,13 +145,11 @@ clutter_box2d_child_set_type (ClutterBox2D      *box2d,
 static inline void
 clutter_box2d_child_refresh_shape (ClutterBox2DChild *box2d_child)
 {
-  if (box2d_child->priv->shape)
+  if (box2d_child->priv->fixture)
     {
-      box2d_child->priv->body->DestroyShape (box2d_child->priv->shape);
-      box2d_child->priv->shape = NULL;
+      box2d_child->priv->body->DestroyFixture (box2d_child->priv->fixture);
+      box2d_child->priv->fixture = NULL;
       _clutter_box2d_sync_body (box2d_child);
-      if (box2d_child->priv->type == CLUTTER_BOX2D_DYNAMIC)
-        box2d_child->priv->body->SetMassFromShapes ();
     }
 }
 
@@ -638,7 +632,7 @@ clutter_box2d_child_press (ClutterActor *actor,
                           "captured-event",
                           G_CALLBACK (clutter_box2d_child_captured_event),
                           child_meta);
-      g_print ("grab: %p:%i\n", actor, clutter_event_get_device_id (event));
+      //g_print ("grab: %p:%i\n", actor, clutter_event_get_device_id (event));
 
       if (priv->mouse_joint == 0)
         {
@@ -683,7 +677,7 @@ clutter_box2d_child_captured_event (ClutterActor *stage,
           gfloat dx;
           gfloat dy;
 
-          g_print ("motion: %p:%i\n", box2d_child, id);
+          //g_print ("motion: %p:%i\n", box2d_child, id);
 
           x =  (event->motion.x);
           y =  (event->motion.y);

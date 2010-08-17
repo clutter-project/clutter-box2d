@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -24,66 +24,19 @@ class DistanceTest : public Test
 public:
 	DistanceTest()
 	{
-#if 0
 		{
-			b2PolygonDef sd;
-			sd.SetAsBox(50.0f, 10.0f);
-			sd.friction = 0.3f;
-			m_shape1 = m_world->CreateShape(&sd);
-
-			b2BodyDef bd;
-			bd.position.Set(0.0f, -10.0f);
-			body->Create(m_shape1);
-			m_body1 = m_world->CreateBody(&bd);
-		}
-#else
-		{
-			b2PolygonDef sd;
-			sd.SetAsBox(1.0f, 1.0f);
-			sd.density = 0.0f;
-
-			b2BodyDef bd;
-			bd.position.Set(0.0f, 10.0f);
-			m_body1 = m_world->CreateBody(&bd);
-			m_shape1 = m_body1->CreateShape(&sd);
-		}
-#endif
-
-		{
-#if 0
-			b2PolygonDef sd;
-			float32 a = 0.25f;
-			sd.SetAsBox(a, a);
-			sd.density = 1.0f;
-#elif 0
-			b2CircleDef sd;
-			sd.radius = 0.5f;
-			sd.density = 1.0f;
-#else
-			b2PolygonDef sd;
-			sd.vertexCount = 3;
-			sd.vertices[0].Set(-1.0f, 0.0f);
-			sd.vertices[1].Set(1.0f, 0.0f);
-			sd.vertices[2].Set(0.0f, 15.0f);
-			sd.density = 1.0f;
-#endif
-			b2BodyDef bd;
-#if 0
-			bd.position.Set(-48.377853f, 0.49244255f);
-			bd.rotation = 90.475891f;
-#else
-			bd.position.Set(0.0f, 10.0f);
-#endif
-			m_body2 = m_world->CreateBody(&bd);
-			m_shape2 = m_body2->CreateShape(&sd);
-			m_body2->SetMassFromShapes();
+			m_transformA.SetIdentity();
+			m_transformA.position.Set(0.0f, -0.2f);
+			m_polygonA.SetAsBox(10.0f, 0.2f);
 		}
 
-		m_world->SetGravity(b2Vec2(0.0f, 0.0f));
-	}
+		{
+			m_positionB.Set(12.017401f, 0.13678508f);
+			m_angleB = -0.0109265f;
+			m_transformB.Set(m_positionB, m_angleB);
 
-	~DistanceTest()
-	{
+			m_polygonB.SetAsBox(2.0f, 0.1f);
+		}
 	}
 
 	static Test* Create()
@@ -93,78 +46,90 @@ public:
 
 	void Step(Settings* settings)
 	{
-		int32 positionIterations = settings->positionIterations;
-		settings->positionIterations = 0;
-		settings->pause = 1;
 		Test::Step(settings);
-		settings->positionIterations = positionIterations;
-		settings->pause = 0;
 
-		b2Vec2 x1, x2;
-		float32 distance = b2Distance(&x1, &x2, m_shape1, m_body1->GetXForm(), m_shape2, m_body2->GetXForm());
+		b2DistanceInput input;
+		input.proxyA.Set(&m_polygonA);
+		input.proxyB.Set(&m_polygonB);
+		input.transformA = m_transformA;
+		input.transformB = m_transformB;
+		input.useRadii = true;
+		b2SimplexCache cache;
+		cache.count = 0;
+		b2DistanceOutput output;
+		b2Distance(&output, &cache, &input);
 
-		m_debugDraw.DrawString(5, m_textLine, "distance = %g", (float) distance);
+		m_debugDraw.DrawString(5, m_textLine, "distance = %g", output.distance);
 		m_textLine += 15;
 
-		extern int32 g_GJK_Iterations;
-
-		m_debugDraw.DrawString(5, m_textLine, "iterations = %d", g_GJK_Iterations);
+		m_debugDraw.DrawString(5, m_textLine, "iterations = %d", output.iterations);
 		m_textLine += 15;
 
-		glPointSize(4.0f);
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glBegin(GL_POINTS);
-		glVertex2f(x1.x, x1.y);
-		glVertex2f(x2.x, x2.y);
-		glEnd();
-		glPointSize(1.0f);
+		{
+			b2Color color(0.9f, 0.9f, 0.9f);
+			b2Vec2 v[b2_maxPolygonVertices];
+			for (int32 i = 0; i < m_polygonA.m_vertexCount; ++i)
+			{
+				v[i] = b2Mul(m_transformA, m_polygonA.m_vertices[i]);
+			}
+			m_debugDraw.DrawPolygon(v, m_polygonA.m_vertexCount, color);
 
-		glColor3f(1.0f, 1.0f, 0.0f);
-		glBegin(GL_LINES);
-		glVertex2f(x1.x, x1.y);
-		glVertex2f(x2.x, x2.y);
-		glEnd();
+			for (int32 i = 0; i < m_polygonB.m_vertexCount; ++i)
+			{
+				v[i] = b2Mul(m_transformB, m_polygonB.m_vertices[i]);
+			}
+			m_debugDraw.DrawPolygon(v, m_polygonB.m_vertexCount, color);
+		}
+
+		b2Vec2 x1 = output.pointA;
+		b2Vec2 x2 = output.pointB;
+
+		b2Color c1(1.0f, 0.0f, 0.0f);
+		m_debugDraw.DrawPoint(x1, 4.0f, c1);
+
+		b2Color c2(1.0f, 1.0f, 0.0f);
+		m_debugDraw.DrawPoint(x2, 4.0f, c2);
 	}
 
 	void Keyboard(unsigned char key)
 	{
-		b2Vec2 p = m_body2->GetPosition();
-		float32 a = m_body2->GetAngle();
-
 		switch (key)
 		{
 		case 'a':
-			p.x -= 0.1f;
+			m_positionB.x -= 0.1f;
 			break;
 
 		case 'd':
-			p.x += 0.1f;
+			m_positionB.x += 0.1f;
 			break;
 
 		case 's':
-			p.y -= 0.1f;
+			m_positionB.y -= 0.1f;
 			break;
 
 		case 'w':
-			p.y += 0.1f;
+			m_positionB.y += 0.1f;
 			break;
 
 		case 'q':
-			a += 0.1f * b2_pi;
+			m_angleB += 0.1f * b2_pi;
 			break;
 
 		case 'e':
-			a -= 0.1f * b2_pi;
+			m_angleB -= 0.1f * b2_pi;
 			break;
 		}
 
-		m_body2->SetXForm(p, a);
+		m_transformB.Set(m_positionB, m_angleB);
 	}
 
-	b2Body* m_body1;
-	b2Body* m_body2;
-	b2Shape* m_shape1;
-	b2Shape* m_shape2;
+	b2Vec2 m_positionB;
+	float32 m_angleB;
+
+	b2Transform m_transformA;
+	b2Transform m_transformB;
+	b2PolygonShape m_polygonA;
+	b2PolygonShape m_polygonB;
 };
 
 #endif

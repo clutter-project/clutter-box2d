@@ -61,16 +61,8 @@ struct _ClutterBox2D
 {
   /*< private >*/
   ClutterGroup         parent_instance;
+
   ClutterBox2DPrivate *priv;
-
-  void            *world;  /* The Box2D world which contains our simulation*/
-  GHashTable      *actors; /* a hash table that maps actors to */
-  GHashTable      *bodies; /* a hash table that maps bodies to */
-  GHashTable      *joints;
-
-  GList           *collisions; /* List of ClutterBox2DCollision contact 
-                                * points from last iteration through time */
-  ClutterBox2DContactListener *contact_listener;
 };
 
 struct _ClutterBox2DClass

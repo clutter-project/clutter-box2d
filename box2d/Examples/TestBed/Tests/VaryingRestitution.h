@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -26,33 +26,34 @@ public:
 	VaryingRestitution()
 	{
 		{
-			b2PolygonDef sd;
-			sd.SetAsBox(50.0f, 10.0f);
-			
 			b2BodyDef bd;
-			bd.position.Set(0.0f, -10.0f);
-
 			b2Body* ground = m_world->CreateBody(&bd);
-			ground->CreateShape(&sd);
+
+			b2PolygonShape shape;
+			shape.SetAsEdge(b2Vec2(-40.0f, 0.0f), b2Vec2(40.0f, 0.0f));
+			ground->CreateFixture(&shape, 0.0f);
 		}
 
 		{
-			b2CircleDef sd;
-			sd.radius = 1.0f;
-			sd.density = 1.0f;
+			b2CircleShape shape;
+			shape.m_radius = 1.0f;
+
+			b2FixtureDef fd;
+			fd.shape = &shape;
+			fd.density = 1.0f;
 
 			float32 restitution[7] = {0.0f, 0.1f, 0.3f, 0.5f, 0.75f, 0.9f, 1.0f};
 
 			for (int32 i = 0; i < 7; ++i)
 			{
 				b2BodyDef bd;
+				bd.type = b2_dynamicBody;
 				bd.position.Set(-10.0f + 3.0f * i, 20.0f);
 
 				b2Body* body = m_world->CreateBody(&bd);
 
-				sd.restitution = restitution[i];
-				body->CreateShape(&sd);
-				body->SetMassFromShapes();
+				fd.restitution = restitution[i];
+				body->CreateFixture(&fd);
 			}
 		}
 	}

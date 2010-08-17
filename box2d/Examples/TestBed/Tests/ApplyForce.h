@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -28,61 +28,118 @@ public:
 
 		const float32 k_restitution = 0.4f;
 
+		b2Body* ground;
 		{
 			b2BodyDef bd;
 			bd.position.Set(0.0f, 20.0f);
-			b2Body* ground = m_world->CreateBody(&bd);
+			ground = m_world->CreateBody(&bd);
 
-			b2PolygonDef sd;
+			b2PolygonShape shape;
+
+			b2FixtureDef sd;
+			sd.shape = &shape;
 			sd.density = 0.0f;
 			sd.restitution = k_restitution;
 
-			sd.SetAsBox(0.2f, 20.0f, b2Vec2(-20.0f, 0.0f), 0.0f);
-			ground->CreateShape(&sd);
+			// Left vertical
+			shape.SetAsEdge(b2Vec2(-20.0f, -20.0f), b2Vec2(-20.0f, 20.0f));
+			ground->CreateFixture(&sd);
 
-			sd.SetAsBox(0.2f, 20.0f, b2Vec2(20.0f, 0.0f), 0.0f);
-			ground->CreateShape(&sd);
+			// Right vertical
+			shape.SetAsEdge(b2Vec2(20.0f, -20.0f), b2Vec2(20.0f, 20.0f));
+			ground->CreateFixture(&sd);
 
-			sd.SetAsBox(0.2f, 20.0f, b2Vec2(0.0f, -20.0f), 0.5f * b2_pi);
-			ground->CreateShape(&sd);
+			// Top horizontal
+			shape.SetAsEdge(b2Vec2(-20.0f, 20.0f), b2Vec2(20.0f, 20.0f));
+			ground->CreateFixture(&sd);
 
-			sd.SetAsBox(0.2f, 20.0f, b2Vec2(0.0f, 20.0f), -0.5f * b2_pi);
-			ground->CreateShape(&sd);
+			// Bottom horizontal
+			shape.SetAsEdge(b2Vec2(-20.0f, -20.0f), b2Vec2(20.0f, -20.0f));
+			ground->CreateFixture(&sd);
 		}
 
 		{
-			b2XForm xf1;
+			b2Transform xf1;
 			xf1.R.Set(0.3524f * b2_pi);
 			xf1.position = b2Mul(xf1.R, b2Vec2(1.0f, 0.0f));
 
-			b2PolygonDef sd1;
-			sd1.vertexCount = 3;
-			sd1.vertices[0] = b2Mul(xf1, b2Vec2(-1.0f, 0.0f));
-			sd1.vertices[1] = b2Mul(xf1, b2Vec2(1.0f, 0.0f));
-			sd1.vertices[2] = b2Mul(xf1, b2Vec2(0.0f, 0.5f));
-			sd1.density = 2.0f;
+			b2Vec2 vertices[3];
+			vertices[0] = b2Mul(xf1, b2Vec2(-1.0f, 0.0f));
+			vertices[1] = b2Mul(xf1, b2Vec2(1.0f, 0.0f));
+			vertices[2] = b2Mul(xf1, b2Vec2(0.0f, 0.5f));
+			
+			b2PolygonShape poly1;
+			poly1.Set(vertices, 3);
 
-			b2XForm xf2;
+			b2FixtureDef sd1;
+			sd1.shape = &poly1;
+			sd1.density = 4.0f;
+
+			b2Transform xf2;
 			xf2.R.Set(-0.3524f * b2_pi);
 			xf2.position = b2Mul(xf2.R, b2Vec2(-1.0f, 0.0f));
 
-			b2PolygonDef sd2;
-			sd2.vertexCount = 3;
-			sd2.vertices[0] = b2Mul(xf2, b2Vec2(-1.0f, 0.0f));
-			sd2.vertices[1] = b2Mul(xf2, b2Vec2(1.0f, 0.0f));
-			sd2.vertices[2] = b2Mul(xf2, b2Vec2(0.0f, 0.5f));
+			vertices[0] = b2Mul(xf2, b2Vec2(-1.0f, 0.0f));
+			vertices[1] = b2Mul(xf2, b2Vec2(1.0f, 0.0f));
+			vertices[2] = b2Mul(xf2, b2Vec2(0.0f, 0.5f));
+			
+			b2PolygonShape poly2;
+			poly2.Set(vertices, 3);
+
+			b2FixtureDef sd2;
+			sd2.shape = &poly2;
 			sd2.density = 2.0f;
 
 			b2BodyDef bd;
-			bd.angularDamping = 2.0f;
+			bd.type = b2_dynamicBody;
+			bd.angularDamping = 5.0f;
 			bd.linearDamping = 0.1f;
 
-			bd.position.Set(0.0f, 1.05f);
+			bd.position.Set(0.0f, 2.0);
 			bd.angle = b2_pi;
+			bd.allowSleep = false;
 			m_body = m_world->CreateBody(&bd);
-			m_body->CreateShape(&sd1);
-			m_body->CreateShape(&sd2);
-			m_body->SetMassFromShapes();
+			m_body->CreateFixture(&sd1);
+			m_body->CreateFixture(&sd2);
+		}
+
+		{
+			b2PolygonShape shape;
+			shape.SetAsBox(0.5f, 0.5f);
+
+			b2FixtureDef fd;
+			fd.shape = &shape;
+			fd.density = 1.0f;
+			fd.friction = 0.3f;
+
+			for (int i = 0; i < 10; ++i)
+			{
+				b2BodyDef bd;
+				bd.type = b2_dynamicBody;
+
+				bd.position.Set(0.0f, 5.0f + 1.54f * i);
+				b2Body* body = m_world->CreateBody(&bd);
+
+				body->CreateFixture(&fd);
+
+				float32 gravity = 10.0f;
+				float32 I = body->GetInertia();
+				float32 mass = body->GetMass();
+
+				// For a circle: I = 0.5 * m * r * r ==> r = sqrt(2 * I / m)
+				float32 radius = b2Sqrt(2.0f * I / mass);
+
+				b2FrictionJointDef jd;
+				jd.localAnchorA.SetZero();
+				jd.localAnchorB.SetZero();
+				jd.bodyA = ground;
+				jd.bodyB = body;
+				jd.collideConnected = true;
+				jd.maxForce = mass * gravity;
+				jd.maxTorque = mass * radius * gravity;
+
+				m_world->CreateJoint(&jd);
+			}
 		}
 	}
 
@@ -100,13 +157,13 @@ public:
 
 		case 'a':
 			{
-				m_body->ApplyTorque(20.0f);
+				m_body->ApplyTorque(50.0f);
 			}
 			break;
 
 		case 'd':
 			{
-				m_body->ApplyTorque(-20.0f);
+				m_body->ApplyTorque(-50.0f);
 			}
 			break;
 		}

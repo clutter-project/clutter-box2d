@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -19,26 +19,47 @@
 #ifndef TEST_H
 #define TEST_H
 
-#include "Box2D.h"
+#include <Box2D/Box2D.h>
 #include "Render.h"
+
+#include <cstdlib>
 
 class Test;
 struct Settings;
 
 typedef Test* TestCreateFcn();
 
+#define	RAND_LIMIT	32767
+
+/// Random number in range [-1,1]
+inline float32 RandomFloat()
+{
+	float32 r = (float32)(rand() & (RAND_LIMIT));
+	r /= RAND_LIMIT;
+	r = 2.0f * r - 1.0f;
+	return r;
+}
+
+/// Random floating point number in range [lo, hi]
+inline float32 RandomFloat(float32 lo, float32 hi)
+{
+	float32 r = (float32)(rand() & (RAND_LIMIT));
+	r /= RAND_LIMIT;
+	r = (hi - lo) * r + lo;
+	return r;
+}
+
+/// Test settings. Some can be controlled in the GUI.
 struct Settings
 {
 	Settings() :
 		hz(60.0f),
-		velocityIterations(10),
-		positionIterations(8),
+		velocityIterations(8),
+		positionIterations(3),
 		drawStats(0),
 		drawShapes(1),
 		drawJoints(1),
-		drawCoreShapes(0),
 		drawAABBs(0),
-		drawOBBs(0),
 		drawPairs(0),
 		drawContactPoints(0),
 		drawContactNormals(0),
@@ -46,7 +67,7 @@ struct Settings
 		drawFrictionForces(0),
 		drawCOMs(0),
 		enableWarmStarting(1),
-		enableTOI(1),
+		enableContinuous(1),
 		pause(0),
 		singleStep(0)
 		{}
@@ -56,9 +77,7 @@ struct Settings
 	int32 positionIterations;
 	int32 drawShapes;
 	int32 drawJoints;
-	int32 drawCoreShapes;
 	int32 drawAABBs;
-	int32 drawOBBs;
 	int32 drawPairs;
 	int32 drawContactPoints;
 	int32 drawContactNormals;
@@ -67,7 +86,7 @@ struct Settings
 	int32 drawCOMs;
 	int32 drawStats;
 	int32 enableWarmStarting;
-	int32 enableTOI;
+	int32 enableContinuous;
 	int32 pause;
 	int32 singleStep;
 };
@@ -85,51 +104,24 @@ extern TestEntry g_testEntries[];
 class DestructionListener : public b2DestructionListener
 {
 public:
-	void SayGoodbye(b2Shape* shape) { B2_NOT_USED(shape); }
+	void SayGoodbye(b2Fixture* fixture) { B2_NOT_USED(fixture); }
 	void SayGoodbye(b2Joint* joint);
-
-	Test* test;
-};
-
-class BoundaryListener : public b2BoundaryListener	
-{
-public:
-	void Violation(b2Body* body);
 
 	Test* test;
 };
 
 const int32 k_maxContactPoints = 2048;
 
-class ContactListener : public b2ContactListener
-{
-public:
-	void Add(const b2ContactPoint* point);
-	void Persist(const b2ContactPoint* point);
-	void Remove(const b2ContactPoint* point);
-
-	Test* test;
-};
-
-enum ContactState
-{
-	e_contactAdded,
-	e_contactPersisted,
-	e_contactRemoved,
-};
-
 struct ContactPoint
 {
-	b2Shape* shape1;
-	b2Shape* shape2;
+	b2Fixture* fixtureA;
+	b2Fixture* fixtureB;
 	b2Vec2 normal;
 	b2Vec2 position;
-	b2Vec2 velocity;
-	b2ContactID id;
-	ContactState state;
+	b2PointState state;
 };
 
-class Test
+class Test : public b2ContactListener
 {
 public:
 
@@ -150,23 +142,29 @@ public:
 	void SpawnBomb(const b2Vec2& worldPt);
 	void CompleteBombSpawn(const b2Vec2& p);
 
-
 	// Let derived tests know that a joint was destroyed.
 	virtual void JointDestroyed(b2Joint* joint) { B2_NOT_USED(joint); }
-	virtual void BoundaryViolated(b2Body* body) { B2_NOT_USED(body); }
 
-    
+	// Callbacks for derived classes.
+	virtual void BeginContact(b2Contact* contact) { B2_NOT_USED(contact); }
+	virtual void EndContact(b2Contact* contact) { B2_NOT_USED(contact); }
+	virtual void PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
+	virtual void PostSolve(const b2Contact* contact, const b2ContactImpulse* impulse)
+	{
+		B2_NOT_USED(contact);
+		B2_NOT_USED(impulse);
+	}
+
 protected:
 	friend class DestructionListener;
 	friend class BoundaryListener;
 	friend class ContactListener;
 
+	b2Body* m_groundBody;
 	b2AABB m_worldAABB;
 	ContactPoint m_points[k_maxContactPoints];
 	int32 m_pointCount;
 	DestructionListener m_destructionListener;
-	BoundaryListener m_boundaryListener;
-	ContactListener m_contactListener;
 	DebugDraw m_debugDraw;
 	int32 m_textLine;
 	b2World* m_world;
@@ -175,6 +173,7 @@ protected:
 	b2Vec2 m_bombSpawnPoint;
 	bool m_bombSpawning;
 	b2Vec2 m_mouseWorld;
+	int32 m_stepCount;
 };
 
 #endif

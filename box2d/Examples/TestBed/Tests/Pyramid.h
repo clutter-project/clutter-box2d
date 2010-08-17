@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -22,40 +22,43 @@
 class Pyramid : public Test
 {
 public:
+	enum
+	{
+		e_count = 20,
+	};
+
 	Pyramid()
 	{
 		{
-			b2PolygonDef sd;
-			sd.SetAsBox(50.0f, 10.0f);
-
 			b2BodyDef bd;
-			bd.position.Set(0.0f, -10.0f);
 			b2Body* ground = m_world->CreateBody(&bd);
-			ground->CreateShape(&sd);
+
+			b2PolygonShape shape;
+			shape.SetAsEdge(b2Vec2(-40.0f, 0.0f), b2Vec2(40.0f, 0.0f));
+			ground->CreateFixture(&shape, 0.0f);
 		}
 
 		{
-			b2PolygonDef sd;
 			float32 a = 0.5f;
-			sd.SetAsBox(a, a);
-			sd.density = 5.0f;
+			b2PolygonShape shape;
+			shape.SetAsBox(a, a);
 
-			b2Vec2 x(-10.0f, 1.0f);
+			b2Vec2 x(-7.0f, 0.75f);
 			b2Vec2 y;
-			b2Vec2 deltaX(0.5625f, 2.0f);
+			b2Vec2 deltaX(0.5625f, 1.25f);
 			b2Vec2 deltaY(1.125f, 0.0f);
 
-			for (int32 i = 0; i < 25; ++i)
+			for (int32 i = 0; i < e_count; ++i)
 			{
 				y = x;
 
-				for (int32 j = i; j < 25; ++j)
+				for (int32 j = i; j < e_count; ++j)
 				{
 					b2BodyDef bd;
+					bd.type = b2_dynamicBody;
 					bd.position = y;
 					b2Body* body = m_world->CreateBody(&bd);
-					body->CreateShape(&sd);
-					body->SetMassFromShapes();
+					body->CreateFixture(&shape, 5.0f);
 
 					y += deltaY;
 				}

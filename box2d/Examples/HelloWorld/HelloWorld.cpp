@@ -16,23 +16,19 @@
 * 3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "Box2D.h"
+#include <Box2D/Box2D.h>
 
 #include <cstdio>
 
 // This is a simple example of building and running a simulation
 // using Box2D. Here we create a large ground box and a small dynamic
 // box.
+// There are no graphics for this example. Box2D is meant to be used
+// with your rendering engine in your game engine.
 int main(int argc, char** argv)
 {
 	B2_NOT_USED(argc);
 	B2_NOT_USED(argv);
-
-	// Define the size of the world. Simulation will still work
-	// if bodies reach the end of the world, but it will be slower.
-	b2AABB worldAABB;
-	worldAABB.lowerBound.Set(-100.0f, -100.0f);
-	worldAABB.upperBound.Set(100.0f, 100.0f);
 
 	// Define the gravity vector.
 	b2Vec2 gravity(0.0f, -10.0f);
@@ -41,7 +37,7 @@ int main(int argc, char** argv)
 	bool doSleep = true;
 
 	// Construct a world object, which will hold and simulate the rigid bodies.
-	b2World world(worldAABB, gravity, doSleep);
+	b2World world(gravity, doSleep);
 
 	// Define the ground body.
 	b2BodyDef groundBodyDef;
@@ -53,49 +49,54 @@ int main(int argc, char** argv)
 	b2Body* groundBody = world.CreateBody(&groundBodyDef);
 
 	// Define the ground box shape.
-	b2PolygonDef groundShapeDef;
+	b2PolygonShape groundBox;
 
 	// The extents are the half-widths of the box.
-	groundShapeDef.SetAsBox(50.0f, 10.0f);
+	groundBox.SetAsBox(50.0f, 10.0f);
 
-	// Add the ground shape to the ground body.
-	groundBody->CreateShape(&groundShapeDef);
+	// Add the ground fixture to the ground body.
+	groundBody->CreateFixture(&groundBox, 0.0f);
 
 	// Define the dynamic body. We set its position and call the body factory.
 	b2BodyDef bodyDef;
+	bodyDef.type = b2_dynamicBody;
 	bodyDef.position.Set(0.0f, 4.0f);
 	b2Body* body = world.CreateBody(&bodyDef);
 
 	// Define another box shape for our dynamic body.
-	b2PolygonDef shapeDef;
-	shapeDef.SetAsBox(1.0f, 1.0f);
+	b2PolygonShape dynamicBox;
+	dynamicBox.SetAsBox(1.0f, 1.0f);
+
+	// Define the dynamic body fixture.
+	b2FixtureDef fixtureDef;
+	fixtureDef.shape = &dynamicBox;
 
 	// Set the box density to be non-zero, so it will be dynamic.
-	shapeDef.density = 1.0f;
+	fixtureDef.density = 1.0f;
 
 	// Override the default friction.
-	shapeDef.friction = 0.3f;
+	fixtureDef.friction = 0.3f;
 
 	// Add the shape to the body.
-	body->CreateShape(&shapeDef);
-
-	// Now tell the dynamic body to compute it's mass properties base
-	// on its shape.
-	body->SetMassFromShapes();
+	body->CreateFixture(&fixtureDef);
 
 	// Prepare for simulation. Typically we use a time step of 1/60 of a
 	// second (60Hz) and 10 iterations. This provides a high quality simulation
 	// in most game scenarios.
 	float32 timeStep = 1.0f / 60.0f;
-	int32 velocityIterations = 8;
-	int32 positionIterations = 1;
+	int32 velocityIterations = 6;
+	int32 positionIterations = 2;
 
 	// This is our little game loop.
 	for (int32 i = 0; i < 60; ++i)
 	{
-		// Instruct the world to perform a single step of simulation. It is
-		// generally best to keep the time step and iterations fixed.
+		// Instruct the world to perform a single step of simulation.
+		// It is generally best to keep the time step and iterations fixed.
 		world.Step(timeStep, velocityIterations, positionIterations);
+
+		// Clear applied body forces. We didn't apply any forces, but you
+		// should know about this function.
+		world.ClearForces();
 
 		// Now print the position and angle of the body.
 		b2Vec2 position = body->GetPosition();

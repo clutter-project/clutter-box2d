@@ -17,6 +17,26 @@
 
 G_BEGIN_DECLS
 
+struct _ClutterBox2DPrivate
+{
+  gint             iterations;  /* number of engine iterations per processing */
+  gfloat           time_step;   /* Time step to simulate */
+  gfloat           max_step;    /* Largest time step to simulate before lagging */
+  gfloat           time_delta;  /* The amount of accumulated time to simulate */
+  ClutterTimeline *timeline;    /* The timeline driving the simulation        */
+  gboolean         first_iteration;
+
+  b2World         *world;  /* The Box2D world which contains our simulation*/
+  GHashTable      *actors; /* a hash table that maps actors to */
+  GHashTable      *bodies; /* a hash table that maps bodies to */
+  GHashTable      *joints;
+  b2Body          *ground_body;
+
+  GList           *collisions; /* List of ClutterBox2DCollision contact 
+                                * points from last iteration through time */
+  ClutterBox2DContactListener *contact_listener;
+};
+
 struct _ClutterBox2DChildPrivate {
   /* Clutter-related variables */
   gboolean manipulatable;
@@ -38,7 +58,7 @@ struct _ClutterBox2DChildPrivate {
   guint             n_vertices;
 
   b2Body           *body;   /* Box2D body, if any */
-  b2Shape          *shape;  /* shape attached to this body, if any */
+  b2Fixture        *fixture; /* Fixture for this body, if any */
   GList            *joints; /* list of joints this body participates in */
   b2World          *world;  /*the Box2D world (could be looked up through box2d)*/
 

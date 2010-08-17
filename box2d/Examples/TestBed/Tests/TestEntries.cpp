@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Erin Catto http://www.gphysics.com
+* Copyright (c) 2006-2009 Erin Catto http://www.gphysics.com
 *
 * This software is provided 'as-is', without any express or implied
 * warranty.  In no event will the authors be held liable for any damages
@@ -18,36 +18,34 @@
 
 #include "../Framework/Test.h"
 #include "../Framework/Render.h"
-
-#ifdef __APPLE__
-#include <GLUT/glut.h>
-#else
-#include "freeglut/GL/glut.h"
-#endif
+#include "../../freeglut/GL/glut.h"
+#include <cstring>
 
 #include "ApplyForce.h"
-#include "BipedTest.h"
-#include "BreakableBody.h"
+#include "BodyTypes.h"
+#include "Breakable.h"
 #include "Bridge.h"
-#include "BroadPhaseTest.h"
-#include "Car.h"
-#include "CCDTest.h"
+#include "Cantilever.h"
+#include "ContinuousTest.h"
 #include "Chain.h"
-#include "ContactCallbackTest.h"
+#include "CharacterCollision.h"
 #include "CollisionFiltering.h"
 #include "CollisionProcessing.h"
 #include "CompoundShapes.h"
+#include "Confined.h"
 #include "DistanceTest.h"
 #include "Dominos.h"
-#include "ElasticBody.h"
+#include "DynamicTreeTest.h"
+#include "EdgeShapes.h"
 #include "Gears.h"
 #include "LineJoint.h"
+#include "OneSidedPlatform.h"
 #include "PolyCollision.h"
 #include "PolyShapes.h"
 #include "Prismatic.h"
 #include "Pulleys.h"
 #include "Pyramid.h"
-#include "RaycastTest.h"
+#include "RayCast.h"
 #include "Revolute.h"
 #include "SensorTest.h"
 #include "ShapeEditing.h"
@@ -60,42 +58,43 @@
 #include "VerticalStack.h"
 #include "Web.h"
 
-
 TestEntry g_testEntries[] =
 {
-	{"Line Joint", LineJoint::Create},
-	{"SphereStack", SphereStack::Create},
-	{"Pyramid", Pyramid::Create},
-	{"Prismatic", Prismatic::Create},
-	{"Revolute", Revolute::Create},
-	{"Bridge", Bridge::Create},
-	{"Sensor Test", SensorTest::Create},
-	{"Breakable Body", BreakableBody::Create},
-	{"Vertical Stack", VerticalStack::Create},
-	{"Polygon Shapes", PolyShapes::Create},
-	{"Theo Jansen's Walker", TheoJansen::Create},
-	{"Contact Callback Test", ContactCB::Create},
-	{"Web", Web::Create},
-	{"Varying Friction", VaryingFriction::Create},
-	{"Varying Restitution", VaryingRestitution::Create},
-	{"Dominos", Dominos::Create},
-	{"CCD Test", CCDTest::Create},
-	{"Biped Test", BipedTest::Create},
-	{"Car", Car::Create},
-	{"Gears", Gears::Create},
-	{"Slider Crank", SliderCrank::Create},
-	{"Compound Shapes", CompoundShapes::Create},
-	{"Chain", Chain::Create},
-	{"Collision Processing", CollisionProcessing::Create},
-	{"Collision Filtering", CollisionFiltering::Create},
-	{"Apply Force", ApplyForce::Create},
-	{"Pulleys", Pulleys::Create},
-	{"Shape Editing", ShapeEditing::Create},
 	{"Time of Impact", TimeOfImpact::Create},
-	{"Distance Test", DistanceTest::Create},
-	{"Broad Phase", BroadPhaseTest::Create},
+	{"Ray-Cast", RayCast::Create},
+	{"One-Sided Platform", OneSidedPlatform::Create},
+	{"Confined", Confined::Create},
+	{"Vertical Stack", VerticalStack::Create},
+	{"Pyramid", Pyramid::Create},
+	{"Varying Restitution", VaryingRestitution::Create},
+	{"Theo Jansen's Walker", TheoJansen::Create},
+	{"Body Types", BodyTypes::Create},
+	{"Character Collision", CharacterCollision::Create},
+	{"Prismatic", Prismatic::Create},
+	{"Edge Shapes", EdgeShapes::Create},
+	{"Continuous Test", ContinuousTest::Create},
 	{"PolyCollision", PolyCollision::Create},
-	{"Elastic Body", ElasticBody::Create},
-	{"Raycast Test", RaycastTest::Create},
+	{"Polygon Shapes", PolyShapes::Create},
+	{"Apply Force", ApplyForce::Create},
+	{"Cantilever", Cantilever::Create},
+	{"SphereStack", SphereStack::Create},
+	{"Bridge", Bridge::Create},
+	{"Breakable", Breakable::Create},
+	{"Chain", Chain::Create},
+	{"Collision Filtering", CollisionFiltering::Create},
+	{"Collision Processing", CollisionProcessing::Create},
+	{"Compound Shapes", CompoundShapes::Create},
+	{"Distance Test", DistanceTest::Create},
+	{"Dominos", Dominos::Create},
+	{"Dynamic Tree", DynamicTreeTest::Create},
+	{"Gears", Gears::Create},
+	{"Line Joint", LineJoint::Create},
+	{"Pulleys", Pulleys::Create},
+	{"Revolute", Revolute::Create},
+	{"Sensor Test", SensorTest::Create},
+	{"Shape Editing", ShapeEditing::Create},
+	{"Slider Crank", SliderCrank::Create},
+	{"Varying Friction", VaryingFriction::Create},
+	{"Web", Web::Create},
 	{NULL, NULL}
 };

@@ -19,7 +19,7 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "Box2D.h"
+#include <Box2D/Box2D.h>
 
 struct b2AABB;
 
@@ -38,7 +38,7 @@ public:
 
 	void DrawSegment(const b2Vec2& p1, const b2Vec2& p2, const b2Color& color);
 
-	void DrawXForm(const b2XForm& xf);
+	void DrawTransform(const b2Transform& xf);
 
     void DrawPoint(const b2Vec2& p, float32 size, const b2Color& color);
 
