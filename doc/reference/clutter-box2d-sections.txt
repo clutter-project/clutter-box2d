@@ -5,6 +5,8 @@ ClutterBox2DType
 ClutterBox2D
 ClutterBox2DClass
 clutter_box2d_new
+clutter_box2d_set_gravity
+clutter_box2d_get_gravity
 clutter_box2d_set_simulating
 clutter_box2d_get_simulating
 clutter_box2d_set_scale_factor

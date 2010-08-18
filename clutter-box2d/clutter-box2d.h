@@ -108,6 +108,26 @@ GType            clutter_box2d_get_type         (void) G_GNUC_CONST;
 ClutterActor *   clutter_box2d_new (void);
 
 /**
+ * clutter_box2d_set_gravity:
+ * @box2d: a #ClutterBox2D
+ * @gravity: The gravity vector
+ *
+ * Sets the world's gravity on the x and y axes. The z axis is ignored.
+ */
+void  clutter_box2d_set_gravity (ClutterBox2D  *box2d,
+                                 ClutterVertex *gravity);
+
+/**
+ * clutter_box2d_get_gravity:
+ * @box2d: a #ClutterBox2D
+ * @gravity: a #ClutterVertex
+ *
+ * Retrieves the world's gravity vector and puts it in @gravity.
+ */
+void  clutter_box2d_get_gravity (ClutterBox2D  *box2d,
+                                 ClutterVertex *gravity);
+
+/**
  * clutter_box2d_set_simulating:
  * @box2d: a #ClutterBox2D
  * @simulating: the new state, TRUE or FALSE

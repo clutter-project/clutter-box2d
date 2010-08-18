@@ -95,9 +95,7 @@ clutter_box2d_set_property (GObject      *gobject,
     case PROP_GRAVITY:
       {
         ClutterVertex *gravity = (ClutterVertex*) g_value_get_boxed (value);
-        b2Vec2 b2gravity = b2Vec2( (gravity->x),
-                                   (gravity->y));
-        box2d->priv->world->SetGravity (b2gravity);
+        clutter_box2d_set_gravity (box2d, gravity);
       }
       break;
     case PROP_SIMULATING:
@@ -126,6 +124,14 @@ clutter_box2d_get_property (GObject    *gobject,
 
   switch (prop_id)
     {
+    case PROP_GRAVITY:
+      {
+        ClutterVertex gravity;
+        clutter_box2d_get_gravity (box2d, &gravity);
+        g_value_set_boxed (value, &gravity);
+      }
+      break;
+
     case PROP_SIMULATING:
       g_value_set_boolean (value, clutter_box2d_get_simulating (box2d));
       break;
@@ -163,7 +169,7 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
                                                        "Gravity",
                                                        "The gravity of ",
                                                        CLUTTER_TYPE_VERTEX,
-                                                       G_PARAM_WRITABLE));
+                                                       static_cast<GParamFlags>(G_PARAM_READWRITE)));
 
   g_object_class_install_property (gobject_class,
                                    PROP_SIMULATING,
@@ -586,6 +592,44 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
     msecs = clutter_timeline_get_delta (timeline);
 
   CLUTTER_BOX2D_GET_CLASS (box2d)->iterate (box2d, msecs);
+}
+
+void
+clutter_box2d_set_gravity (ClutterBox2D  *box2d,
+                           ClutterVertex *gravity)
+{
+  ClutterVertex old_gravity;
+
+  g_return_if_fail (CLUTTER_IS_BOX2D (box2d));
+
+  clutter_box2d_get_gravity (box2d, &old_gravity);
+  if ((gravity->x != old_gravity.x) ||
+      (gravity->y != old_gravity.y))
+    {
+      b2Vec2 b2gravity = b2Vec2 (gravity->x, gravity->y);
+
+      box2d->priv->world->SetGravity (b2gravity);
+
+      g_object_notify (G_OBJECT (box2d), "gravity");
+    }
+}
+
+void
+clutter_box2d_get_gravity (ClutterBox2D  *box2d,
+                           ClutterVertex *gravity)
+{
+  b2Vec2 b2gravity;
+
+  g_return_if_fail (CLUTTER_IS_BOX2D (box2d));
+
+  if (!gravity)
+    return;
+
+  b2gravity = box2d->priv->world->GetGravity ();
+
+  gravity->x = b2gravity.x;
+  gravity->y = b2gravity.y;
+  gravity->z = 0;
 }
 
 void
