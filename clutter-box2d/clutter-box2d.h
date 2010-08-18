@@ -89,6 +89,14 @@ GType            clutter_box2d_get_type         (void) G_GNUC_CONST;
  * Whether the physics simulation engine is running or not.
  */
 
+/**
+ * ClutterBox2D:scale-factor
+ *
+ * The scaling factor of pixels to world units. For example, if you consider
+ * world units to be metres, setting a scale-factor of 1/50 would make 50
+ * pixels equivalent to 1 metre.
+ */
+
 
 /**
  * clutter_box2d_new:
