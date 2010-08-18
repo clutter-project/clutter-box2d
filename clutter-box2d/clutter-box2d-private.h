@@ -21,7 +21,6 @@ struct _ClutterBox2DPrivate
 {
   gint             iterations;  /* number of engine iterations per processing */
   gfloat           time_step;   /* Time step to simulate */
-  gfloat           max_step;    /* Largest time step to simulate before lagging */
   gfloat           time_delta;  /* The amount of accumulated time to simulate */
   gfloat           scale_factor; /* The scale factor of pixels to units */
   gfloat           inv_scale_factor; /* The inverse of the above */

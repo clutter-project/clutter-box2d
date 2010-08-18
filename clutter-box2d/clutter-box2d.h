@@ -97,6 +97,22 @@ GType            clutter_box2d_get_type         (void) G_GNUC_CONST;
  * pixels equivalent to 1 metre.
  */
 
+/**
+ * ClutterBox2D:time-step
+ *
+ * The amount of time simulated between physics steps. Lower values tend to
+ * yield a higher-quality. 60fps (i.e. 1000/60) is the default and recomended
+ * value.
+ */
+
+/**
+ * ClutterBox2D:iterations
+ *
+ * The amount of iterations to perform on each physics step to resolve
+ * contacts and joints. Larger values yield a more accurate simulation,
+ * at the cost of CPU usage.
+ */
+
 
 /**
  * clutter_box2d_new:

@@ -37,7 +37,9 @@ enum
   PROP_0,
   PROP_GRAVITY,
   PROP_SIMULATING,
-  PROP_SCALE_FACTOR
+  PROP_SCALE_FACTOR,
+  PROP_TIME_STEP,
+  PROP_ITERATIONS
 };
 
 typedef enum 
@@ -108,6 +110,26 @@ clutter_box2d_set_property (GObject      *gobject,
         clutter_box2d_set_scale_factor (box2d, g_value_get_float (value));
       }
       break;
+    case PROP_TIME_STEP:
+      {
+        gfloat time_step = g_value_get_float (value);
+        if (box2d->priv->time_step != time_step)
+          {
+            box2d->priv->time_step = time_step;
+            g_object_notify (gobject, "time-step");
+          }
+      }
+      break;
+    case PROP_ITERATIONS:
+      {
+        gint iterations = g_value_get_int (value);
+        if (box2d->priv->iterations != iterations)
+          {
+            box2d->priv->iterations = iterations;
+            g_object_notify (gobject, "iterations");
+          }
+      }
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -138,6 +160,14 @@ clutter_box2d_get_property (GObject    *gobject,
 
     case PROP_SCALE_FACTOR:
       g_value_set_float (value, clutter_box2d_get_scale_factor (box2d));
+      break;
+
+    case PROP_TIME_STEP:
+      g_value_set_float (value, box2d->priv->time_step);
+      break;
+
+    case PROP_ITERATIONS:
+      g_value_set_int (value, box2d->priv->iterations);
       break;
 
     default:
@@ -184,7 +214,23 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
                                    g_param_spec_float ("scale-factor",
                                                        "Scale factor",
                                                        "The scaling factor of pixels to world units",
-                                                       G_MINFLOAT, G_MAXFLOAT, 0.05f,
+                                                       G_MINFLOAT, G_MAXFLOAT, 1/50.f,
+                                                       static_cast<GParamFlags>(G_PARAM_READWRITE)));
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_TIME_STEP,
+                                   g_param_spec_float ("time-step",
+                                                       "Time step",
+                                                       "The amount of time simulated in a physics step, in milliseconds",
+                                                       1.f, 1000.f, 1000/60.f,
+                                                       static_cast<GParamFlags>(G_PARAM_READWRITE)));
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_ITERATIONS,
+                                   g_param_spec_float ("iterations",
+                                                       "Iterations",
+                                                       "The amount of iterations in a physics step",
+                                                       1, G_MAXINT, 10,
                                                        static_cast<GParamFlags>(G_PARAM_READWRITE)));
 }
 
@@ -197,18 +243,17 @@ clutter_box2d_init (ClutterBox2D *self)
   /* Create a new world with default gravity parameters and allowing inactive
    * bodies to not be simulated (improves performance).
    */
-  priv->world = new b2World (b2Vec2 (0.0f, 30.0f), true);
+  priv->world = new b2World (b2Vec2 (0.0f, 9.8f), true);
 
   /* The Box2D manual recommends 10 iterations, but this isn't really
    * high enough to maintain a stable simulation with many stacked
    * actors.
    */
-  priv->iterations = 25;
+  priv->iterations = 10;
   priv->time_step  = 1000 / 60.f;
-  priv->max_step   = 1000 / 15.f;
 
-  priv->scale_factor     = 0.05f;
-  priv->inv_scale_factor = 1.f / 0.05f;
+  priv->scale_factor     = 1/50.f;
+  priv->inv_scale_factor = 1.f / priv->scale_factor;
 
   priv->actors = g_hash_table_new (g_direct_hash, g_direct_equal);
   priv->bodies = g_hash_table_new (g_direct_hash, g_direct_equal);
@@ -522,10 +567,11 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
 
     /* We do multiple iterations trying to keep up with
      * priv->time_step (60fps by default). We start
-     * slowing the simulation when the framerate drops
-     * below priv->max_step (15fps by default).
+     * slowing the simulation when more than 4 frames are
+     * skipped (so by default, when the framerate drops below
+     * 15fps).
      */
-    priv->time_delta = MIN (priv->time_delta + msecs, priv->max_step);
+    priv->time_delta = MIN (priv->time_delta + msecs, priv->time_step * 4.f);
     while (priv->time_delta > priv->time_step)
       {
         world->Step (priv->time_step / 1000.f, steps, steps);
