@@ -11,7 +11,10 @@ MARSHALFILES = clutter-box2d-marshal.c clutter-box2d-marshal.h
 BUILT_SOURCES = $(MARSHALFILES)
 
 libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_LIBADD  = @DEPS_LIBS@ $(top_builddir)/box2d/libbox2d.la
-libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_LDFLAGS = @CLUTTER_BOX2D_LT_LDFLAGS@
+libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_LDFLAGS =	\
+	@CLUTTER_BOX2D_LT_LDFLAGS@				\
+	-export-symbols-regex "^clutter.*"			\
+	$(NULL)
 libclutter_box2d_@CLUTTER_BOX2D_API_VERSION@_la_SOURCES = \
     clutter-box2d.cpp           \
     clutter-box2d-child.cpp     \
@@ -39,7 +42,7 @@ CLEANFILES=
 EXTRA_DIST = 
 
 glib_marshal_list = clutter-box2d-marshal.list
-glib_marshal_prefix = clutter_box2d_marshal
+glib_marshal_prefix = _clutter_box2d_marshal
 include $(top_srcdir)/build/autotools/Makefile.am.marshal
 
 INTROSPECTION_GIRS =

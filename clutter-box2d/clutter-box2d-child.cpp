@@ -469,7 +469,7 @@ clutter_box2d_child_class_init (ClutterBox2DChildClass *klass)
                                  G_SIGNAL_RUN_LAST,
                                  0,
                                  NULL, NULL,
-                                 clutter_box2d_marshal_VOID__OBJECT,
+                                 _clutter_box2d_marshal_VOID__OBJECT,
                                  G_TYPE_NONE, 1, 
                                  CLUTTER_TYPE_BOX2D_COLLISION);
 
