@@ -57,6 +57,7 @@ struct _ClutterBox2DChildPrivate {
                              included in the simulation. */
   gboolean          is_circle;
   ClutterVertex    *outline;
+  b2Vec2           *b2outline;
   guint             n_vertices;
 
   b2Body           *body;   /* Box2D body, if any */

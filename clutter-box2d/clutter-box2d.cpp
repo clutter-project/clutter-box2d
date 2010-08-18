@@ -366,12 +366,13 @@ ensure_shape (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
       else if (box2d_child->priv->outline)
         {
           gint i;
+          b2Vec2* b2outline = box2d_child->priv->b2outline;
           ClutterVertex *vertices = box2d_child->priv->outline;
 
           for (i = 0; i < box2d_child->priv->n_vertices; i++)
-            polygon.m_vertices[i].Set(vertices[i].x * width * priv->scale_factor,
-                                      vertices[i].y * height * priv->scale_factor);
-          polygon.m_vertexCount = i;
+            b2outline[i].Set(vertices[i].x * width * priv->scale_factor,
+                             vertices[i].y * height * priv->scale_factor);
+          polygon.Set(b2outline, i);
           shape = &polygon;
         }
       else

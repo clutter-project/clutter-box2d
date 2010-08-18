@@ -57,7 +57,8 @@ enum
 
 static gint box2d_child_signals[LAST_SIGNAL];
 
-static void     dispose                     (GObject      *object);
+static void     clutter_box2d_child_dispose     (GObject *object);
+static void     clutter_box2d_child_finalize    (GObject *object);
 static void     clutter_box2d_child_constructed (GObject *object);
 static gboolean clutter_box2d_child_press   (ClutterActor *actor,
                                              ClutterEvent *event,
@@ -350,7 +351,10 @@ clutter_box2d_child_set_property (GObject      *gobject,
           }
 
         g_free (box2d_child->priv->outline);
+        g_free (box2d_child->priv->b2outline);
         box2d_child->priv->outline = NULL;
+        box2d_child->priv->b2outline = NULL;
+        box2d_child->priv->n_vertices = 0;
 
         array = (GValueArray *)g_value_get_boxed (value);
         if (array && (array->n_values > 2))
@@ -363,6 +367,8 @@ clutter_box2d_child_set_property (GObject      *gobject,
                                           g_value_get_boxed (
                                             g_value_array_get_nth (array, i)));
             box2d_child->priv->n_vertices = array->n_values;
+            box2d_child->priv->b2outline = (b2Vec2 *)
+              g_malloc (sizeof (b2Vec2) * array->n_values);
           }
 
         g_object_notify (gobject, "outline");
@@ -452,7 +458,8 @@ clutter_box2d_child_class_init (ClutterBox2DChildClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  gobject_class->dispose      = dispose;
+  gobject_class->dispose      = clutter_box2d_child_dispose;
+  gobject_class->finalize     = clutter_box2d_child_finalize;
   gobject_class->set_property = clutter_box2d_child_set_property;
   gobject_class->get_property = clutter_box2d_child_get_property;
   gobject_class->constructed  = clutter_box2d_child_constructed;
@@ -581,7 +588,7 @@ clutter_box2d_child_init (ClutterBox2DChild *self)
 }
 
 static void
-dispose (GObject *object)
+clutter_box2d_child_dispose (GObject *object)
 {
   ClutterChildMeta *child_meta = CLUTTER_CHILD_META (object);
   ClutterBox2DChild *self = CLUTTER_BOX2D_CHILD (object);
@@ -606,6 +613,15 @@ dispose (GObject *object)
     }
 
   G_OBJECT_CLASS (clutter_box2d_child_parent_class)->dispose (object);
+}
+
+static void
+clutter_box2d_child_finalize (GObject *object)
+{
+  ClutterBox2DChildPrivate *priv = CLUTTER_BOX2D_CHILD (object)->priv;
+
+  g_free (priv->outline);
+  g_free (priv->b2outline);
 }
 
 static gboolean
@@ -812,14 +828,16 @@ clutter_box2d_child_set_outline (ClutterBox2D        *box2d,
     }
 
   g_free (priv->outline);
+  g_free (priv->b2outline);
   priv->outline = NULL;
   priv->n_vertices = 0;
 
-  if (outline && (n_vertices > 3))
+  if (outline && (n_vertices > 2))
     {
       priv->n_vertices = n_vertices;
       priv->outline = (ClutterVertex *)
         g_memdup (outline, sizeof (ClutterVertex) * n_vertices);
+      priv->b2outline = (b2Vec2 *)g_malloc (sizeof (b2Vec2) * n_vertices);
     }
 
   g_object_notify (gobject, "outline");
