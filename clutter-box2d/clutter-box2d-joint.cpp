@@ -276,6 +276,47 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
 
+ClutterBox2DJoint *
+clutter_box2d_add_pulley_joint (ClutterBox2D        *box2d,
+                                ClutterActor        *actor1,
+                                ClutterActor        *actor2,
+                                const ClutterVertex *anchor1,
+                                const ClutterVertex *anchor2,
+                                const ClutterVertex *ground_anchor1,
+                                const ClutterVertex *ground_anchor2,
+                                gdouble              max_length1,
+                                gdouble              max_length2,
+                                gdouble              ratio)
+{
+  ClutterBox2DPrivate *priv;
+  b2PulleyJointDef jd;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor1), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
+  g_return_val_if_fail (anchor1 != NULL, NULL);
+  g_return_val_if_fail (anchor2 != NULL, NULL);
+  g_return_val_if_fail (ground_anchor1 != NULL, NULL);
+  g_return_val_if_fail (ground_anchor2 != NULL, NULL);
+
+  priv = box2d->priv;
+
+  jd.Initialize (clutter_box2d_get_child (box2d, actor1)->priv->body,
+                 clutter_box2d_get_child (box2d, actor2)->priv->body,
+                 b2Vec2 (ground_anchor1->x * priv->scale_factor,
+                         ground_anchor1->y * priv->scale_factor),
+                 b2Vec2 (ground_anchor2->x * priv->scale_factor,
+                         ground_anchor2->y * priv->scale_factor),
+                 b2Vec2 (anchor1->x * priv->scale_factor,
+                         anchor1->y * priv->scale_factor),
+                 b2Vec2 (anchor2->x * priv->scale_factor,
+                         anchor2->y * priv->scale_factor),
+                 ratio);
+  jd.maxLengthA = max_length1 * priv->scale_factor;
+  jd.maxLengthB = max_length2 * priv->scale_factor;
+
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
+}
 
 ClutterBox2DJoint *
 clutter_box2d_add_mouse_joint (ClutterBox2D        *box2d,

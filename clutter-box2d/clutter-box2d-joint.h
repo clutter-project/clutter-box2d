@@ -104,7 +104,7 @@ ClutterBox2DJoint *clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
  * @actor1: first actor participating in joint
  * @actor2: second actor participating in joint
  * @anchor1: the local coordinates for the common point on @actor1
- * @anchor2: the local coordinates fro the common point on @actor2
+ * @anchor2: the local coordinates for the common point on @actor2
  * @min_length: minimum distance between anchor points
  * @max_length: maximum distance between anchor points.
  * @axis: the local translation axis in @body1.
@@ -123,6 +123,43 @@ ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d
                                                       gdouble              max_length,
                                                       const ClutterVertex *axis);
 
+/**
+ * clutter_box2d_add_pulley_joint:
+ * @box2d: a #ClutterBox2D
+ * @actor1: first actor participating in the joint
+ * @actor2: second actor participating in the joint
+ * @anchor1: the world coordinates for the anchor point on @actor1
+ * @anchor2: the world coordinates for the anchor point on @actor2
+ * @ground_anchor1: the world coordinates for the ground anchor point of @actor1
+ * @ground_anchor2: the world coordinates for the ground anchor point of @actor2
+ * @max_length1: The maximum length of the pulley rope for @actor1
+ * @max_length2: The maximum length of the pulley rope for @actor2
+ * @ratio: The pulley ratio between @actor1 and @actor2
+ *
+ * A pulley joint is used to create an idealized pulley. It connects two actors
+ * to each other via a virtual rope, extending from two 'ground' points in the
+ * world. The length of the rope is conserved according to the initial
+ * configuration. You can supply a ratio that simulates a block and tackle. This
+ * can be used to create mechanical leverage. For example, if @ratio is 2, the
+ * length of the rope suspending @actor1 will vary at twice the rate of that
+ * suspending @actor2.
+ *
+ * @max_length1 and @max_length2 are provided to increase stability, as the
+ * constraint equations become singular when either side's rope is of length
+ * zero. They can also be used for gameplay reasons.
+ *
+ * Returns: a #ClutterBox2DJoint handle, or %NULL on error.
+ */
+ClutterBox2DJoint *clutter_box2d_add_pulley_joint (ClutterBox2D        *box2d,
+                                                   ClutterActor        *actor1,
+                                                   ClutterActor        *actor2,
+                                                   const ClutterVertex *anchor1,
+                                                   const ClutterVertex *anchor2,
+                                                   const ClutterVertex *ground_anchor1,
+                                                   const ClutterVertex *ground_anchor2,
+                                                   gdouble              max_length1,
+                                                   gdouble              max_length2,
+                                                   gdouble              ratio);
 
 /**
  * clutter_box2d_add_mouse_joint:
