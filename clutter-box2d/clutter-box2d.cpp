@@ -391,6 +391,13 @@ ensure_shape (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
 {
   ClutterBox2DPrivate *priv = box2d->priv;
 
+  /* If the dirty flag is set, forcibly recreate the fixture */
+  if (priv->dirty && box2d_child->priv->fixture)
+    {
+      box2d_child->priv->body->DestroyFixture (box2d_child->priv->fixture);
+      box2d_child->priv->fixture = NULL;
+    }
+
   if (box2d_child->priv->fixture == NULL)
     {
       gfloat width, height;
@@ -477,9 +484,9 @@ _clutter_box2d_sync_body (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
       y += radius;
     }
 
-  b2Vec2 position = body->GetPosition ();
-
   ensure_shape (box2d, box2d_child);
+
+  b2Vec2 position = body->GetPosition ();
 
   if (fabs (x * priv->scale_factor - (position.x)) > 0.1 ||
       fabs (y * priv->scale_factor - (position.y)) > 0.1 ||
@@ -559,6 +566,7 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
         ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
         _clutter_box2d_sync_body (box2d, box2d_child);
       }
+    priv->dirty = FALSE;
 
     if (msecs == 0)
       return;
@@ -732,6 +740,7 @@ clutter_box2d_set_scale_factor (ClutterBox2D *box2d,
     {
       priv->scale_factor = scale_factor;
       priv->inv_scale_factor = 1.f/scale_factor;
+      priv->dirty = TRUE;
       g_object_notify (G_OBJECT (box2d), "scale-factor");
     }
 }

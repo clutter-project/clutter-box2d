@@ -32,6 +32,7 @@ struct _ClutterBox2DPrivate
   GHashTable      *bodies; /* a hash table that maps bodies to */
   GHashTable      *joints;
   b2Body          *ground_body;
+  gboolean         dirty;  /* Shapes need to be recreated */
 
   GList           *collisions; /* List of ClutterBox2DCollision contact 
                                 * points from last iteration through time */
