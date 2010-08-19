@@ -128,10 +128,12 @@ ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d
  * @box2d: a #ClutterBox2D
  * @actor1: first actor participating in the joint
  * @actor2: second actor participating in the joint
- * @anchor1: the world coordinates for the anchor point on @actor1
- * @anchor2: the world coordinates for the anchor point on @actor2
+ * @anchor1: the local coordinates for the anchor point on @actor1
+ * @anchor2: the local coordinates for the anchor point on @actor2
  * @ground_anchor1: the world coordinates for the ground anchor point of @actor1
  * @ground_anchor2: the world coordinates for the ground anchor point of @actor2
+ * @length1: The initial length of the pulley rope for @actor1
+ * @length2: The initial length of the pulley rope for @actor2
  * @max_length1: The maximum length of the pulley rope for @actor1
  * @max_length2: The maximum length of the pulley rope for @actor2
  * @ratio: The pulley ratio between @actor1 and @actor2
@@ -157,9 +159,36 @@ ClutterBox2DJoint *clutter_box2d_add_pulley_joint (ClutterBox2D        *box2d,
                                                    const ClutterVertex *anchor2,
                                                    const ClutterVertex *ground_anchor1,
                                                    const ClutterVertex *ground_anchor2,
+                                                   gdouble              length1,
+                                                   gdouble              length2,
                                                    gdouble              max_length1,
                                                    gdouble              max_length2,
                                                    gdouble              ratio);
+
+/**
+ * clutter_box2d_add_pulley_joint2:
+ * @box2d: a #ClutterBox2D
+ * @actor1: first actor participating in the joint
+ * @actor2: second actor participating in the joint
+ * @anchor1: the world coordinates for the anchor point on @actor1
+ * @anchor2: the world coordinates for the anchor point on @actor2
+ * @ground_anchor1: the world coordinates for the ground anchor point of @actor1
+ * @ground_anchor2: the world coordinates for the ground anchor point of @actor2
+ * @ratio: The pulley ratio between @actor1 and @actor2
+ *
+ * Convenience function for creating a pulley joint, using world coordinates.
+ * See clutter_box2d_add_pulley_joint().
+ *
+ * Returns: a #ClutterBox2DJoint handle, or %NULL on error.
+ */
+ClutterBox2DJoint *clutter_box2d_add_pulley_joint2 (ClutterBox2D        *box2d,
+                                                    ClutterActor        *actor1,
+                                                    ClutterActor        *actor2,
+                                                    const ClutterVertex *anchor1,
+                                                    const ClutterVertex *anchor2,
+                                                    const ClutterVertex *ground_anchor1,
+                                                    const ClutterVertex *ground_anchor2,
+                                                    gdouble              ratio);
 
 /**
  * clutter_box2d_add_mouse_joint:

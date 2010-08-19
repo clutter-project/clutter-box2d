@@ -38,9 +38,7 @@ scene_pulley_joint (Scene *scene)
   add_cage (box2d, FALSE);
 
   {
-
-    gint          i;
-    ClutterVertex v1, v2, v3, v4;
+    ClutterVertex v1, v2, v3;
     ClutterActor *joint1, *joint2, *box1, *box2;
 
     /* Create platform 1 */
@@ -109,14 +107,14 @@ scene_pulley_joint (Scene *scene)
                                       150, 0, 0);
 
     /* Create pulley joint */
-    v1 = (ClutterVertex){ 120, 260, 0 };
-    v2 = (ClutterVertex){ 540, 260, 0 };
-    v3 = (ClutterVertex){ 120, 50, 0};
-    v4 = (ClutterVertex){ 540, 50, 0};
+    v1 = (ClutterVertex){ 10, 10, 0 };
+    v2 = (ClutterVertex){ 120, 50, 0};
+    v3 = (ClutterVertex){ 540, 50, 0};
     clutter_box2d_add_pulley_joint (CLUTTER_BOX2D (box2d),
                                     joint1, joint2,
-                                    &v1, &v2,
-                                    &v3, &v4,
+                                    &v1, &v1,
+                                    &v2, &v3,
+                                    210, 210,
                                     400, 400,
                                     1.0);
   }

@@ -57,6 +57,7 @@ clutter_box2d_add_revolute_joint2
 clutter_box2d_add_distance_joint
 clutter_box2d_add_prismatic_joint
 clutter_box2d_add_pulley_joint
+clutter_box2d_add_pulley_joint2
 clutter_box2d_add_mouse_joint
 clutter_box2d_mouse_joint_update_target
 </SECTION>

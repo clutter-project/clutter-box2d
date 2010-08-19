@@ -284,9 +284,56 @@ clutter_box2d_add_pulley_joint (ClutterBox2D        *box2d,
                                 const ClutterVertex *anchor2,
                                 const ClutterVertex *ground_anchor1,
                                 const ClutterVertex *ground_anchor2,
+                                gdouble              length1,
+                                gdouble              length2,
                                 gdouble              max_length1,
                                 gdouble              max_length2,
                                 gdouble              ratio)
+{
+  ClutterBox2DPrivate *priv;
+  b2PulleyJointDef jd;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor1), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
+  g_return_val_if_fail (anchor1 != NULL, NULL);
+  g_return_val_if_fail (anchor2 != NULL, NULL);
+  g_return_val_if_fail (ground_anchor1 != NULL, NULL);
+  g_return_val_if_fail (ground_anchor2 != NULL, NULL);
+
+  priv = box2d->priv;
+
+  jd.collideConnected = false;
+  jd.bodyA = clutter_box2d_get_child (box2d, actor1)->priv->body;
+  jd.bodyB = clutter_box2d_get_child (box2d, actor2)->priv->body;
+  jd.groundAnchorA = b2Vec2 (ground_anchor1->x * priv->scale_factor,
+                             ground_anchor1->y * priv->scale_factor);
+  jd.groundAnchorB = b2Vec2 (ground_anchor2->x * priv->scale_factor,
+                             ground_anchor2->y * priv->scale_factor);
+  jd.localAnchorA = b2Vec2 (anchor1->x * priv->scale_factor,
+                            anchor1->y * priv->scale_factor);
+  jd.localAnchorB = b2Vec2 (anchor2->x * priv->scale_factor,
+                            anchor2->y * priv->scale_factor);
+  jd.ratio = ratio;
+  jd.lengthA = length1 * priv->scale_factor;
+  jd.lengthB = length2 * priv->scale_factor;
+  jd.maxLengthA = max_length1 * priv->scale_factor;
+  jd.maxLengthB = max_length2 * priv->scale_factor;
+
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
+}
+
+ClutterBox2DJoint *
+clutter_box2d_add_pulley_joint2 (ClutterBox2D        *box2d,
+                                 ClutterActor        *actor1,
+                                 ClutterActor        *actor2,
+                                 const ClutterVertex *anchor1,
+                                 const ClutterVertex *anchor2,
+                                 const ClutterVertex *ground_anchor1,
+                                 const ClutterVertex *ground_anchor2,
+                                 gdouble              max_length1,
+                                 gdouble              max_length2,
+                                 gdouble              ratio)
 {
   ClutterBox2DPrivate *priv;
   b2PulleyJointDef jd;
@@ -312,8 +359,6 @@ clutter_box2d_add_pulley_joint (ClutterBox2D        *box2d,
                  b2Vec2 (anchor2->x * priv->scale_factor,
                          anchor2->y * priv->scale_factor),
                  ratio);
-  jd.maxLengthA = max_length1 * priv->scale_factor;
-  jd.maxLengthB = max_length2 * priv->scale_factor;
 
   return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
