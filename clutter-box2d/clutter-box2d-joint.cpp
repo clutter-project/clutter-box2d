@@ -329,6 +329,78 @@ clutter_box2d_add_prismatic_joint2 (ClutterBox2D        *box2d,
 }
 
 ClutterBox2DJoint *
+clutter_box2d_add_line_joint (ClutterBox2D        *box2d,
+                              ClutterActor        *actor1,
+                              ClutterActor        *actor2,
+                              const ClutterVertex *anchor1,
+                              const ClutterVertex *anchor2,
+                              gdouble              min_length,
+                              gdouble              max_length,
+                              const ClutterVertex *axis)
+{
+  ClutterBox2DPrivate *priv;
+  b2LineJointDef jd;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor1), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
+  g_return_val_if_fail (anchor1 != NULL, NULL);
+  g_return_val_if_fail (anchor2 != NULL, NULL);
+  g_return_val_if_fail (axis != NULL, NULL);
+
+  priv = box2d->priv;
+
+  jd.collideConnected = false;
+  jd.bodyA = clutter_box2d_get_child (box2d, actor1)->priv->body;
+  jd.bodyB = clutter_box2d_get_child (box2d, actor2)->priv->body;
+  jd.localAnchorA = b2Vec2( (anchor1->x) * priv->scale_factor,
+                            (anchor1->y) * priv->scale_factor);
+  jd.localAnchorB = b2Vec2( (anchor2->x) * priv->scale_factor,
+                            (anchor2->y) * priv->scale_factor);
+  jd.lowerTranslation = min_length * priv->scale_factor;
+  jd.upperTranslation = max_length * priv->scale_factor;
+  jd.enableLimit = true;
+  jd.localAxisA = b2Vec2( (axis->x),
+                          (axis->y));
+
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
+}
+
+ClutterBox2DJoint *
+clutter_box2d_add_line_joint2 (ClutterBox2D        *box2d,
+                               ClutterActor        *actor1,
+                               ClutterActor        *actor2,
+                               const ClutterVertex *anchor,
+                               gdouble              min_length,
+                               gdouble              max_length,
+                               const ClutterVertex *axis)
+{
+  ClutterBox2DPrivate *priv;
+  b2LineJointDef jd;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor1), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
+  g_return_val_if_fail (anchor != NULL, NULL);
+  g_return_val_if_fail (axis != NULL, NULL);
+
+  priv = box2d->priv;
+
+  jd.collideConnected = false;
+  jd.Initialize (clutter_box2d_get_child (box2d, actor1)->priv->body,
+                 clutter_box2d_get_child (box2d, actor2)->priv->body,
+                 b2Vec2(anchor->x * priv->scale_factor,
+                        anchor->y * priv->scale_factor),
+                 b2Vec2(axis->x,
+                        axis->y));
+  jd.lowerTranslation = min_length * priv->scale_factor;
+  jd.upperTranslation = max_length * priv->scale_factor;
+  jd.enableLimit = true;
+
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
+}
+
+ClutterBox2DJoint *
 clutter_box2d_add_pulley_joint (ClutterBox2D        *box2d,
                                 ClutterActor        *actor1,
                                 ClutterActor        *actor2,

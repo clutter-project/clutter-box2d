@@ -170,6 +170,55 @@ ClutterBox2DJoint *clutter_box2d_add_prismatic_joint2 (ClutterBox2D        *box2
                                                        const ClutterVertex *axis);
 
 /**
+ * clutter_box2d_add_line_joint:
+ * @box2d: a #ClutterBox2D
+ * @actor1: first actor participating in joint
+ * @actor2: second actor participating in joint
+ * @anchor1: the local coordinates for the common point on @actor1
+ * @anchor2: the local coordinates for the common point on @actor2
+ * @min_length: minimum distance between anchor points
+ * @max_length: maximum distance between anchor points.
+ * @axis: the local translation axis in @body1.
+ *
+ * This creates a line joint. A line joint is the same as a prismatic joint,
+ * with the rotation constraint removed. This allows for creating things like
+ * vehicle suspensions. See clutter_box2d_add_prismatic_joint().
+ *
+ * Returns: a #ClutterBox2DJoint handle or %NULL on error.
+ */
+ClutterBox2DJoint *clutter_box2d_add_line_joint (ClutterBox2D        *box2d,
+                                                 ClutterActor        *actor1,
+                                                 ClutterActor        *actor2,
+                                                 const ClutterVertex *anchor1,
+                                                 const ClutterVertex *anchor2,
+                                                 gdouble              min_length,
+                                                 gdouble              max_length,
+                                                 const ClutterVertex *axis);
+
+/**
+ * clutter_box2d_add_line_joint2:
+ * @box2d: a #ClutterBox2D
+ * @actor1: first actor participating in joint
+ * @actor2: second actor participating in joint
+ * @anchor: the world coordinates for the joint anchor point
+ * @min_length: minimum distance between anchor points
+ * @max_length: maximum distance between anchor points.
+ * @axis: the local translation axis in @body1.
+ *
+ * Convenience function for creating a line joint with world coordinates.
+ * See clutter_box2d_add_line_joint().
+ *
+ * Returns: a #ClutterBox2DJoint handle or %NULL on error.
+ */
+ClutterBox2DJoint *clutter_box2d_add_line_joint2 (ClutterBox2D        *box2d,
+                                                  ClutterActor        *actor1,
+                                                  ClutterActor        *actor2,
+                                                  const ClutterVertex *anchor,
+                                                  gdouble              min_length,
+                                                  gdouble              max_length,
+                                                  const ClutterVertex *axis);
+
+/**
  * clutter_box2d_add_pulley_joint:
  * @box2d: a #ClutterBox2D
  * @actor1: first actor participating in the joint
