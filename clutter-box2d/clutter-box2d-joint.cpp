@@ -489,6 +489,60 @@ clutter_box2d_add_pulley_joint2 (ClutterBox2D        *box2d,
 }
 
 ClutterBox2DJoint *
+clutter_box2d_add_weld_joint (ClutterBox2D        *box2d,
+                              ClutterActor        *actor1,
+                              ClutterActor        *actor2,
+                              const ClutterVertex *anchor1,
+                              const ClutterVertex *anchor2)
+{
+  ClutterBox2DPrivate *priv;
+  b2WeldJointDef jd;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor1), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
+  g_return_val_if_fail (anchor1 != NULL, NULL);
+  g_return_val_if_fail (anchor2 != NULL, NULL);
+
+  priv = box2d->priv;
+
+  jd.collideConnected = false;
+  jd.bodyA = clutter_box2d_get_child (box2d, actor1)->priv->body;
+  jd.bodyB = clutter_box2d_get_child (box2d, actor2)->priv->body;
+  jd.localAnchorA = b2Vec2 (anchor1->x * priv->scale_factor,
+                            anchor1->y * priv->scale_factor);
+  jd.localAnchorB = b2Vec2 (anchor2->x * priv->scale_factor,
+                            anchor2->y * priv->scale_factor);
+
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_WELD);
+}
+
+ClutterBox2DJoint *
+clutter_box2d_add_weld_joint2 (ClutterBox2D        *box2d,
+                               ClutterActor        *actor1,
+                               ClutterActor        *actor2,
+                               const ClutterVertex *anchor)
+{
+  ClutterBox2DPrivate *priv;
+  b2WeldJointDef jd;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor1), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
+  g_return_val_if_fail (anchor != NULL, NULL);
+
+  priv = box2d->priv;
+
+  jd.collideConnected = false;
+  jd.Initialize (clutter_box2d_get_child (box2d, actor1)->priv->body,
+                 clutter_box2d_get_child (box2d, actor2)->priv->body,
+                 b2Vec2 (anchor->x * priv->scale_factor,
+                         anchor->y * priv->scale_factor));
+
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_WELD);
+}
+
+ClutterBox2DJoint *
 clutter_box2d_add_mouse_joint (ClutterBox2D        *box2d,
                                ClutterActor        *actor,
                                const ClutterVertex *target)

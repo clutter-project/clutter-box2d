@@ -33,6 +33,7 @@ typedef struct _ClutterBox2DJoint   ClutterBox2DJoint;
  * @CLUTTER_BOX2D_JOINT_LINE: A line joint
  * @CLUTTER_BOX2D_JOINT_REVOLUTE: A revolute joint
  * @CLUTTER_BOX2D_JOINT_PULLEY: A pulley joint
+ * @CLUTTER_BOX2D_JOINT_WELD: A weld joint
  * @CLUTTER_BOX2D_JOINT_MOUSE: A mouse joint
  *
  * Identifiers for different joint types.
@@ -45,6 +46,7 @@ typedef enum
   CLUTTER_BOX2D_JOINT_LINE,
   CLUTTER_BOX2D_JOINT_REVOLUTE,
   CLUTTER_BOX2D_JOINT_PULLEY,
+  CLUTTER_BOX2D_JOINT_WELD,
   CLUTTER_BOX2D_JOINT_MOUSE
 } ClutterBox2DJointType;
 
@@ -318,6 +320,43 @@ ClutterBox2DJoint *clutter_box2d_add_pulley_joint2 (ClutterBox2D        *box2d,
                                                     const ClutterVertex *ground_anchor1,
                                                     const ClutterVertex *ground_anchor2,
                                                     gdouble              ratio);
+
+/**
+ * clutter_box2d_add_weld_joint:
+ * @box2d: a #ClutterBox2D
+ * @actor1: first actor participating in the joint
+ * @actor2: second actor participating in the joint
+ * @anchor1: the local coordinates for the common point on @actor1
+ * @anchor2: the local coordinates for the common point on @actor2
+ *
+ * A weld joint is used to constrain all relative motion between two bodies.
+ * Note that this should not be used as an alternative to composite actors,
+ * as the joint allows a small amount of give due to error.
+ *
+ * Returns: a #ClutterBox2DJoint handle, or %NULL on error.
+ */
+ClutterBox2DJoint *clutter_box2d_add_weld_joint (ClutterBox2D        *box2d,
+                                                 ClutterActor        *actor1,
+                                                 ClutterActor        *actor2,
+                                                 const ClutterVertex *anchor1,
+                                                 const ClutterVertex *anchor2);
+
+/**
+ * clutter_box2d_add_weld_joint2:
+ * @box2d: a #ClutterBox2D
+ * @actor1: first actor participating in the joint
+ * @actor2: second actor participating in the joint
+ * @anchor: the world coordinates of the anchor point on both actors
+ *
+ * Convenience function to create a weld joint with world coordinates.
+ * See clutter_box2d_add_weld_joint().
+ *
+ * Returns: a #ClutterBox2DJoint handle, or %NULL on error.
+ */
+ClutterBox2DJoint *clutter_box2d_add_weld_joint2 (ClutterBox2D        *box2d,
+                                                  ClutterActor        *actor1,
+                                                  ClutterActor        *actor2,
+                                                  const ClutterVertex *anchor);
 
 /**
  * clutter_box2d_add_mouse_joint:
