@@ -56,7 +56,7 @@ introspection_files = \
 	$(top_srcdir)/clutter-box2d/clutter-box2d-joint.h \
 	$(top_srcdir)/clutter-box2d/clutter-box2d-util.h
 
-ClutterBox2D-0.10.gir: $(INTROSPECTION_SCANNER) Makefile
+ClutterBox2D-0.10.gir: $(INTROSPECTION_SCANNER) Makefile libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
 
 ClutterBox2D_0_10_gir_SCANNERFLAGS = --strip-prefix=ClutterBox2D --add-include-path=$(top_builddir)
 ClutterBox2D_0_10_gir_INCLUDES     = Clutter-1.0
