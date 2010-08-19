@@ -57,8 +57,8 @@ ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
  * @anchor: the world (box2d container) coordinates for the point that @actor1
  * and @actor2 are allowed to revolve around.
  *
- * Create a revolute joint that is defined by original positions of actors and
- * a common point specified in world coordinates.
+ * Convenience function for creativing a revolute joint using world coordinates.
+ * See clutter_box2d_add_revolute_joint().
  *
  * Returns: a ClutterBox2DJoint handle or NULL on error.
  */
