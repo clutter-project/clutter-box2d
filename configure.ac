@@ -110,7 +110,7 @@ GTK_DOC_CHECK([1.13])
 
 dnl ========================================================================
 
-GOBJECT_INTROSPECTION_CHECK([0.9.0])
+GOBJECT_INTROSPECTION_CHECK([0.6.8])
 
 AC_CONFIG_FILES([
     Makefile
