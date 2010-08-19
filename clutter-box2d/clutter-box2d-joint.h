@@ -359,6 +359,26 @@ void clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *mouse_joint,
  */
 void clutter_box2d_joint_destroy             (ClutterBox2DJoint   *joint);
 
+/**
+ * clutter_box2d_joint_set_engine:
+ * @joint: A #ClutterBox2DJoint
+ * @enable: %TRUE to enable the engine, %FALSE to disable
+ * @max_force: The maximum motor force, or torque, in N
+ * @speed: Motor speed, in radians per second
+ *
+ * Enables or disables an engine in the specified joint. This is only valid for
+ * revolute, prismatic and line joints. This function does nothing for joints
+ * that don't support engines.
+ *
+ * Force (or torque, in the case of a revolute joint) is measured in Newtons,
+ * but what this means will depend on the given size of world-units (the scale-
+ * factor) and the density of the body in question.
+ */
+void clutter_box2d_joint_set_engine (ClutterBox2DJoint *joint,
+                                     gboolean           enable,
+                                     gdouble            max_force,
+                                     gdouble            speed);
+
 G_END_DECLS
 
 #endif

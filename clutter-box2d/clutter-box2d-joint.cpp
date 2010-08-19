@@ -530,3 +530,42 @@ clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *joint,
 
   static_cast<b2MouseJoint*>(joint->joint)->SetTarget(b2target);
 }
+
+void
+clutter_box2d_joint_set_engine (ClutterBox2DJoint *joint,
+                                gboolean           enable,
+                                gdouble            max_force,
+                                gdouble            speed)
+{
+  g_return_if_fail (joint != NULL);
+
+  switch (joint->type)
+    {
+    case CLUTTER_BOX2D_JOINT_REVOLUTE:
+      {
+        b2RevoluteJoint *motor_joint = static_cast<b2RevoluteJoint*>(joint->joint);
+        motor_joint->EnableMotor(enable);
+        motor_joint->SetMaxMotorTorque(max_force);
+        motor_joint->SetMotorSpeed(speed);
+      }
+      break;
+
+    case CLUTTER_BOX2D_JOINT_PRISMATIC:
+      {
+        b2PrismaticJoint *motor_joint = static_cast<b2PrismaticJoint*>(joint->joint);
+        motor_joint->EnableMotor(enable);
+        motor_joint->SetMaxMotorForce(max_force);
+        motor_joint->SetMotorSpeed(speed);
+      }
+      break;
+
+    case CLUTTER_BOX2D_JOINT_LINE:
+      {
+        b2LineJoint *motor_joint = static_cast<b2LineJoint*>(joint->joint);
+        motor_joint->EnableMotor(enable);
+        motor_joint->SetMaxMotorForce(max_force);
+        motor_joint->SetMotorSpeed(speed);
+      }
+      break;
+    }
+}

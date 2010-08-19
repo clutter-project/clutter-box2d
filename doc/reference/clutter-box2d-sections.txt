@@ -66,4 +66,5 @@ clutter_box2d_add_pulley_joint
 clutter_box2d_add_pulley_joint2
 clutter_box2d_add_mouse_joint
 clutter_box2d_mouse_joint_update_target
+clutter_box2d_joint_set_engine
 </SECTION>
