@@ -68,8 +68,6 @@ clutter_box2d_joint_get_type (ClutterBox2DJoint *joint);
  * @actor2: second actor participating in joint
  * @anchor1: the local coordinates for the common point on @actor1
  * @anchor2: the local coordinates fro the common point on @actor2
- * @reference_angle: the initial relative angle for joint limit (currently
- * unused)
  *
  * Create a revolute joint. A revolute joint defines a coordinates on two
  * actors that should coincide. The actors are allowed to rotate around this
@@ -81,8 +79,7 @@ ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
                                                      ClutterActor        *actor1,
                                                      ClutterActor        *actor2,
                                                      const ClutterVertex *anchor1,
-                                                     const ClutterVertex *anchor2,
-                                                     gdouble              reference_angle);
+                                                     const ClutterVertex *anchor2);
 
 
 /**

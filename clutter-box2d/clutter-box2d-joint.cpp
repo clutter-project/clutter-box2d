@@ -204,8 +204,7 @@ clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
                                   ClutterActor        *actor1,
                                   ClutterActor        *actor2,
                                   const ClutterVertex *anchor1,
-                                  const ClutterVertex *anchor2,
-                                  gdouble              reference_angle)
+                                  const ClutterVertex *anchor2)
 {
   ClutterBox2DPrivate *priv;
   b2RevoluteJointDef jd;
@@ -225,7 +224,7 @@ clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
                             (anchor1->y) * priv->scale_factor);
   jd.localAnchorB = b2Vec2( (anchor2->x) * priv->scale_factor,
                             (anchor2->y) * priv->scale_factor);
-  jd.referenceAngle = reference_angle;
+  jd.referenceAngle = jd.bodyB->GetAngle() - jd.bodyA->GetAngle();
 
   return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_REVOLUTE);
 }
@@ -290,6 +289,7 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   jd.enableLimit = true;
   jd.localAxis1 = b2Vec2( (axis->x),
                           (axis->y));
+  jd.referenceAngle = jd.bodyB->GetAngle() - jd.bodyA->GetAngle();
 
   return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_PRISMATIC);
 }
@@ -513,6 +513,7 @@ clutter_box2d_add_weld_joint (ClutterBox2D        *box2d,
                             anchor1->y * priv->scale_factor);
   jd.localAnchorB = b2Vec2 (anchor2->x * priv->scale_factor,
                             anchor2->y * priv->scale_factor);
+  jd.referenceAngle = jd.bodyB->GetAngle() - jd.bodyA->GetAngle();
 
   return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_WELD);
 }

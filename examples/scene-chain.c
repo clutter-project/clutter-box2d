@@ -59,9 +59,7 @@ scene_chain (Scene *scene)
           clutter_box2d_add_revolute_joint (CLUTTER_BOX2D (group),
                                             prev_actor, box,
                                             &anchor1,
-                                            &anchor2,
-                                            0.0
-                                            );
+                                            &anchor2);
         }
 
         prev_actor = box;
