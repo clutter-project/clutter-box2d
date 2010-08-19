@@ -26,6 +26,40 @@ G_BEGIN_DECLS
 typedef struct _ClutterBox2DJoint   ClutterBox2DJoint;
 
 /**
+ * ClutterBox2DJointType:
+ * @CLUTTER_BOX2D_JOINT_DEAD: The joint has become invalid
+ * @CLUTTER_BOX2D_JOINT_DISTANCE: A distance joint
+ * @CLUTTER_BOX2D_JOINT_PRISMATIC: A prismatic joint
+ * @CLUTTER_BOX2D_JOINT_LINE: A line joint
+ * @CLUTTER_BOX2D_JOINT_REVOLUTE: A revolute joint
+ * @CLUTTER_BOX2D_JOINT_PULLEY: A pulley joint
+ * @CLUTTER_BOX2D_JOINT_MOUSE: A mouse joint
+ *
+ * Identifiers for different joint types.
+ */
+typedef enum
+{
+  CLUTTER_BOX2D_JOINT_DEAD,
+  CLUTTER_BOX2D_JOINT_DISTANCE,
+  CLUTTER_BOX2D_JOINT_PRISMATIC,
+  CLUTTER_BOX2D_JOINT_LINE,
+  CLUTTER_BOX2D_JOINT_REVOLUTE,
+  CLUTTER_BOX2D_JOINT_PULLEY,
+  CLUTTER_BOX2D_JOINT_MOUSE
+} ClutterBox2DJointType;
+
+/**
+ * clutter_box2d_joint_get_type:
+ * @joint: A #ClutterBox2DJoint
+ *
+ * Retrieves the type of the joint.
+ *
+ * Returns: a #ClutterBox2DJointType
+ */
+ClutterBox2DJointType
+clutter_box2d_joint_get_type (ClutterBox2DJoint *joint);
+
+/**
  * clutter_box2d_add_revolute_joint:
  * @box2d: a #ClutterBox2D
  * @actor1: first actor participating in joint

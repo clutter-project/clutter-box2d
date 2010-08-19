@@ -42,16 +42,6 @@ enum
   PROP_ITERATIONS
 };
 
-typedef enum 
-{
-  CLUTTER_BOX2D_JOINT_DEAD,     /* An associated actor has been killed off */
-  CLUTTER_BOX2D_JOINT_DISTANCE,
-  CLUTTER_BOX2D_JOINT_PRISMATIC,
-  CLUTTER_BOX2D_JOINT_REVOLUTE,
-  CLUTTER_BOX2D_JOINT_MOUSE
-} ClutterBox2DJointType;
-
-
 static GObject * clutter_box2d_constructor (GType                  type,
                                             guint                  n_params,
                                             GObjectConstructParam *params);

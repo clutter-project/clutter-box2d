@@ -51,7 +51,9 @@ clutter_box2d_child_get_type
 <FILE>clutter-box2d-joint</FILE>
 <TITLE>ClutterBox2D Joint</TITLE>
 ClutterBox2DJoint
+ClutterBox2DJointType
 clutter_box2d_joint_destroy
+clutter_box2d_joint_get_type
 clutter_box2d_add_revolute_joint
 clutter_box2d_add_revolute_joint2
 clutter_box2d_add_distance_joint

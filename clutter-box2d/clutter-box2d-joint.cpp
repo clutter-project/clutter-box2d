@@ -14,15 +14,6 @@
 #include "clutter-box2d-private.h"
 #include "math.h"
 
-typedef enum 
-{
-  CLUTTER_BOX2D_JOINT_DEAD,      /* An associated actor has been killed off */
-  CLUTTER_BOX2D_JOINT_DISTANCE,
-  CLUTTER_BOX2D_JOINT_PRISMATIC,
-  CLUTTER_BOX2D_JOINT_REVOLUTE,
-  CLUTTER_BOX2D_JOINT_MOUSE
-} ClutterBox2DJointType;
-
 /* A Box2DJoint contains all relevant tracking information
  * for a box2d joint.
  */
@@ -30,7 +21,7 @@ struct _ClutterBox2DJoint
 {
   ClutterBox2D     *box2d;/* The ClutterBox2D this joint management struct
                              belongs to */
-  ClutterBox2DJointType *type;  /* The type of joint */
+  ClutterBox2DJointType  type;  /* The type of joint */
 
   b2Joint               *joint; /* Box2d joint*/
 
@@ -41,6 +32,13 @@ struct _ClutterBox2DJoint
   ClutterBox2DChild     *actor2;
 };
 
+
+ClutterBox2DJointType
+clutter_box2d_joint_get_type (ClutterBox2DJoint *joint)
+{
+  g_return_val_if_fail (joint != NULL, CLUTTER_BOX2D_JOINT_DEAD);
+  return joint->type;
+}
 
 ClutterBox2DJoint *
 clutter_box2d_add_joint (ClutterBox2D     *box2d,
@@ -81,13 +79,15 @@ clutter_box2d_add_joint (ClutterBox2D     *box2d,
 }
 
 static ClutterBox2DJoint *
-joint_new (ClutterBox2D *box2d,
-           b2Joint      *joint)
+joint_new (ClutterBox2D          *box2d,
+           b2Joint               *joint,
+           ClutterBox2DJointType  type)
 {
   ClutterBox2DPrivate *priv = box2d->priv;
   ClutterBox2DJoint *self = g_new0 (ClutterBox2DJoint, 1);
   self->box2d = box2d;
   self->joint = joint;
+  self->type = type;
 
   self->actor1 = (ClutterBox2DChild*)
       g_hash_table_lookup (priv->bodies, joint->GetBodyA());
@@ -161,7 +161,7 @@ clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
   jd.frequencyHz = frequency;
   jd.dampingRatio = damping_ratio;
 
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_DISTANCE);
 }
 
 
@@ -195,7 +195,7 @@ clutter_box2d_add_distance_joint2 (ClutterBox2D        *box2d,
   jd.frequencyHz = frequency;
   jd.dampingRatio = damping_ratio;
 
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_DISTANCE);
 }
 
 
@@ -227,7 +227,7 @@ clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
                             (anchor2->y) * priv->scale_factor);
   jd.referenceAngle = reference_angle;
 
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_REVOLUTE);
 }
 
 ClutterBox2DJoint *
@@ -253,7 +253,7 @@ clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
   jd.Initialize(clutter_box2d_get_child (box2d, actor1)->priv->body,
                 clutter_box2d_get_child (box2d, actor2)->priv->body,
                 ancho);
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_REVOLUTE);
 }
 
 ClutterBox2DJoint *
@@ -291,7 +291,7 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   jd.localAxis1 = b2Vec2( (axis->x),
                           (axis->y));
 
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_PRISMATIC);
 }
 
 ClutterBox2DJoint *
@@ -325,7 +325,7 @@ clutter_box2d_add_prismatic_joint2 (ClutterBox2D        *box2d,
   jd.upperTranslation = max_length * priv->scale_factor;
   jd.enableLimit = true;
 
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_PRISMATIC);
 }
 
 ClutterBox2DJoint *
@@ -363,7 +363,7 @@ clutter_box2d_add_line_joint (ClutterBox2D        *box2d,
   jd.localAxisA = b2Vec2( (axis->x),
                           (axis->y));
 
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_LINE);
 }
 
 ClutterBox2DJoint *
@@ -397,7 +397,7 @@ clutter_box2d_add_line_joint2 (ClutterBox2D        *box2d,
   jd.upperTranslation = max_length * priv->scale_factor;
   jd.enableLimit = true;
 
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_LINE);
 }
 
 ClutterBox2DJoint *
@@ -444,7 +444,7 @@ clutter_box2d_add_pulley_joint (ClutterBox2D        *box2d,
   jd.maxLengthA = max_length1 * priv->scale_factor;
   jd.maxLengthB = max_length2 * priv->scale_factor;
 
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_PULLEY);
 }
 
 ClutterBox2DJoint *
@@ -485,7 +485,7 @@ clutter_box2d_add_pulley_joint2 (ClutterBox2D        *box2d,
                          anchor2->y * priv->scale_factor),
                  ratio);
 
-  return joint_new (box2d, priv->world->CreateJoint (&jd));
+  return joint_new (box2d, priv->world->CreateJoint (&jd), CLUTTER_BOX2D_JOINT_PULLEY);
 }
 
 ClutterBox2DJoint *
@@ -509,7 +509,7 @@ clutter_box2d_add_mouse_joint (ClutterBox2D        *box2d,
   md.bodyA->SetAwake (false);
   md.maxForce = 5100.0f * md.bodyB->GetMass ();
 
-  return joint_new (box2d, priv->world->CreateJoint(&md));
+  return joint_new (box2d, priv->world->CreateJoint(&md), CLUTTER_BOX2D_JOINT_MOUSE);
 }
 
 void
@@ -521,6 +521,7 @@ clutter_box2d_mouse_joint_update_target (ClutterBox2DJoint   *joint,
 
   g_return_if_fail (joint != NULL);
   g_return_if_fail (target != NULL);
+  g_return_if_fail (joint->type == CLUTTER_BOX2D_JOINT_MOUSE);
 
   priv = joint->box2d->priv;
 
