@@ -1,6 +1,8 @@
+*.gir
 *.la
 *.lo
 *.o
+*.typelib
 .deps
 .libs
 Makefile
