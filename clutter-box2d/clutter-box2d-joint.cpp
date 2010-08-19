@@ -257,6 +257,7 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
   g_return_val_if_fail (anchor1 != NULL, NULL);
   g_return_val_if_fail (anchor2 != NULL, NULL);
+  g_return_val_if_fail (axis != NULL, NULL);
 
   priv = box2d->priv;
 
@@ -272,6 +273,40 @@ clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
   jd.enableLimit = true;
   jd.localAxis1 = b2Vec2( (axis->x),
                           (axis->y));
+
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
+}
+
+ClutterBox2DJoint *
+clutter_box2d_add_prismatic_joint2 (ClutterBox2D        *box2d,
+                                    ClutterActor        *actor1,
+                                    ClutterActor        *actor2,
+                                    const ClutterVertex *anchor,
+                                    gdouble              min_length,
+                                    gdouble              max_length,
+                                    const ClutterVertex *axis)
+{
+  ClutterBox2DPrivate *priv;
+  b2PrismaticJointDef jd;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor1), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
+  g_return_val_if_fail (anchor != NULL, NULL);
+  g_return_val_if_fail (axis != NULL, NULL);
+
+  priv = box2d->priv;
+
+  jd.collideConnected = false;
+  jd.Initialize(clutter_box2d_get_child (box2d, actor1)->priv->body,
+                clutter_box2d_get_child (box2d, actor2)->priv->body,
+                b2Vec2(anchor->x * priv->scale_factor,
+                       anchor->y * priv->scale_factor),
+                b2Vec2(axis->x,
+                       axis->y));
+  jd.lowerTranslation = min_length * priv->scale_factor;
+  jd.upperTranslation = max_length * priv->scale_factor;
+  jd.enableLimit = true;
 
   return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
@@ -348,6 +383,7 @@ clutter_box2d_add_pulley_joint2 (ClutterBox2D        *box2d,
 
   priv = box2d->priv;
 
+  jd.collideConnected = false;
   jd.Initialize (clutter_box2d_get_child (box2d, actor1)->priv->body,
                  clutter_box2d_get_child (box2d, actor2)->priv->body,
                  b2Vec2 (ground_anchor1->x * priv->scale_factor,
