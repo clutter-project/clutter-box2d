@@ -174,11 +174,28 @@ clutter_box2d_add_distance_joint2 (ClutterBox2D        *box2d,
                                    gdouble              frequency,
                                    gdouble              damping_ratio)
 {
-  g_warning ("clutter_box2d_add_distance_joint2 not yet implemented");
-  /* this one should compute the length automatically based on the
-   * initial configuration?
-   */
-  return NULL;
+  ClutterBox2DPrivate *priv;
+  b2DistanceJointDef jd;
+
+  g_return_val_if_fail (CLUTTER_IS_BOX2D (box2d), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor1), NULL);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (actor2), NULL);
+  g_return_val_if_fail (anchor1 != NULL, NULL);
+  g_return_val_if_fail (anchor2 != NULL, NULL);
+
+  priv = box2d->priv;
+
+  jd.collideConnected = false;
+  jd.Initialize (clutter_box2d_get_child (box2d, actor1)->priv->body,
+                 clutter_box2d_get_child (box2d, actor2)->priv->body,
+                 b2Vec2(anchor1->x * priv->scale_factor,
+                        anchor1->y * priv->scale_factor),
+                 b2Vec2(anchor2->x * priv->scale_factor,
+                        anchor2->y * priv->scale_factor));
+  jd.frequencyHz = frequency;
+  jd.dampingRatio = damping_ratio;
+
+  return joint_new (box2d, priv->world->CreateJoint (&jd));
 }
 
 

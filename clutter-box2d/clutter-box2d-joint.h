@@ -73,8 +73,8 @@ ClutterBox2DJoint *clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d
  * @box2d: a #ClutterBox2D
  * @actor1: first actor participating in joint
  * @actor2: second actor participating in joint
- * @anchor1: the local coordinates for the common point on @actor1
- * @anchor2: the local coordinates fro the common point on @actor2
+ * @anchor1: the local coordinates for the anchor point on @actor1
+ * @anchor2: the local coordinates for the anchor point on @actor2
  * @length: the length that the simulation will maintain between anchor1 on
  * actor1 and anchor2 on actor2.
  * @frequency: the frequency of length updates.
@@ -96,6 +96,29 @@ ClutterBox2DJoint *clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
                                                      gdouble              length,
                                                      gdouble              frequency,
                                                      gdouble              damping_ratio);
+
+/**
+ * clutter_box2d_add_distance_joint2:
+ * @box2d: a #ClutterBox2D
+ * @actor1: first actor participating in joint
+ * @actor2: second actor participating in joint
+ * @anchor1: the world coordinates for the anchor point on @actor1
+ * @anchor2: the world coordinates for the anchor point on @actor2
+ * @frequency: the frequency of length updates.
+ * @damping_ratio: the damping ratio.
+ *
+ * Convenience function for specifying a distance joint with world coordinates.
+ * See clutter_box2d_add_distance_joint().
+ *
+ * Returns: a #ClutterBox2DJoint handle or %NULL on error.
+ */
+ClutterBox2DJoint *clutter_box2d_add_distance_joint2 (ClutterBox2D        *box2d,
+                                                      ClutterActor        *actor1,
+                                                      ClutterActor        *actor2,
+                                                      const ClutterVertex *anchor1,
+                                                      const ClutterVertex *anchor2,
+                                                      gdouble              frequency,
+                                                      gdouble              damping_ratio);
 
 
 /**
