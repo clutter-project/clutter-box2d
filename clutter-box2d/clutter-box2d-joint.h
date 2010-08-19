@@ -73,7 +73,7 @@ clutter_box2d_joint_get_type (ClutterBox2DJoint *joint);
  * actors that should coincide. The actors are allowed to rotate around this
  * point making it act like an axle.
  *
- * Returns: a ClutterBox2DJoint handle or NULL on error.
+ * Returns: a #ClutterBox2DJoint handle or %NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
                                                      ClutterActor        *actor1,
@@ -93,7 +93,7 @@ ClutterBox2DJoint *clutter_box2d_add_revolute_joint (ClutterBox2D        *box2d,
  * Convenience function for creativing a revolute joint using world coordinates.
  * See clutter_box2d_add_revolute_joint().
  *
- * Returns: a ClutterBox2DJoint handle or NULL on error.
+ * Returns: a #ClutterBox2DJoint handle or %NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d,
                                                       ClutterActor        *actor1,
@@ -119,7 +119,7 @@ ClutterBox2DJoint *clutter_box2d_add_revolute_joint2 (ClutterBox2D        *box2d
  * behavior as well. The defaults for frequency and damping_ratio to disable
  * dampening is 0.0 for both.
  *
- * Returns: a ClutterBox2DJoint handle or NULL on error.
+ * Returns: a #ClutterBox2DJoint handle or %NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_distance_joint (ClutterBox2D        *box2d,
                                                      ClutterActor        *actor1,
@@ -168,7 +168,7 @@ ClutterBox2DJoint *clutter_box2d_add_distance_joint2 (ClutterBox2D        *box2d
  * A prismatic joint. This joint provides one degree of freedom: translation
  * along an axis fixed in body1. Relative rotation is prevented.
  *
- * Returns: a ClutterBox2DJoint handle or NULL on error.
+ * Returns: a #ClutterBox2DJoint handle or %NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d,
                                                       ClutterActor        *actor1,
@@ -192,7 +192,7 @@ ClutterBox2DJoint *clutter_box2d_add_prismatic_joint (ClutterBox2D        *box2d
  * Convenience function for creating a prismatic joint using world coordinates.
  * See clutter_box2d_add_prismatic_joint().
  *
- * Returns: a ClutterBox2DJoint handle or NULL on error.
+ * Returns: a #ClutterBox2DJoint handle or %NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_prismatic_joint2 (ClutterBox2D        *box2d,
                                                        ClutterActor        *actor1,
@@ -365,7 +365,7 @@ ClutterBox2DJoint *clutter_box2d_add_weld_joint2 (ClutterBox2D        *box2d,
  * world point. This a soft constraint with a maximum force. This allows the
  * constraint to stretch and without applying huge forces.
  *
- * Returns: a ClutterBox2DJoint handle or NULL on error.
+ * Returns: a #ClutterBox2DJoint handle or %NULL on error.
  */
 ClutterBox2DJoint *clutter_box2d_add_mouse_joint (ClutterBox2D           *box2d,
                                                   ClutterActor           *actor,
