@@ -33,6 +33,9 @@ scene_get_group (void)
 void
 scene_activate (gint scene_no)
 {
+  if (scene_no < 0)
+    scene_no = g_list_length (scenes) + scene_no;
+
   g_print ("go to scene %i\n", scene_no);
 
   if (scene_no < 0 ||
