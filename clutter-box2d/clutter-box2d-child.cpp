@@ -24,9 +24,6 @@
 #include <string.h>
 #include "clutter-box2d-marshal.h"
 
-/* defined in clutter-box2d.cpp */
-void _clutter_box2d_sync_body (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child);
-
 G_DEFINE_TYPE (ClutterBox2DChild, clutter_box2d_child, CLUTTER_TYPE_CHILD_META);
 
 #define CLUTTER_BOX2D_CHILD_GET_PRIVATE(obj) \

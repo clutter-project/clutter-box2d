@@ -25,7 +25,6 @@ G_DEFINE_TYPE_WITH_CODE (ClutterBox2D, clutter_box2d, CLUTTER_TYPE_GROUP,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
                              clutter_container_iface_init));
 
-void _clutter_box2d_sync_body (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child);
 static void clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs);
 
 
@@ -434,10 +433,6 @@ ensure_shape (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
       box2d_child->priv->fixture =
         box2d_child->priv->body->CreateFixture (&fixture);
     }
-  else
-    {
-      /*XXX: recreate shape on every ensure? */
-    }
 }
 
 
@@ -478,25 +473,16 @@ _clutter_box2d_sync_body (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
 
   b2Vec2 position = body->GetPosition ();
 
-  if (fabs (x * priv->scale_factor - (position.x)) > 0.1 ||
-      fabs (y * priv->scale_factor - (position.y)) > 0.1 ||
-      fabs (body->GetAngle()*(180/3.1415) - rot) > 2.0
-      )
-    {
-      body->SetTransform (b2Vec2 (x * priv->scale_factor, y * priv->scale_factor),
-                          rot / (180 / 3.1415));
+  body->SetTransform (b2Vec2 (x * priv->scale_factor, y * priv->scale_factor),
+                      rot / (180 / G_PI));
 
-      SYNCLOG ("\t setxform: %d, %d, %f\n", x, y, rot);
-    }
+  SYNCLOG ("\t setxform: %d, %d, %f\n", x, y, rot);
 }
 
-/* Synchronise actor geometry from body, rounding erorrs introduced here should
- * be smaller than the threshold accepted when sync_body is being run to avoid
- * introducing errors.
- */
 static void
 _clutter_box2d_sync_actor (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
 {
+  gdouble rot;
   gfloat x, y, centre_x, centre_y;
   ClutterBox2DPrivate *priv = box2d->priv;
   ClutterActor *actor = CLUTTER_CHILD_META (box2d_child)->actor;
@@ -504,6 +490,8 @@ _clutter_box2d_sync_actor (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
 
   if (!body)
     return;
+
+  ensure_shape (box2d, box2d_child);
 
   x = body->GetPosition ().x * priv->inv_scale_factor;
   y = body->GetPosition ().y * priv->inv_scale_factor;
@@ -526,15 +514,19 @@ _clutter_box2d_sync_actor (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
       centre_y = 0;
     }
 
+  rot = body->GetAngle () * (180 / G_PI);
+
+  SYNCLOG ("setting actor position: ' %f %f angle: %lf\n", x, y, rot);
+
   clutter_actor_set_position (actor, x, y);
-
-  SYNCLOG ("setting actor position: ' %f %f angle: %f\n",
-           x, y,
-           body->GetAngle () * (180 / 3.1415));
-
   clutter_actor_set_rotation (actor, CLUTTER_Z_AXIS,
-                              body->GetAngle () * (180 / 3.1415),
+                              body->GetAngle () * (180 / G_PI),
                               centre_x, centre_y, 0);
+
+  /* Store the set values to know when to resync the body */
+  box2d_child->priv->old_x = x;
+  box2d_child->priv->old_y = y;
+  box2d_child->priv->old_rot = rot;
 }
 
 static void
@@ -544,22 +536,37 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
   gint                 steps = priv->iterations;
   b2World             *world = priv->world;
 
+  /* If there hasn't been enough time to do another simulation step,
+   * don't waste time iterating over all the actors.
+   */
+  if (priv->time_delta + msecs < priv->time_step)
+    return;
+
   {
     GList *actors = g_hash_table_get_values (priv->actors);
     GList *iter;
 
     /* First we check for each actor the need for, and perform a sync
-     * from the actor to the body before running simulation
+     * from the actor to the body, if necessary, before running simulation
      */
     for (iter = actors; iter; iter = g_list_next (iter))
       {
+        gfloat x, y;
+        gdouble rot;
+
         ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
-        _clutter_box2d_sync_body (box2d, box2d_child);
+        ClutterActor *actor = CLUTTER_CHILD_META (box2d_child)->actor;
+
+        clutter_actor_get_position (actor, &x, &y);
+        rot = clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS,
+                                          NULL, NULL, NULL);
+
+        if ((box2d_child->priv->old_x != x) ||
+            (box2d_child->priv->old_y != y) ||
+            (box2d_child->priv->old_rot != rot))
+          _clutter_box2d_sync_body (box2d, box2d_child);
       }
     priv->dirty = FALSE;
-
-    if (msecs == 0)
-      return;
 
     /* Iterate Box2D simulation of bodies */
 
@@ -570,7 +577,7 @@ clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
      * 15fps).
      */
     priv->time_delta = MIN (priv->time_delta + msecs, priv->time_step * 4.f);
-    while (priv->time_delta > priv->time_step)
+    while (priv->time_delta >= priv->time_step)
       {
         world->Step (priv->time_step / 1000.f, steps, steps);
         priv->time_delta -= priv->time_step;

@@ -68,10 +68,16 @@ struct _ClutterBox2DChildPrivate {
   gfloat            density;
   gfloat            friction;
   gfloat            restitution;
+
+  gfloat            old_x;   /* The last set position and rotation. */
+  gfloat            old_y;   /* We store this to know when we need to resync */
+  gdouble           old_rot; /* the box2d state with the Clutter state */
 };
 
 ClutterBox2DChild * clutter_box2d_get_child (ClutterBox2D *box2d,
                                              ClutterActor *actor);
+void _clutter_box2d_sync_body (ClutterBox2D      *box2d,
+                               ClutterBox2DChild *box2d_child);
 
 G_END_DECLS
 
