@@ -15,6 +15,7 @@ void scene_chain (Scene *scene);
 void scene_distance_joint (Scene *scene);
 void scene_prismatic_joint (Scene *scene);
 void scene_pulley_joint (Scene *scene);
+void scene_car (Scene *scene);
 
 static void
 init_scenes (void)
@@ -27,6 +28,7 @@ init_scenes (void)
   scenes_add_scene ("chain", scene_chain);
   scenes_add_scene ("distance joint", scene_distance_joint);
   scenes_add_scene ("pulley joint", scene_pulley_joint);
+  scenes_add_scene ("car", scene_car);
 
   /* the following are disabled because they don't quite
    * do what they were intended to do

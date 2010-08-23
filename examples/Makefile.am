@@ -33,4 +33,5 @@ blockbox_SOURCES = \
 	scene-distance-joint.c 	\
 	scene-prismatic-joint.c \
 	scene-pulley-joint.c 	\
+	scene-car.c 		\
 	scene-about.c
