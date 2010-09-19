@@ -647,8 +647,8 @@ clutter_box2d_iterate (ClutterTimeline *timeline,
 }
 
 void
-clutter_box2d_set_gravity (ClutterBox2D  *box2d,
-                           ClutterVertex *gravity)
+clutter_box2d_set_gravity (ClutterBox2D        *box2d,
+                           const ClutterVertex *gravity)
 {
   ClutterVertex old_gravity;
 

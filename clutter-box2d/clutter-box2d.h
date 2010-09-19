@@ -130,8 +130,8 @@ ClutterActor *   clutter_box2d_new (void);
  *
  * Sets the world's gravity on the x and y axes. The z axis is ignored.
  */
-void  clutter_box2d_set_gravity (ClutterBox2D  *box2d,
-                                 ClutterVertex *gravity);
+void  clutter_box2d_set_gravity (ClutterBox2D        *box2d,
+                                 const ClutterVertex *gravity);
 
 /**
  * clutter_box2d_get_gravity:
