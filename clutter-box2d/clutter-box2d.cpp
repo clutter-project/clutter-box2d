@@ -25,7 +25,7 @@ G_DEFINE_TYPE_WITH_CODE (ClutterBox2D, clutter_box2d, CLUTTER_TYPE_GROUP,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_CONTAINER,
                              clutter_container_iface_init));
 
-static void clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs);
+static void clutter_box2d_real_iterate (ClutterBox2D *box2d);
 
 
 #define CLUTTER_BOX2D_GET_PRIVATE(obj)                 \
@@ -46,9 +46,7 @@ static GObject * clutter_box2d_constructor (GType                  type,
                                             GObjectConstructParam *params);
 static void      clutter_box2d_dispose     (GObject               *object);
 
-static void      clutter_box2d_iterate       (ClutterTimeline       *timeline,
-                                              gint                   frame_num,
-                                              gpointer               data);
+static gboolean  clutter_box2d_iterate     (ClutterBox2D          *box2d);
 
 ClutterBox2DChild *
 clutter_box2d_get_child (ClutterBox2D *box2d,
@@ -61,6 +59,26 @@ clutter_box2d_get_child (ClutterBox2D *box2d,
     return NULL;
 
   return CLUTTER_BOX2D_CHILD (meta);
+}
+
+static void
+start_simulation (ClutterBox2D *self)
+{
+  if (!self->priv->iterate_id)
+    self->priv->iterate_id =
+      g_timeout_add_full (CLUTTER_PRIORITY_REDRAW, self->priv->time_step,
+                          (GSourceFunc)clutter_box2d_iterate,
+                          self, NULL);
+}
+
+static void
+stop_simulation (ClutterBox2D *self)
+{
+  if (self->priv->iterate_id)
+    {
+      g_source_remove (self->priv->iterate_id);
+      self->priv->iterate_id = 0;
+    }
 }
 
 static void
@@ -105,6 +123,8 @@ clutter_box2d_set_property (GObject      *gobject,
         if (box2d->priv->time_step != time_step)
           {
             box2d->priv->time_step = time_step;
+            stop_simulation (box2d);
+            start_simulation (box2d);
             g_object_notify (gobject, "time-step");
           }
       }
@@ -247,18 +267,12 @@ clutter_box2d_init (ClutterBox2D *self)
   priv->actors = g_hash_table_new (g_direct_hash, g_direct_equal);
   priv->bodies = g_hash_table_new (g_direct_hash, g_direct_equal);
 
-  /* we make the timeline play continously to have a constant source
-   * of new-frame events as long as the timeline is playing.
-   */
-  priv->timeline = clutter_timeline_new (1000);
-  g_object_set (priv->timeline, "loop", TRUE, NULL);
-  g_signal_connect (priv->timeline, "new-frame",
-                    G_CALLBACK (clutter_box2d_iterate), self);
-
   priv->contact_listener = (_ClutterBox2DContactListener *)
     new __ClutterBox2DContactListener (self);
 
   priv->ground_body = priv->world->CreateBody (&bodyDef);
+
+  start_simulation (self);
 }
 
 ClutterActor *
@@ -288,11 +302,8 @@ clutter_box2d_dispose (GObject *object)
 
   G_OBJECT_CLASS (clutter_box2d_parent_class)->dispose (object);
 
-  if (priv->timeline)
-    {
-      g_object_unref (priv->timeline);
-      priv->timeline = NULL;
-    }
+  stop_simulation (self);
+
   if (priv->actors)
     {
       g_hash_table_destroy (priv->actors);
@@ -530,120 +541,91 @@ _clutter_box2d_sync_actor (ClutterBox2D *box2d, ClutterBox2DChild *box2d_child)
 }
 
 static void
-clutter_box2d_real_iterate (ClutterBox2D *box2d, guint msecs)
+clutter_box2d_real_iterate (ClutterBox2D *box2d)
 {
   ClutterBox2DPrivate *priv = box2d->priv;
   gint                 steps = priv->iterations;
   b2World             *world = priv->world;
+  GList               *actors = g_hash_table_get_values (priv->actors);
+  GList *iter;
 
-  /* If there hasn't been enough time to do another simulation step,
-   * don't waste time iterating over all the actors.
+  /* First we check for each actor the need for, and perform a sync
+   * from the actor to the body, if necessary, before running simulation
    */
-  if (priv->time_delta + msecs < priv->time_step)
-    return;
+  for (iter = actors; iter; iter = g_list_next (iter))
+    {
+      gfloat x, y;
+      gdouble rot;
 
-  {
-    GList *actors = g_hash_table_get_values (priv->actors);
-    GList *iter;
+      ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
+      ClutterActor *actor = CLUTTER_CHILD_META (box2d_child)->actor;
 
-    /* First we check for each actor the need for, and perform a sync
-     * from the actor to the body, if necessary, before running simulation
-     */
-    for (iter = actors; iter; iter = g_list_next (iter))
-      {
-        gfloat x, y;
-        gdouble rot;
+      clutter_actor_get_position (actor, &x, &y);
+      rot = clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS,
+                                        NULL, NULL, NULL);
 
-        ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
-        ClutterActor *actor = CLUTTER_CHILD_META (box2d_child)->actor;
+      if ((box2d_child->priv->old_x != x) ||
+          (box2d_child->priv->old_y != y) ||
+          (box2d_child->priv->old_rot != rot))
+        _clutter_box2d_sync_body (box2d, box2d_child);
+    }
 
-        clutter_actor_get_position (actor, &x, &y);
-        rot = clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS,
-                                          NULL, NULL, NULL);
+  /* Iterate Box2D simulation of bodies */
+  world->Step (priv->time_step / 1000.f, steps, steps);
 
-        if ((box2d_child->priv->old_x != x) ||
-            (box2d_child->priv->old_y != y) ||
-            (box2d_child->priv->old_rot != rot))
-          _clutter_box2d_sync_body (box2d, box2d_child);
-      }
-    priv->dirty = FALSE;
+  /* Synchronise actor to have geometrical sync with bodies */
+  for (iter = actors; iter; iter = g_list_next (iter))
+    {
+      ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
+      _clutter_box2d_sync_actor (box2d, box2d_child);
+    }
+  g_list_free (actors);
 
-    /* Iterate Box2D simulation of bodies */
+  /* Reset the 'dirty' flag - all shapes would be recreated by the above
+   * for-loop in the ensure_shape function.
+   */
+  priv->dirty = FALSE;
 
-    /* We do multiple iterations trying to keep up with
-     * priv->time_step (60fps by default). We start
-     * slowing the simulation when more than 4 frames are
-     * skipped (so by default, when the framerate drops below
-     * 15fps).
-     */
-    priv->time_delta = MIN (priv->time_delta + msecs, priv->time_step * 4.f);
-    while (priv->time_delta >= priv->time_step)
-      {
-        world->Step (priv->time_step / 1000.f, steps, steps);
-        priv->time_delta -= priv->time_step;
-      }
+  /* Process list of collisions and emit signals for any actors with
+   * a registered callback. */
+  for (iter = priv->collisions; iter; iter = g_list_next (iter))
+    {
+      ClutterBox2DCollision  *collision;
+      ClutterBox2DChild      *box2d_child1, *box2d_child2;
+      ClutterBox2DChildClass *klass;
 
+      collision = CLUTTER_BOX2D_COLLISION (iter->data);
 
-    /* syncronize actor to have geometrical sync with bodies */
-    for (iter = actors; iter; iter = g_list_next (iter))
-      {
-        ClutterBox2DChild *box2d_child = (ClutterBox2DChild*) iter->data;
-        _clutter_box2d_sync_actor (box2d, box2d_child);
-      }
-    g_list_free (actors);
+      box2d_child1 = clutter_box2d_get_child (box2d, collision->actor1);
 
-    /* Process list of collisions and emit signals for any actors with
-     * a registered callback. */
-    for (iter = priv->collisions; iter; iter = g_list_next (iter))
-      {
-        ClutterBox2DCollision  *collision;
-        ClutterBox2DChild      *box2d_child1, *box2d_child2;
-        ClutterBox2DChildClass *klass;
+      if (box2d_child1)
+        {
+          klass = CLUTTER_BOX2D_CHILD_CLASS (G_OBJECT_GET_CLASS (box2d_child1));
+          g_signal_emit_by_name (box2d_child1, "collision", collision);
+        }
 
-        collision = CLUTTER_BOX2D_COLLISION (iter->data);
+      box2d_child2 = clutter_box2d_get_child (box2d, collision->actor2);
 
-        box2d_child1 = clutter_box2d_get_child (box2d, collision->actor1);
+      if (box2d_child2)
+        {
+          klass = CLUTTER_BOX2D_CHILD_CLASS (G_OBJECT_GET_CLASS (box2d_child2));
+          g_signal_emit_by_name (box2d_child2, "collision", collision);
+        }
 
-        if (box2d_child1)
-          {
-            klass = CLUTTER_BOX2D_CHILD_CLASS (G_OBJECT_GET_CLASS (box2d_child1));
-            g_signal_emit_by_name (box2d_child1, "collision", collision);
-          }
-
-        box2d_child2 = clutter_box2d_get_child (box2d, collision->actor2);
-
-        if (box2d_child2)
-          {
-            klass = CLUTTER_BOX2D_CHILD_CLASS (G_OBJECT_GET_CLASS (box2d_child2));
-            g_signal_emit_by_name (box2d_child2, "collision", collision);
-          }
-
-        g_object_unref (collision);
-      }
-    g_list_free (priv->collisions);
-    priv->collisions = NULL;
-  }
+      g_object_unref (collision);
+    }
+  g_list_free (priv->collisions);
+  priv->collisions = NULL;
 }
 
-static void
-clutter_box2d_iterate (ClutterTimeline *timeline,
-                       gint             frame_num,
-                       gpointer         data)
+static gboolean
+clutter_box2d_iterate (ClutterBox2D *box2d)
 {
-  ClutterBox2D        *box2d = CLUTTER_BOX2D (data);
   ClutterBox2DPrivate *priv = box2d->priv;
-  guint                msecs;
 
-  if (priv->first_iteration)
-    {
-      msecs = 0;
-      priv->time_delta = 0;
-      priv->first_iteration = FALSE;
-    }
-  else
-    msecs = clutter_timeline_get_delta (timeline);
+  CLUTTER_BOX2D_GET_CLASS (box2d)->iterate (box2d);
 
-  CLUTTER_BOX2D_GET_CLASS (box2d)->iterate (box2d, msecs);
+  return TRUE;
 }
 
 void
@@ -695,19 +677,13 @@ clutter_box2d_set_simulating (ClutterBox2D  *box2d,
 
   priv = box2d->priv;
 
-  currently_simulating = clutter_timeline_is_playing (priv->timeline);
-  if (simulating == currently_simulating)
+  if (!!simulating == !!priv->iterate_id)
     return;
 
   if (simulating)
-    {
-      priv->first_iteration = TRUE;
-      clutter_timeline_start (priv->timeline);
-    }
+    start_simulation (box2d);
   else
-    {
-      clutter_timeline_stop (priv->timeline);
-    }
+    stop_simulation (box2d);
 
   g_object_notify (G_OBJECT (box2d), "simulating");
 }
@@ -721,7 +697,7 @@ clutter_box2d_get_simulating (ClutterBox2D *box2d)
 
   priv = box2d->priv;
 
-  return clutter_timeline_is_playing (priv->timeline);
+  return priv->iterate_id ? TRUE : FALSE;
 }
 
 void

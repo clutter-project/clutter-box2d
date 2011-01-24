@@ -21,11 +21,9 @@ struct _ClutterBox2DPrivate
 {
   gint             iterations;  /* number of engine iterations per processing */
   gfloat           time_step;   /* Time step to simulate */
-  gfloat           time_delta;  /* The amount of accumulated time to simulate */
   gfloat           scale_factor; /* The scale factor of pixels to units */
   gfloat           inv_scale_factor; /* The inverse of the above */
-  ClutterTimeline *timeline;    /* The timeline driving the simulation        */
-  gboolean         first_iteration;
+  guint            iterate_id;  /* The iteration callback */
 
   b2World         *world;  /* The Box2D world which contains our simulation*/
   GHashTable      *actors; /* a hash table that maps actors to */
