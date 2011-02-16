@@ -24,6 +24,7 @@ struct _ClutterBox2DPrivate
   gfloat           scale_factor; /* The scale factor of pixels to units */
   gfloat           inv_scale_factor; /* The inverse of the above */
   guint            iterate_id;  /* The iteration callback */
+  gboolean         simulate_inactive; /* Whether to simulate inactive bodies */
 
   b2World         *world;  /* The Box2D world which contains our simulation*/
   GHashTable      *actors; /* a hash table that maps actors to */

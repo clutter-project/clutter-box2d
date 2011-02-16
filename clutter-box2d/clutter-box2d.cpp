@@ -38,7 +38,8 @@ enum
   PROP_SIMULATING,
   PROP_SCALE_FACTOR,
   PROP_TIME_STEP,
-  PROP_ITERATIONS
+  PROP_ITERATIONS,
+  PROP_SIMULATE_INACTIVE
 };
 
 static GObject * clutter_box2d_constructor (GType                  type,
@@ -139,6 +140,11 @@ clutter_box2d_set_property (GObject      *gobject,
           }
       }
       break;
+    case PROP_SIMULATE_INACTIVE:
+      {
+        box2d->priv->simulate_inactive = g_value_get_boolean (value);
+      }
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
@@ -179,12 +185,38 @@ clutter_box2d_get_property (GObject    *gobject,
       g_value_set_int (value, box2d->priv->iterations);
       break;
 
+    case PROP_SIMULATE_INACTIVE:
+      g_value_set_boolean (value, box2d->priv->simulate_inactive);
+      break;
+
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
       break;
     }
 }
 
+static void
+clutter_box2d_constructed (GObject *gobject)
+{
+  b2BodyDef bodyDef;
+  ClutterBox2D *self = CLUTTER_BOX2D (gobject);
+  ClutterBox2DPrivate *priv = self->priv;
+
+  /* Create a new world with default gravity parameters.
+   *
+   * Note, that the simulation of inactive bodies is optional and default
+   * on. It seems that enabling this feature (to not simulate them) works
+   * really badly in certain cases (such as zero-gravity).
+   */
+  priv->world = new b2World (b2Vec2 (0.0f, 9.8f), !priv->simulate_inactive);
+
+  priv->contact_listener = (_ClutterBox2DContactListener *)
+    new __ClutterBox2DContactListener (self);
+
+  priv->ground_body = priv->world->CreateBody (&bodyDef);
+
+  start_simulation (self);
+}
 
 static void
 clutter_box2d_class_init (ClutterBox2DClass *klass)
@@ -196,6 +228,7 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
   gobject_class->constructor  = clutter_box2d_constructor;
   gobject_class->set_property = clutter_box2d_set_property;
   gobject_class->get_property = clutter_box2d_get_property;
+  gobject_class->constructed  = clutter_box2d_constructed;
   actor_class->paint          = clutter_box2d_paint;
   klass->iterate              = clutter_box2d_real_iterate;
 
@@ -241,18 +274,20 @@ clutter_box2d_class_init (ClutterBox2DClass *klass)
                                                        "The amount of iterations in a physics step",
                                                        1, G_MAXINT, 10,
                                                        static_cast<GParamFlags>(G_PARAM_READWRITE)));
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_SIMULATE_INACTIVE,
+                                   g_param_spec_boolean ("simulate-inactive",
+                                                         "Simulate inactive",
+                                                         "Whether to simulate inactive bodies",
+                                                         TRUE,
+                                                         static_cast<GParamFlags>(G_PARAM_READWRITE|G_PARAM_CONSTRUCT_ONLY)));
 }
 
 static void
 clutter_box2d_init (ClutterBox2D *self)
 {
-  b2BodyDef bodyDef;
   ClutterBox2DPrivate *priv = self->priv = CLUTTER_BOX2D_GET_PRIVATE (self);
-
-  /* Create a new world with default gravity parameters and allowing inactive
-   * bodies to not be simulated (improves performance).
-   */
-  priv->world = new b2World (b2Vec2 (0.0f, 9.8f), true);
 
   /* The Box2D manual recommends 10 iterations, but this isn't really
    * high enough to maintain a stable simulation with many stacked
@@ -260,19 +295,13 @@ clutter_box2d_init (ClutterBox2D *self)
    */
   priv->iterations = 10;
   priv->time_step  = 1000 / 60.f;
+  priv->simulate_inactive = TRUE;
 
   priv->scale_factor     = 1/50.f;
   priv->inv_scale_factor = 1.f / priv->scale_factor;
 
   priv->actors = g_hash_table_new (g_direct_hash, g_direct_equal);
   priv->bodies = g_hash_table_new (g_direct_hash, g_direct_equal);
-
-  priv->contact_listener = (_ClutterBox2DContactListener *)
-    new __ClutterBox2DContactListener (self);
-
-  priv->ground_body = priv->world->CreateBody (&bodyDef);
-
-  start_simulation (self);
 }
 
 ClutterActor *
