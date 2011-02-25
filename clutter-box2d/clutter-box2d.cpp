@@ -382,17 +382,12 @@ clutter_box2d_destroy_child_meta (ClutterContainer *box2d,
   ClutterBox2DChild *box2d_child =
      CLUTTER_BOX2D_CHILD (clutter_container_get_child_meta ( box2d, actor));
   ClutterBox2DPrivate *priv = CLUTTER_BOX2D (box2d)->priv;
+  b2Body *body = box2d_child->priv->body;
 
-  g_assert (box2d_child->priv->world);
-
-  if (box2d_child->priv->manipulatable)
-    g_object_set (box2d_child, "manipulatable", FALSE, NULL);
-
-  if (box2d_child->priv->body)
-    box2d_child->priv->world->DestroyBody (box2d_child->priv->body);
+  g_object_unref (box2d_child);
 
   g_hash_table_remove (priv->actors, actor);
-  g_hash_table_remove (priv->bodies, box2d_child->priv->body);
+  g_hash_table_remove (priv->bodies, body);
 }
 
 static ClutterChildMeta *

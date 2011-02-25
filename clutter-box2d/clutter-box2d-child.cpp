@@ -591,22 +591,31 @@ clutter_box2d_child_dispose (GObject *object)
   ClutterBox2DChild *self = CLUTTER_BOX2D_CHILD (object);
   ClutterBox2DChildPrivate *priv = self->priv;
 
+  g_assert (priv->world);
+
   if (child_meta->actor)
     g_signal_handlers_disconnect_by_func (child_meta->actor,
                                           (gpointer)clutter_box2d_child_refresh_shape,
                                           object);
 
-  if (priv->captured_handler)
+  /* This will disconnect any capture/press signal handlers */
+  if (priv->manipulatable)
+    clutter_box2d_child_set_manipulatable_internal (self, child_meta->actor,
+                                                    FALSE);
+
+  if (priv->mouse_joint)
     {
-      ClutterActor *stage = clutter_actor_get_stage (CLUTTER_ACTOR (self));
-      if (stage)
-        g_signal_handler_disconnect (stage, priv->captured_handler);
-      priv->captured_handler = 0;
+      clutter_box2d_joint_destroy (priv->mouse_joint);
+      priv->mouse_joint = NULL;
     }
 
   while (priv->joints)
+    clutter_box2d_joint_destroy ((ClutterBox2DJoint*)priv->joints->data);
+
+  if (priv->body)
     {
-      clutter_box2d_joint_destroy ((ClutterBox2DJoint*)priv->joints->data);
+      priv->world->DestroyBody (priv->body);
+      priv->body = NULL;
     }
 
   G_OBJECT_CLASS (clutter_box2d_child_parent_class)->dispose (object);
