@@ -1,0 +1,48 @@
+<Project xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/"
+         xmlns:gnome="http://api.gnome.org/doap-extensions#"
+         xmlns="http://usefulinc.com/ns/doap#">
+
+	<name>Clutter-Box2D</name>
+	<created>2008-04-03</created>
+
+	<shortdesc xml:lang="en">Clutter integration with Box2D</shortdesc>
+
+	<description xml:lang="en">Clutter-Box2D is a library which allows the
+        usage of Box2D physics inside a Clutter scenegraph.</description>
+
+	<homepage rdf:resource="http://clutter-project.org" />
+        <download-page rdf:resource="http://clutter-project.org/sources" />
+	<license rdf:resource="http://usefulinc.com/doap/licenses/lgpl" />
+        <bug-database rdf:resource="http://bugzilla.o-hand.com/enter_bug.cgi?product=Clutter"/>
+        <programming-language>C</programming-language>
+        <programming-language>C++</programming-language>
+
+        <category rdf:resource="http://api.gnome.org/doap-extensions#development"/>
+        <category rdf:resource="http://api.gnome.org/doap-extensions#infrastructure"/>
+
+	<maintainer>
+		<foaf:Person>
+			<foaf:name>Chris Lord</foaf:name>
+                        <foaf:mbox rdf:resource="mailto:chris@linux.intel.com"/>
+                        <gnome:userid>chrisl</gnome:userid>
+		</foaf:Person>
+	</maintainer>
+
+	<author>
+		<foaf:Person>
+			<foaf:name>Øyvind Kolås</foaf:name>
+                        <foaf:mbox rdf:resource="mailto:pippin@gimp.org"/>
+                        <gnome:userid>ok</gnome:userid>
+		</foaf:Person>
+	</author>
+
+        <repository>
+		<GitRepository>
+			<browse rdf:resource="http://git.gnome.org/browse/clutter-box2d/"/>
+			<location rdf:resource="git://git.gnome.org/clutter-box2d"/>
+		</GitRepository>
+        </repository>
+
+</Project>
