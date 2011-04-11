@@ -56,16 +56,16 @@ introspection_files = \
 	$(top_srcdir)/clutter-box2d/clutter-box2d-joint.h \
 	$(top_srcdir)/clutter-box2d/clutter-box2d-util.h
 
-ClutterBox2D-0.10.gir: $(INTROSPECTION_SCANNER) Makefile libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
+ClutterBox2D-0.12.gir: $(INTROSPECTION_SCANNER) Makefile libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
 
-ClutterBox2D_0_10_gir_SCANNERFLAGS = --strip-prefix=ClutterBox2D --add-include-path=$(top_builddir)
-ClutterBox2D_0_10_gir_INCLUDES     = Clutter-1.0
-ClutterBox2D_0_10_gir_PACKAGES     = clutter-1.0
-ClutterBox2D_0_10_gir_CFLAGS       = $(INCLUDES) $(AM_CPPFLAGS)
-ClutterBox2D_0_10_gir_LIBS         = libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
-ClutterBox2D_0_10_gir_FILES        = $(introspection_files)
+ClutterBox2D_0_12_gir_SCANNERFLAGS = --strip-prefix=ClutterBox2D --add-include-path=$(top_builddir)
+ClutterBox2D_0_12_gir_INCLUDES     = Clutter-1.0
+ClutterBox2D_0_12_gir_PACKAGES     = clutter-1.0
+ClutterBox2D_0_12_gir_CFLAGS       = $(INCLUDES) $(AM_CPPFLAGS)
+ClutterBox2D_0_12_gir_LIBS         = libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
+ClutterBox2D_0_12_gir_FILES        = $(introspection_files)
 
-INTROSPECTION_GIRS += ClutterBox2D-0.10.gir
+INTROSPECTION_GIRS += ClutterBox2D-0.12.gir
 
 girdir = $(datadir)/gir-1.0
 gir_DATA = $(INTROSPECTION_GIRS)
