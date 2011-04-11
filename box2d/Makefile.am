@@ -1,12 +1,12 @@
 noinst_LTLIBRARIES = libbox2d.la
 
-INCLUDES = -ISource -I. -IInclude
+INCLUDES = -ISource -I. -IBox2D
 
 EXTRA_DIST = Readme.txt License.txt
 
 #for a in `find Source -name '*.cpp' -or -name '*.h'`; do echo $a \\ >> Makefile.am ;done
 libbox2d_la_SOURCES = \
-	Include/Box2D.h \
+	Box2D/Box2D.h \
 	Box2D/Dynamics/Joints/b2DistanceJoint.cpp \
 	Box2D/Dynamics/Joints/b2DistanceJoint.h \
 	Box2D/Dynamics/Joints/b2FrictionJoint.cpp \
