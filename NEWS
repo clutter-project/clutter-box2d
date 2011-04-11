@@ -1,5 +1,34 @@
 Release log for Clutter-Box2D.
 
+clutter-box2d-0.12.0:
+=====================
+
+Changes:
+
+  - Update internal Box2D to version 2.1.2
+  - Update event handling to work with more recent Clutter
+  - Add support for circles
+  - Change default physics parameters
+  - Fix crash when destroying actors during collision callbacks
+  - Add many more properties mirroring Box2D properties
+  - Add accessor functions for all child properties
+  - Handle timing differently to ensure consistent behaviour
+  - Add support for arbitrary polygons
+  - Overhaul the build system
+  - Add support for pulley joints
+  - Add support for distance joints
+  - Add support for engines
+  - Add support for weld joints
+  - Handle property synchronisation differently
+  - Add a car example to the included example application
+  - Fix crash when unparenting an actor without destroying it
+
+Contributors:
+
+Chris Lord <chrislord.net@gmail.com>
+Damien Lespiau <damien.lespiau@intel.com>
+
+
 clutter-box2d-0.10.0:
 =====================
 
