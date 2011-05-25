@@ -8,7 +8,6 @@ scene_distance_joint (Scene *scene)
   ClutterActor     *ground;
   ClutterActor     *group;
   ClutterActor     *prev_hand  = NULL;
-  ClutterActor     *first_hand = NULL;
   ClutterActor     *stage;
   gint              i;
 
@@ -54,10 +53,7 @@ scene_distance_joint (Scene *scene)
                                               &anchor1, &anchor2,
                                               200.0, 5, 0.0);
           }
-        else
-          {
-            first_hand = hand;
-          }
+
         prev_hand = hand;
       }
   }

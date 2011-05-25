@@ -177,9 +177,7 @@ slider_motion (ClutterActor *slider,
                                                 (ey),
                                                &xu2, &yu2))
         {
-          gint x, y;
-          x =  (xu2);
-          y =  (yu2);
+          gint x = xu2;
 
           gfloat width = clutter_actor_get_width (slider);
           gfloat value = (x / width) * (data->max - data->min) + data->min;
@@ -288,8 +286,7 @@ popup_add_slider (const gchar *name,
   clutter_actor_animate (group, CLUTTER_LINEAR, 500, "opacity", 0xff, NULL);
 
   {
-    gint w, h;
-    w = clutter_actor_get_width (label);
+    gint h;
     h = clutter_actor_get_height (label);
     clutter_actor_set_size (rectangle, width, h + 10);
     clutter_actor_set_position (rectangle, 0, 0);

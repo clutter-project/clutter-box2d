@@ -123,7 +123,12 @@ main (int   argc,
   ClutterActor *stage;
   ClutterColor  stage_color = { 0x00, 0x00, 0x00, 0x00 };
 
+#if CLUTTER_CHECK_VERSION (1, 7, 1)
+  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
+    return EXIT_FAILURE;
+#else
   clutter_init (&argc, &argv);
+#endif
 
   stage = clutter_stage_get_default ();
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);

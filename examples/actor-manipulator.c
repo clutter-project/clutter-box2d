@@ -8,14 +8,14 @@
 
 typedef enum
 {
-  None,
-  Direct
+  NONE,
+  DIRECT
 #ifdef BOX2D_MANIPULATION
-  , Box2D
+  , BOX2D
 #endif
 } ManipulationMode;
 
-static ManipulationMode  mode              = None;
+static ManipulationMode  mode              = NONE;
 static ClutterActor     *manipulated_actor = NULL;
 static gfloat       orig_x, orig_y;
 static gfloat       start_x, start_y;
@@ -375,7 +375,7 @@ actor_manipulator_press (ClutterActor *stage,
     &start_x, &start_y);
 
 
-  mode = Direct;
+  mode = DIRECT;
 
 
 #ifdef BOX2D_MANIPULATION
@@ -400,7 +400,7 @@ actor_manipulator_press (ClutterActor *stage,
                                                          manipulated_actor,
                                                          &target);
 #endif
-            mode = None; /*Box2D;*/
+            mode = NONE; /*Box2D;*/
             manipulated_actor = NULL;
             return FALSE;
         }
@@ -437,7 +437,7 @@ actor_manipulator_motion (ClutterActor *stage,
       switch (mode)
         {
 #ifdef BOX2D_MANIPULATION
-          case Box2D:
+          case BOX2D:
           {
             ClutterVertex target = { x, y };
             clutter_box2d_mouse_joint_update_target (mouse_joint, &target);
@@ -445,7 +445,7 @@ actor_manipulator_motion (ClutterActor *stage,
           }
 #endif
 
-          case Direct:
+          case DIRECT:
             if (clutter_event_get_state (event) & CLUTTER_BUTTON1_MASK)
               {
                 x = orig_x + dx;
@@ -460,7 +460,7 @@ actor_manipulator_motion (ClutterActor *stage,
               }
             break;
 
-          case None:
+          case NONE:
             g_print ("we shouldn't be doing %s in None mode\n", G_STRLOC);
             return FALSE;
         }
@@ -481,7 +481,7 @@ actor_manipulator_release (ClutterActor *stage,
       switch (mode)
         {
 #ifdef BOX2D_MANIPULATION
-          case Box2D:
+          case BOX2D:
           {
             if (mouse_joint)
               clutter_box2d_joint_destroy (mouse_joint);
@@ -490,13 +490,13 @@ actor_manipulator_release (ClutterActor *stage,
           }
 #endif
 
-          case Direct:
-          case None:
-            mode  = None;
+          case DIRECT:
+          case NONE:
+            mode  = NONE;
             return FALSE;
             break;
         }
-      mode              = None;
+      mode              = NONE;
     }
   return TRUE;
 }
