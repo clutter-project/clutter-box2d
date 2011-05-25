@@ -58,7 +58,11 @@ introspection_files = \
 
 ClutterBox2D-0.12.gir: $(INTROSPECTION_SCANNER) Makefile libclutter-box2d-@CLUTTER_BOX2D_API_VERSION@.la
 
-ClutterBox2D_0_12_gir_SCANNERFLAGS = --strip-prefix=ClutterBox2D --add-include-path=$(top_builddir)
+ClutterBox2D_0_12_gir_SCANNERFLAGS = \
+	--identifier-prefix=Clutter \
+        --symbol-prefix=clutter \
+        --c-include='clutter-box2d/clutter-box2d.h' \
+        --pkg-export=clutter-box2d-0.12
 ClutterBox2D_0_12_gir_INCLUDES     = Clutter-1.0
 ClutterBox2D_0_12_gir_PACKAGES     = clutter-1.0
 ClutterBox2D_0_12_gir_CFLAGS       = $(INCLUDES) $(AM_CPPFLAGS)
